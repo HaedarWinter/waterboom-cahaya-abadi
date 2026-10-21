@@ -6,21 +6,7 @@
 require_once '../app/init.php';
 enforce_active_session($koneksi);
 
-// ─── AUTO-CREATE TABLE (Self-healing schema) ───
-$koneksi->query("CREATE TABLE IF NOT EXISTS laporan_keuangan (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    admin_id INT NOT NULL,
-    tipe ENUM('Masuk', 'Keluar') NOT NULL DEFAULT 'Keluar',
-    kategori VARCHAR(50) NOT NULL DEFAULT 'Operasional',
-    nominal DECIMAL(15, 2) NOT NULL DEFAULT 0,
-    keterangan TEXT,
-    lampiran VARCHAR(255),
-    tanggal DATE NOT NULL,
-    status ENUM('Final', 'Draft') DEFAULT 'Final',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_tanggal (tanggal),
-    INDEX idx_tipe (tipe)
-)");
+// Skema laporan_keuangan dikelola oleh sql/migration_v3_foundation.sql.
 
 // Cek hak akses: finance.view
 if (!has_permission('finance', 'view')) {
@@ -55,8 +41,8 @@ if ($kategori) {
 // ─── HITUNG RINGKASAN (PRO FOCUSED) ───
 $pajak_rate = (float)get_setting('pajak_persen', 10) / 100;
 
-// 1. Pendapatan Reservasi (Sesuai Prinsip Realisasi & Akrual: Dikonfirmasi & Selesai)
-$stmt_rev = $koneksi->prepare("SELECT SUM(total_harga) as s FROM reservasi WHERE (status = 'Selesai' OR status = 'Dikonfirmasi') AND MONTH(created_at) = ? AND YEAR(created_at) = ?");
+// 1. Pendapatan Reservasi (Sesuai Prinsip Realisasi & Akrual: Lunas & Selesai)
+$stmt_rev = $koneksi->prepare("SELECT SUM(total_harga) as s FROM reservasi WHERE (status = 'SELESAI' OR status = 'LUNAS') AND MONTH(created_at) = ? AND YEAR(created_at) = ?");
 $stmt_rev->bind_param("ii", $bulan, $tahun);
 $stmt_rev->execute();
 $rev_system = $stmt_rev->get_result()->fetch_assoc()['s'] ?? 0;
@@ -87,7 +73,7 @@ for ($i = 29; $i >= 0; $i--) {
     
     // Income per day (System + Manual)
     $stmt_i = $koneksi->prepare("SELECT 
-        (SELECT COALESCE(SUM(total_harga),0) FROM reservasi WHERE DATE(created_at) = ? AND status = 'Selesai') +
+        (SELECT COALESCE(SUM(total_harga),0) FROM reservasi WHERE DATE(created_at) = ? AND status = 'SELESAI') +
         (SELECT COALESCE(SUM(nominal),0) FROM laporan_keuangan WHERE tipe = 'Masuk' AND tanggal = ?) as i");
     $stmt_i->bind_param("ss", $d, $d);
     $stmt_i->execute();
@@ -101,8 +87,8 @@ for ($i = 29; $i >= 0; $i--) {
 }
 
 // ─── ANTREAN VERIFIKASI (VERIFICATION QUEUE) ───
-$verify_queue = $koneksi->query("SELECT * FROM reservasi WHERE status = 'Pending' AND metode_bayar = 'Transfer Bank' AND bukti_bayar IS NOT NULL ORDER BY created_at ASC LIMIT 5")->fetch_all(MYSQLI_ASSOC);
-$verify_count = $koneksi->query("SELECT COUNT(*) as n FROM reservasi WHERE status = 'Pending' AND metode_bayar = 'Transfer Bank' AND bukti_bayar IS NOT NULL")->fetch_assoc()['n'];
+$verify_queue = $koneksi->query("SELECT * FROM reservasi WHERE status = 'MENUNGGU_VERIFIKASI' AND metode_bayar = 'Transfer Bank' AND bukti_bayar IS NOT NULL ORDER BY created_at ASC LIMIT 5")->fetch_all(MYSQLI_ASSOC);
+$verify_count = $koneksi->query("SELECT COUNT(*) as n FROM reservasi WHERE status = 'MENUNGGU_VERIFIKASI' AND metode_bayar = 'Transfer Bank' AND bukti_bayar IS NOT NULL")->fetch_assoc()['n'];
 
 // ─── AMBIL DATA TABEL (SQL UNION UNTUK OTOMATISASI) ───
 $per_page = 15;
@@ -116,7 +102,7 @@ $union_base = "
     UNION ALL
     (SELECT id, 0 as admin_id, 'Masuk' as tipe, 'Reservasi' as kategori, total_harga as nominal, 
      CONCAT('Booking ', kode_booking, ' (', nama, ')') as keterangan, NULL as lampiran, DATE(created_at) as tanggal, status, created_at, 'system' as source
-     FROM reservasi WHERE status IN ('Dikonfirmasi', 'Selesai'))
+     FROM reservasi WHERE status IN ('LUNAS', 'SELESAI'))
 ";
 
 $count_sql = "SELECT COUNT(*) as total FROM ($union_base) AS t WHERE $where";
@@ -225,7 +211,7 @@ $kategori_list = ['Reservasi', 'Operasional', 'Gaji Karyawan', 'Pemeliharaan', '
                 <div class="verification-mini-list">
                     <?php if (count($verify_queue) > 0): ?>
                         <?php foreach($verify_queue as $v): ?>
-                        <a href="reservasi.php?status=Pending&q=<?= $v['kode_booking'] ?>" class="v-mini-item" style="display:flex; justify-content:space-between; text-decoration:none; padding:8px; border-radius:8px; background:var(--surface); border:1px solid var(--border-subtle); margin-bottom:6px; font-size:0.75rem;">
+                        <a href="reservasi.php?status=MENUNGGU_VERIFIKASI&q=<?= $v['kode_booking'] ?>" class="v-mini-item" style="display:flex; justify-content:space-between; text-decoration:none; padding:8px; border-radius:8px; background:var(--surface); border:1px solid var(--border-subtle); margin-bottom:6px; font-size:0.75rem;">
                             <strong style="color:var(--fg)"><?= $v['kode_booking'] ?></strong>
                             <span style="color:var(--fg-muted)">Rp <?= format_harga($v['total_harga']) ?></span>
                             <i data-lucide="chevron-right" style="width:14px; height:14px; color:#ef4444"></i>
@@ -308,7 +294,7 @@ $kategori_list = ['Reservasi', 'Operasional', 'Gaji Karyawan', 'Pemeliharaan', '
                         <?php if ($result->num_rows > 0): ?>
                         <?php while ($r = $result->fetch_assoc()): ?>
                         <tr>
-                            <td style="font-size:0.75rem; color:#888"><?= date('d M Y', strtotime($r['tanggal'])) ?></td>
+                            <td style="font-size:0.75rem; color:var(--fg-muted)"><?= date('d M Y', strtotime($r['tanggal'])) ?></td>
                             <td><span class="badge <?= $r['tipe'] === 'Masuk' ? 'badge-masuk' : 'badge-keluar' ?>"><?= $r['kategori'] ?></span></td>
                             <td style="font-size:0.85rem"><?= htmlspecialchars($r['keterangan']) ?></td>
                             <td style="font-weight:700; color: <?= $r['tipe'] === 'Masuk' ? '#0e7c6b' : '#ef4444' ?>">
@@ -321,7 +307,7 @@ $kategori_list = ['Reservasi', 'Operasional', 'Gaji Karyawan', 'Pemeliharaan', '
                                     <span style="color:#ccc; font-size:10px;">-</span>
                                 <?php endif; ?>
                             </td>
-                            <td style="font-size:0.75rem; color:#8a8578">
+                            <td style="font-size:0.75rem; color:var(--fg-muted)">
                                 <?php if ($r['source'] === 'system'): ?>
                                     <span style="color:var(--accent); font-weight:700;">SYSTEM</span>
                                 <?php else: ?>

@@ -15,11 +15,11 @@ class Dashboard {
         $stats['visitors_today'] = $koneksi->query("SELECT COUNT(*) AS n FROM buku_tamu WHERE DATE(tanggal) = CURDATE()")->fetch_assoc()['n'];
         
         // 2. Data Reservasi
-        $stats['rsv_pending'] = $koneksi->query("SELECT COUNT(*) AS n FROM reservasi WHERE status = 'Pending'")->fetch_assoc()['n'];
+        $stats['rsv_pending'] = $koneksi->query("SELECT COUNT(*) AS n FROM reservasi WHERE status = 'MENUNGGU_VERIFIKASI'")->fetch_assoc()['n'];
         
         // 3. Pendapatan (Bulan Ini & Tahun Berjalan)
-        $stats['rev_month'] = $koneksi->query("SELECT SUM(total_harga) AS s FROM reservasi WHERE status IN ('Dikonfirmasi', 'Selesai') AND MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())")->fetch_assoc()['s'] ?? 0;
-        $stats['rev_ytd'] = $koneksi->query("SELECT SUM(total_harga) AS s FROM reservasi WHERE status IN ('Dikonfirmasi', 'Selesai') AND YEAR(created_at) = YEAR(CURDATE())")->fetch_assoc()['s'] ?? 0;
+        $stats['rev_month'] = $koneksi->query("SELECT SUM(total_harga) AS s FROM reservasi WHERE status IN ('LUNAS', 'SELESAI') AND MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())")->fetch_assoc()['s'] ?? 0;
+        $stats['rev_ytd'] = $koneksi->query("SELECT SUM(total_harga) AS s FROM reservasi WHERE status IN ('LUNAS', 'SELESAI') AND YEAR(created_at) = YEAR(CURDATE())")->fetch_assoc()['s'] ?? 0;
         
         // 4. Rating Rata-rata
         $stats['avg_rating'] = $koneksi->query("SELECT AVG(rating) as a FROM reviews WHERE status = 'Approved'")->fetch_assoc()['a'] ?? 0;
@@ -30,7 +30,7 @@ class Dashboard {
         while($r = $res_v->fetch_assoc()) $visitors_data[$r['tgl']] = (int)$r['n'];
         
         $revenue_data = [];
-        $res_r = $koneksi->query("SELECT DATE(created_at) as tgl, SUM(total_harga) as s FROM reservasi WHERE status IN ('Dikonfirmasi', 'Selesai') AND created_at >= DATE_SUB(CURDATE(), INTERVAL 14 DAY) GROUP BY DATE(created_at)");
+        $res_r = $koneksi->query("SELECT DATE(created_at) as tgl, SUM(total_harga) as s FROM reservasi WHERE status IN ('LUNAS', 'SELESAI') AND created_at >= DATE_SUB(CURDATE(), INTERVAL 14 DAY) GROUP BY DATE(created_at)");
         while($r = $res_r->fetch_assoc()) $revenue_data[$r['tgl']] = (int)$r['s'];
         
         $chart_labels = [];
@@ -70,7 +70,7 @@ class Dashboard {
         
         // 7. Pendapatan Bulanan (Untuk Chart.js Per-Bulan)
         $monthly_revenue = array_fill(1, 12, 0);
-        $res_m = $koneksi->query("SELECT MONTH(created_at) as bln, SUM(total_harga) as s FROM reservasi WHERE status IN ('Dikonfirmasi', 'Selesai') AND YEAR(created_at) = YEAR(CURDATE()) GROUP BY MONTH(created_at)");
+        $res_m = $koneksi->query("SELECT MONTH(created_at) as bln, SUM(total_harga) as s FROM reservasi WHERE status IN ('LUNAS', 'SELESAI') AND YEAR(created_at) = YEAR(CURDATE()) GROUP BY MONTH(created_at)");
         while($r = $res_m->fetch_assoc()) {
             $monthly_revenue[(int)$r['bln']] = (int)$r['s'];
         }

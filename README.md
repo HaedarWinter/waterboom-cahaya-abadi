@@ -140,8 +140,14 @@ cd ujikom
 
 # 3. Import database
 mysql -u root < sql/db.sql
-# + migrasi keamanan bila tabel belum ada:
-# mysql -u root < sql/migration_v2.sql
+# + WAJIB: tabel rate limit login
+mysql -u root < db/migration_v3_security.sql
+# + WAJIB: fondasi keuangan (idempotent)
+mysql -u root < sql/migration_v3_foundation.sql
+# + WAJIB: state machine booking (idempotent)
+mysql -u root < sql/migration_v3_state_machine.sql
+# Catatan: sql/db.sql sudah memuat perubahan migration_v2.
+# Jalankan sql/migration_v2.sql hanya saat upgrade dari skema lama.
 
 # 4. Akses
 #   Public: http://localhost/ujikom/
@@ -162,10 +168,10 @@ ujikom/
 ├── login.php           # login admin
 ├── admin/              # dashboard, CRUD, scanner, kelola admin, logs
 │   └── handlers/       # POST handler (CSRF + permission guard)
-├── app/                # autoloader, Database singleton, Models, TicketService
+├── app/                # autoloader, Database singleton, Models, Services (booking state, tiket)
 ├── config/             # koneksi (delegasi Database) + security helpers
-├── sql/                # db.sql (skema + seed) & migration_v2.sql
-├── tests/              # verify_hardening.php (CLI assertion)
+├── sql/                # db.sql, migration_v2.sql, migration_v3_* (foundation + state machine) + rollback
+├── tests/              # verify_hardening.php, verify_state_machine.php (CLI assertion)
 └── docs/audit/         # laporan audit & hasil verifikasi
 ```
 
@@ -178,7 +184,7 @@ Prototype fully running on local XAMPP; audit result: 0 open Critical/High findi
 
 - [ ] Guard `enforce_active_session` di scanner handler & API notifications
 - [ ] CSRF di logout & export
-- [ ] Keputusan produk: pengambilan ulang slot kuota setelah pembayaran ditolak
+- [x] Slot kuota tetap terkunci saat pembayaran ditolak; re-upload diizinkan sampai batas bayar
 - [ ] Opsional: QRIS dinamis / payment gateway
 - [ ] Tes paralel HTTP (50 concurrent) dengan tooling antrean
 

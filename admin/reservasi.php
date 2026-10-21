@@ -3,6 +3,7 @@
  * Halaman Admin: Kelola Reservasi
  */
 require_once '../app/init.php';
+use App\Services\BookingStateService;
 check_session_timeout();
 enforce_active_session($koneksi);
 
@@ -20,7 +21,7 @@ $where = "1=1";
 $params = [];
 $types = "";
 
-if ($filter_status && in_array($filter_status, ['Pending','Dikonfirmasi','Selesai','Dibatalkan','Ditolak'])) {
+if ($filter_status && isset(BookingStateService::labels()[$filter_status])) {
     $where .= " AND status = ?";
     $params[] = $filter_status;
     $types .= "s";
@@ -54,18 +55,10 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 // Stats
-$stats_pending = $koneksi->query("SELECT COUNT(*) as c FROM reservasi WHERE status = 'Pending'")->fetch_assoc()['c'];
-$stats_konfirm = $koneksi->query("SELECT COUNT(*) as c FROM reservasi WHERE status = 'Dikonfirmasi'")->fetch_assoc()['c'];
+$stats_pending = $koneksi->query("SELECT COUNT(*) as c FROM reservasi WHERE status = 'MENUNGGU_BAYAR'")->fetch_assoc()['c'];
+$stats_konfirm = $koneksi->query("SELECT COUNT(*) as c FROM reservasi WHERE status = 'LUNAS'")->fetch_assoc()['c'];
 $stats_total = $koneksi->query("SELECT COUNT(*) as c FROM reservasi")->fetch_assoc()['c'];
-$stats_revenue = $koneksi->query("SELECT SUM(total_harga) as s FROM reservasi WHERE status IN ('Dikonfirmasi', 'Selesai')")->fetch_assoc()['s'] ?? 0;
-
-$status_colors = [
-    'Pending'      => ['bg'=>'#fffbeb','color'=>'#92400e','border'=>'#fef3c7'],
-    'Dikonfirmasi' => ['bg'=>'#ecfdf5','color'=>'#065f46','border'=>'#d1fae5'],
-    'Selesai'      => ['bg'=>'#e8f0fa','color'=>'#075985','border'=>'#e0f2fe'],
-    'Dibatalkan'   => ['bg'=>'#fef2f2','color'=>'#991b1b','border'=>'#fee2e2'],
-    'Ditolak'      => ['bg'=>'#fff1f2','color'=>'#e11d48','border'=>'#ffe4e6'],
-];
+$stats_revenue = $koneksi->query("SELECT SUM(total_harga) as s FROM reservasi WHERE status IN ('LUNAS', 'SELESAI')")->fetch_assoc()['s'] ?? 0;
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -105,14 +98,14 @@ $status_colors = [
                 <div class="stat-icon amber"><i data-lucide="clock"></i></div>
                 <div>
                     <div class="stat-value"><?= $stats_pending ?></div>
-                    <div class="stat-label">Pending</div>
+                    <div class="stat-label">Menunggu Bayar</div>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon green"><i data-lucide="check-circle"></i></div>
                 <div>
                     <div class="stat-value"><?= $stats_konfirm ?></div>
-                    <div class="stat-label">Konfirmasi</div>
+                    <div class="stat-label">Lunas</div>
                 </div>
             </div>
             <div class="stat-card">
@@ -126,7 +119,7 @@ $status_colors = [
 
         <!-- TABLE SECTION -->
         <div class="section-card">
-            <div class="section-header" style="background:#fff;">
+            <div class="section-header">
                 <div>
                     <h2 class="section-title" style="font-size:1.1rem;color:var(--accent);">Daftar Reservasi</h2>
                     <p class="section-sub">Kelola dan pantau data kunjungan harian.</p>
@@ -135,11 +128,12 @@ $status_colors = [
                     <!-- Filter Status -->
                     <div class="filter-group">
                         <a href="reservasi.php" class="filter-pill <?= !$filter_status ? 'active' : '' ?>">Semua</a>
-                        <a href="reservasi.php?status=Pending" class="filter-pill <?= $filter_status === 'Pending' ? 'active' : '' ?>">Pending</a>
-                        <a href="reservasi.php?status=Dikonfirmasi" class="filter-pill <?= $filter_status === 'Dikonfirmasi' ? 'active' : '' ?>">Konfirmasi</a>
-                        <a href="reservasi.php?status=Selesai" class="filter-pill <?= $filter_status === 'Selesai' ? 'active' : '' ?>">Selesai</a>
-                        <a href="reservasi.php?status=Dibatalkan" class="filter-pill <?= $filter_status === 'Dibatalkan' ? 'active' : '' ?>">Batal</a>
-                        <a href="reservasi.php?status=Ditolak" class="filter-pill <?= $filter_status === 'Ditolak' ? 'active' : '' ?>">Ditolak</a>
+                        <a href="reservasi.php?status=MENUNGGU_BAYAR" class="filter-pill <?= $filter_status === 'MENUNGGU_BAYAR' ? 'active' : '' ?>">Menunggu Bayar</a>
+                        <a href="reservasi.php?status=MENUNGGU_VERIFIKASI" class="filter-pill <?= $filter_status === 'MENUNGGU_VERIFIKASI' ? 'active' : '' ?>">Menunggu Verifikasi</a>
+                        <a href="reservasi.php?status=LUNAS" class="filter-pill <?= $filter_status === 'LUNAS' ? 'active' : '' ?>">Lunas</a>
+                        <a href="reservasi.php?status=SELESAI" class="filter-pill <?= $filter_status === 'SELESAI' ? 'active' : '' ?>">Selesai</a>
+                        <a href="reservasi.php?status=DIBATALKAN" class="filter-pill <?= $filter_status === 'DIBATALKAN' ? 'active' : '' ?>">Batal</a>
+                        <a href="reservasi.php?status=DITOLAK" class="filter-pill <?= $filter_status === 'DITOLAK' ? 'active' : '' ?>">Ditolak</a>
                     </div>
                     <!-- Search -->
                     <form method="get" class="search-form">
@@ -168,9 +162,7 @@ $status_colors = [
                     </thead>
                     <tbody>
                         <?php if ($result->num_rows > 0): ?>
-                        <?php while ($r = $result->fetch_assoc()):
-                            $sc = $status_colors[$r['status']] ?? $status_colors['Pending'];
-                        ?>
+                        <?php while ($r = $result->fetch_assoc()): ?>
                         <tr>
                             <td><strong style="color:var(--accent);letter-spacing:.5px;"><?= htmlspecialchars($r['kode_booking']) ?></strong></td>
                             <td class="td-name"><?= htmlspecialchars($r['nama']) ?></td>
@@ -184,7 +176,7 @@ $status_colors = [
                                     <?php if ($r['bukti_bayar']): ?>
                                         <img src="../assets/bukti_bayar/<?= htmlspecialchars($r['bukti_bayar']) ?>" alt="Bukti" class="payment-thumb" onclick="Swal.fire({imageUrl:'../assets/bukti_bayar/<?= htmlspecialchars($r['bukti_bayar']) ?>',imageAlt:'Bukti Bayar',showConfirmButton:false,showCloseButton:true,width:500})">
                                     <?php else: ?>
-                                        <span style="font-size:.62rem;color:#92400e;background:#fffbeb;padding:2px 6px;border-radius:4px;border:1px solid #fef3c7;white-space:nowrap;">Belum Upload</span>
+                                        <span style="font-size:.62rem;color:#b45309;background:rgba(245,158,11,.12);padding:2px 6px;border-radius:4px;border:1px solid rgba(245,158,11,.25);white-space:nowrap;">Belum Upload</span>
                                     <?php endif; ?>
                                 <?php else: ?>
                                     <span style="font-size:.62rem;color:var(--muted);white-space:nowrap;">Di Lokasi</span>
@@ -192,13 +184,7 @@ $status_colors = [
                                 </div>
                             </td>
                             <td>
-                                <?php
-                                $badge_class = 'badge-pending';
-                                if ($r['status'] === 'Dikonfirmasi') $badge_class = 'badge-success';
-                                elseif ($r['status'] === 'Selesai') $badge_class = 'badge-info';
-                                elseif ($r['status'] === 'Dibatalkan' || $r['status'] === 'Ditolak') $badge_class = 'badge-danger';
-                                ?>
-                                <span class="badge <?= $badge_class ?>"><?= $r['status'] ?></span>
+                                <span class="badge <?= BookingStateService::badgeClass($r['status']) ?>"><?= e(BookingStateService::label($r['status'])) ?></span>
                             </td>
                             <td class="td-actions">
                                 <div class="actions-wrapper">
@@ -213,6 +199,7 @@ $status_colors = [
                                         data-anak="<?= $r['jumlah_anak'] ?>"
                                         data-total="Rp <?= format_harga($r['total_harga']) ?>"
                                         data-status="<?= $r['status'] ?>"
+                                        data-status-label="<?= e(BookingStateService::label($r['status'])) ?>"
                                         data-metode="<?= htmlspecialchars($r['metode_bayar'] ?? 'Bayar di Lokasi') ?>"
                                         data-catatan="<?= htmlspecialchars($r['catatan'] ?? '-') ?>"
                                         data-bukti="<?= $r['bukti_bayar'] ? '../assets/bukti_bayar/'.$r['bukti_bayar'] : '' ?>"
@@ -221,7 +208,7 @@ $status_colors = [
                                         <i data-lucide="eye" style="width:14px;height:14px;"></i>
                                     </button>
                                     
-                                    <?php if ($r['status'] === 'Pending' && $r['metode_bayar'] === 'Transfer Bank' && $r['bukti_bayar']): ?>
+                                    <?php if ($r['status'] === BookingStateService::MENUNGGU_VERIFIKASI && $r['metode_bayar'] === 'Transfer Bank' && $r['bukti_bayar']): ?>
                                     <button class="action-btn btn-icon-square check btn-verifikasi" data-id="<?= $r['id'] ?>" data-kode="<?= $r['kode_booking'] ?>" title="Verifikasi Pembayaran">
                                         <i data-lucide="check-circle" style="width:14px;height:14px;"></i>
                                     </button>
@@ -230,9 +217,11 @@ $status_colors = [
                                     </button>
                                     <?php endif; ?>
 
-                                    <button class="action-btn del btn-hapus-rsv" data-id="<?= $r['id'] ?>" data-kode="<?= $r['kode_booking'] ?>" title="Hapus Data">
-                                        <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+                                    <?php if (in_array($r['status'], ['MENUNGGU_BAYAR', 'MENUNGGU_VERIFIKASI', 'DITOLAK'], true)): ?>
+                                    <button class="action-btn del btn-hapus-rsv" data-id="<?= $r['id'] ?>" data-kode="<?= $r['kode_booking'] ?>" data-status="<?= $r['status'] ?>" title="Batalkan Reservasi">
+                                        <i data-lucide="x-circle" style="width:14px;height:14px;"></i>
                                     </button>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>
@@ -270,15 +259,10 @@ $status_colors = [
 </main>
 
 <!-- Hidden forms -->
-<form id="form-status" action="handlers/reservasi_handler.php" method="post" style="display:none;">
-    <?= csrf_field() ?>
-    <input type="hidden" name="action" value="update_status">
-    <input type="hidden" name="id" id="status-id">
-    <input type="hidden" name="status" id="status-val">
-</form>
 <form id="form-hapus" action="handlers/reservasi_handler.php" method="post" style="display:none;">
     <?= csrf_field() ?>
-    <input type="hidden" name="action" value="hapus">
+    <input type="hidden" name="action" value="update_status">
+    <input type="hidden" name="status" value="DIBATALKAN">
     <input type="hidden" name="id" id="hapus-id">
 </form>
 <form id="form-verifikasi" action="handlers/reservasi_handler.php" method="post" style="display:none;">
@@ -304,7 +288,7 @@ document.querySelectorAll('.btn-detail-rsv').forEach(el => {
     el.addEventListener('click', function() {
         const d = this.dataset;
         Swal.fire({
-            title: '<div style="text-align:left;font-size:1.1rem;font-weight:800;color:#0e7c6b;padding-bottom:.5rem;border-bottom:2px solid #0e7c6b;display:inline-block;">Detail Reservasi</div>',
+            title: '<div style="text-align:left;font-size:1.1rem;font-weight:800;color:var(--accent);padding-bottom:.5rem;border-bottom:2px solid var(--accent);display:inline-block;">Detail Reservasi</div>',
             width: d.bukti ? 800 : 450,
             confirmButtonColor: '#0e7c6b',
             confirmButtonText: 'Tutup',
@@ -313,7 +297,7 @@ document.querySelectorAll('.btn-detail-rsv').forEach(el => {
                 <!-- Kolom Kiri: Informasi -->
                 <div class="modal-column">
                     <div style="margin-bottom:1.5rem;">
-                        <span style="font-size:1.5rem;font-weight:900;color:#0e7c6b;letter-spacing:1px;">${d.kode}</span>
+                        <span style="font-size:1.5rem;font-weight:900;color:var(--accent);letter-spacing:1px;">${d.kode}</span>
                     </div>
                     <div class="modal-info-list" style="margin-bottom:1rem;">
                         <div class="modal-info-item"><span class="modal-info-label">Nama Pengunjung</span><span class="modal-info-value">${d.nama}</span></div>
@@ -323,27 +307,27 @@ document.querySelectorAll('.btn-detail-rsv').forEach(el => {
                         <div class="modal-info-item"><span class="modal-info-label">Jenis Tiket</span><span class="modal-info-value">${d.jenis}</span></div>
                         <div class="modal-info-item"><span class="modal-info-label">Dewasa / Anak</span><span class="modal-info-value">${d.dewasa} / ${d.anak}</span></div>
                         <div class="modal-info-item"><span class="modal-info-label">Metode Pembayaran</span><span class="modal-info-value">${d.metode}</span></div>
-                        <div class="modal-info-item"><span class="modal-info-label">Status</span><span style="font-size:0.75rem;padding:2px 10px;border-radius:6px;background:#f1f5f9;font-weight:700;">${d.status}</span></div>
+                        <div class="modal-info-item"><span class="modal-info-label">Status</span><span style="font-size:0.75rem;padding:2px 10px;border-radius:6px;background:var(--surface-hover);color:var(--fg);font-weight:700;">${d.statusLabel}</span></div>
                     </div>
-                    <div style="padding:1rem;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;">
-                       <span style="font-size:.78rem;color:#64748b;display:block;margin-bottom:4px;font-weight:600;">Catatan Pengunjung:</span>
-                       <p style="font-size:.85rem;color:#1e293b;margin:0;font-style:italic;">"${d.catatan}"</p>
+                    <div style="padding:1rem;background:var(--surface-hover);border-radius:12px;border:1px solid var(--border-subtle);">
+                       <span style="font-size:.78rem;color:var(--fg-muted);display:block;margin-bottom:4px;font-weight:600;">Catatan Pengunjung:</span>
+                       <p style="font-size:.85rem;color:var(--fg);margin:0;font-style:italic;">"${d.catatan}"</p>
                     </div>
                     ${d.alasan ? `
-                    <div style="margin-top:1rem;padding:1rem;background:#fff1f2;border-radius:12px;border:1px solid #ffe4e6;color:#e11d48;">
+                    <div style="margin-top:1rem;padding:1rem;background:rgba(225,29,72,.08);border-radius:12px;border:1px solid rgba(225,29,72,.25);color:#e11d48;">
                         <strong style="font-size:.78rem;display:block;margin-bottom:4px;">Alasan Penolakan:</strong>
                         <p style="font-size:.82rem;margin:0;">${d.alasan}</p>
                     </div>` : ''}
-                    <p style="font-size:.7rem;color:#aaa;margin-top:1.5rem;text-align:left;">Dipesan pada: ${d.created} WIB</p>
+                    <p style="font-size:.7rem;color:var(--fg-subtle);margin-top:1.5rem;text-align:left;">Dipesan pada: ${d.created} WIB</p>
                 </div>
 
                 <!-- Kolom Kanan: Bukti (Jika Ada) -->
                 ${d.bukti ? `
                 <div class="modal-column">
                     <div class="modal-proof-container">
-                        <span style="font-size:.85rem;font-weight:700;color:#475569;margin-bottom:12px;display:block;text-align:center;">Bukti Pembayaran</span>
+                        <span style="font-size:.85rem;font-weight:700;color:var(--fg-muted);margin-bottom:12px;display:block;text-align:center;">Bukti Pembayaran</span>
                         <img src="${d.bukti}" class="modal-proof-img" title="Klik untuk memperbesar" onclick="window.open('${d.bukti}')">
-                        <p style="font-size:.65rem;color:#94a3b8;margin-top:10px;text-align:center;">Silakan periksa keaslian bukti transfer di m-banking Anda.</p>
+                        <p style="font-size:.65rem;color:var(--fg-subtle);margin-top:10px;text-align:center;">Silakan periksa keaslian bukti transfer di m-banking Anda.</p>
                     </div>
                 </div>` : ''}
             </div>
@@ -364,35 +348,15 @@ function viewBukti(url) {
     });
 }
 
-// Ubah Status
-document.querySelectorAll('.btn-ubah-status').forEach(el => {
-    el.addEventListener('click', function() {
-        const id = this.dataset.id;
-        const kode = this.dataset.kode;
-        const current = this.dataset.status;
-        Swal.fire({
-            title: 'Ubah Status', html: '<p style="font-size:.88rem;">Reservasi: <strong>' + kode + '</strong></p>',
-            input: 'select', inputOptions: { 'Pending':'Pending', 'Dikonfirmasi':'Dikonfirmasi', 'Selesai':'Selesai', 'Dibatalkan':'Dibatalkan', 'Ditolak':'Ditolak' },
-            inputValue: current, showCancelButton: true, confirmButtonColor: '#0e7c6b', confirmButtonText: 'Simpan', cancelButtonText: 'Batal', cancelButtonColor: '#e4e4e7',
-        }).then(function(result) {
-            if (result.isConfirmed) {
-                document.getElementById('status-id').value = id;
-                document.getElementById('status-val').value = result.value;
-                document.getElementById('form-status').submit();
-            }
-        });
-    });
-});
-
-// Hapus
+// Batalkan reservasi
 document.querySelectorAll('.btn-hapus-rsv').forEach(el => {
     el.addEventListener('click', function() {
         const id = this.dataset.id;
         const kode = this.dataset.kode;
         Swal.fire({
-            icon: 'warning', title: 'Hapus Reservasi?',
-            html: 'Reservasi <strong>' + kode + '</strong> akan dihapus permanen.',
-            showCancelButton: true, confirmButtonColor: '#c0392b', cancelButtonColor: '#e4e4e7', confirmButtonText: 'Ya, Hapus', cancelButtonText: 'Batal'
+            icon: 'warning', title: 'Batalkan Reservasi?',
+            html: 'Reservasi <strong>' + kode + '</strong> akan dibatalkan dan kuotanya dilepas.',
+            showCancelButton: true, confirmButtonColor: '#c0392b', cancelButtonColor: '#52525b', confirmButtonText: 'Ya, Batalkan', cancelButtonText: 'Batal'
         }).then(function(result) {
             if (result.isConfirmed) {
                 document.getElementById('hapus-id').value = id;
@@ -424,7 +388,7 @@ document.querySelectorAll('.btn-tolak-bayar').forEach(el => {
             html: '<p style="font-size:.88rem;margin-bottom:1rem;">Berikan alasan penolakan untuk: <strong>' + kode + '</strong></p>',
             input: 'textarea', inputPlaceholder: 'Masukkan alasan penolakan (misal: Bukti transfer tidak valid/kabur)...',
             inputAttributes: { 'aria-label': 'Masukkan alasan penolakan' },
-            showCancelButton: true, confirmButtonColor: '#e11d48', cancelButtonColor: '#e4e4e7',
+            showCancelButton: true, confirmButtonColor: '#e11d48', cancelButtonColor: '#52525b',
             confirmButtonText: 'Tolak Pembayaran', cancelButtonText: 'Batal',
             inputValidator: (value) => { if (!value) { return 'Alasan penolakan wajib diisi!' } }
         }).then(r => { 

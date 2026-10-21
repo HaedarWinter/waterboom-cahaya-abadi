@@ -61,21 +61,22 @@ $row = $db->query("SELECT terisi FROM kuota_harian WHERE tanggal = ?", [$tgl], "
 check('RACE-2 counter tetap 3 (tidak kelebihan)', (int)$row['terisi'] === 3);
 
 // ─────────────────────────────────────────────────────────────
-// HI-06: updateStatus(Dibatalkan) mengurangi kuota tepat sekali
+// HI-06: updateStatus(DIBATALKAN) mengurangi kuota tepat sekali
 // ─────────────────────────────────────────────────────────────
 $id1 = (int)$db->query("SELECT id FROM reservasi WHERE kode_booking = ? LIMIT 1", [$kode1], "s")->fetch_assoc()['id'];
-\App\Models\Reservasi::updateStatus($id1, 'Dibatalkan');
+\App\Models\Reservasi::updateStatus($id1, 'DIBATALKAN');
 $row = $db->query("SELECT terisi FROM kuota_harian WHERE tanggal = ?", [$tgl], "s")->fetch_assoc();
 check('HI-06 kuota balik ke 0 setelah dibatalkan', (int)$row['terisi'] === 0);
 
 // panggil lagi — istilahnya idempotent: tidak boleh turun di bawah 0
-\App\Models\Reservasi::updateStatus($id1, 'Dibatalkan');
+\App\Models\Reservasi::updateStatus($id1, 'DIBATALKAN');
 $row = $db->query("SELECT terisi FROM kuota_harian WHERE tanggal = ?", [$tgl], "s")->fetch_assoc();
 check('HI-06 update ulang tidak kurangi kuota lagi', (int)$row['terisi'] === 0);
 
 // ─────────────────────────────────────────────────────────────
 // cleanup: hapus data tes + keluarkan hasil
 // ─────────────────────────────────────────────────────────────
+$db->query("DELETE FROM booking_status_history WHERE booking_id IN (SELECT id FROM reservasi WHERE tanggal_kunjungan = ?)", [$tgl], "s");
 $db->query("DELETE FROM kuota_harian WHERE tanggal = ?", [$tgl], "s");
 $db->query("DELETE FROM reservasi WHERE tanggal_kunjungan = ?", [$tgl], "s");
 

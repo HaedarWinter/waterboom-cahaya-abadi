@@ -91,7 +91,7 @@ $page_title = "Scanner Tiket Premium";
             <!-- Result Card -->
             <div id="visitor-card" class="visitor-card hidden">
                 <div class="card-header">
-                    <div class="status-badge" id="v-status-badge">Pending</div>
+                    <div class="status-badge" id="v-status-badge">LUNAS</div>
                     <h3 id="v-nama">Nama Pengunjung</h3>
                     <p id="v-kode">Kode Booking</p>
                 </div>
@@ -275,8 +275,8 @@ $page_title = "Scanner Tiket Premium";
         const footer = document.getElementById('v-footer');
         if (data.is_checkin) {
             footer.innerHTML = `<div class="alert-info"><i data-lucide="info"></i> Sudah Check-in: ${data.waktu_checkin}</div>`;
-        } else if (data.status !== 'Dikonfirmasi') {
-            footer.innerHTML = `<div class="alert-warning"><i data-lucide="alert-triangle"></i> Belum Dikonfirmasi (${data.status})</div>`;
+        } else if (data.status !== 'LUNAS') {
+            footer.innerHTML = `<div class="alert-warning"><i data-lucide="alert-triangle"></i> Tiket belum Lunas (${data.status})</div>`;
         } else {
             footer.innerHTML = `<button id="btn-checkin" onclick="performCheckin()" class="btn btn-success btn-full"><i data-lucide="check-circle"></i> Check-in Sekarang</button>`;
         }

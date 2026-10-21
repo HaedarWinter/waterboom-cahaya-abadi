@@ -233,7 +233,7 @@ include 'includes/layouts/navbar.php';
                        title="Email harus dimulai dengan huruf/angka, atau gunakan '-' jika tidak memiliki email"
                        inputmode="email"
                        value="<?= htmlspecialchars($old['email'] ?? '') ?>" required>
-                <small style="font-size: 11px; color: #8a8578; margin-top: 4px; display: block;">* Isi dengan tanda hubung (<b>-</b>) jika tidak memiliki email.</small>
+                <small style="font-size: 11px; color:var(--muted); margin-top: 4px; display: block;">* Isi dengan tanda hubung (<b>-</b>) jika tidak memiliki email.</small>
             </div>
             <div class="form-group">
                 <label for="tanggal">Tanggal Kunjungan / Observasi</label>

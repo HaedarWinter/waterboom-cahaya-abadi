@@ -141,11 +141,11 @@ $no_start    = $offset + 1;
             <div class="stat-card amber">
                 <div class="stat-top">
                     <div class="stat-icon"><i data-lucide="clock"></i></div>
-                    <a href="reservasi.php?status=Pending" class="stat-link-new"><i data-lucide="arrow-right"></i></a>
+                    <a href="reservasi.php?status=MENUNGGU_VERIFIKASI" class="stat-link-new"><i data-lucide="arrow-right"></i></a>
                 </div>
                 <div class="stat-bottom">
                     <div class="stat-value"><?= $rsv_pending ?></div>
-                    <div class="stat-label">Reservasi Pending</div>
+                    <div class="stat-label">Menunggu Verifikasi</div>
                 </div>
             </div>
             <div class="stat-card blue">
@@ -167,10 +167,10 @@ $no_start    = $offset + 1;
             $est_pajak_bulan = $rev_bulan_ini - ($rev_bulan_ini / (1 + $pajak_rate));
         ?>
         <!-- FINANCE OVERVIEW (FOR ACCOUNTANT/ADMIN) -->
-        <div class="section-card" style="margin-bottom:1.5rem; border-left:4px solid #0e7c6b;">
+        <div class="section-card" style="margin-bottom:1.5rem; border-left:4px solid var(--accent);">
             <div style="padding:1.25rem 1.5rem; display:flex; justify-content:space-between; align-items:center;">
                 <div style="display:flex; align-items:center; gap:15px;">
-                    <div style="background:rgba(14, 124, 107, 0.1); color:#0e7c6b; padding:10px; border-radius:12px;"><i data-lucide="calculator"></i></div>
+                    <div style="background:var(--accent-glow); color:var(--accent); padding:10px; border-radius:12px;"><i data-lucide="calculator"></i></div>
                     <div>
                         <h3 style="margin:0; font-size:1rem; font-weight:800; color:var(--fg);">Ikhtisar Keuangan Cepat</h3>
                         <p style="margin:0; font-size:0.75rem; color:var(--fg-muted);">Estimasi kewajiban pajak bulan ini: <strong style="color:#eab308">Rp <?= format_harga($est_pajak_bulan) ?></strong></p>
@@ -216,9 +216,9 @@ $no_start    = $offset + 1;
                             <div class="hub-icon"><i data-lucide="user-plus"></i></div>
                             <div class="hub-label">Input Tamu</div>
                         </button>
-                        <a href="reservasi.php?status=Pending" class="hub-card">
+                        <a href="reservasi.php?status=MENUNGGU_VERIFIKASI" class="hub-card">
                             <div class="hub-icon"><i data-lucide="check-square"></i></div>
-                            <div class="hub-label">Konfirmasi</div>
+                            <div class="hub-label">Verifikasi</div>
                         </a>
                         <a href="berita.php" class="hub-card">
                             <div class="hub-icon"><i data-lucide="plus-circle"></i></div>
@@ -236,7 +236,7 @@ $no_start    = $offset + 1;
                     </div>
                     <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-size:.75rem; color:#8a8578; font-weight:600;">KEPUASAN PELANGGAN</span>
+                            <span style="font-size:.75rem; color:var(--fg-muted); font-weight:600;">KEPUASAN PELANGGAN</span>
                             <span style="color:#eab308; font-weight:800; display:flex; align-items:center; gap:4px">
                                 <i data-lucide="star" style="width:14px;fill:#eab308"></i> 
                                 <?= number_format($avg_rating, 1) ?>
@@ -283,7 +283,7 @@ $no_start    = $offset + 1;
                             <tr>
                                 <td class="td-num"><?= $no++ ?></td>
                                 <td class="td-name"><?= htmlspecialchars($row['nama']) ?></td>
-                                <td style="font-size:.8rem; color:#888;"><?= htmlspecialchars($row['no_hp']) ?></td>
+                                <td style="font-size:.8rem; color:var(--fg-muted);"><?= htmlspecialchars($row['no_hp']) ?></td>
                                 <td><span class="date-badge" style="font-size:.68rem"><?= date('d/m/y H:i', strtotime($row['tanggal'])) ?></span></td>
                                 <td class="td-actions">
                                     <button class="action-btn detail swal-detail"
@@ -298,7 +298,7 @@ $no_start    = $offset + 1;
                                 </td>
                             </tr>
                         <?php endwhile; else: ?>
-                            <tr><td colspan="5" style="text-align:center; padding:2rem; color:#aaa;">Kosong.</td></tr>
+                            <tr><td colspan="5" style="text-align:center; padding:2rem; color:var(--fg-subtle);">Kosong.</td></tr>
                         <?php endif; ?>
                         </tbody>
                     </table>
@@ -355,9 +355,13 @@ $no_start    = $offset + 1;
 const CHART_LABELS = <?= json_encode($chart_labels) ?>;
 const CHART_VISITORS = <?= json_encode($chart_visitors) ?>;
 const CHART_REVENUE = <?= json_encode($chart_revenue) ?>;
+const isThemeDark = () => document.body.classList.contains('dark-theme');
+const AXIS_LABEL_COLOR = isThemeDark() ? '#d1d1d6' : '#8a8578';
+const AXIS_GRID_COLOR = isThemeDark() ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
 
 // 1. REVENUE TREND (Area Chart)
 var revenueOptions = {
+    theme: { mode: isThemeDark() ? 'dark' : 'light' },
     series: [{
         name: 'Pendapatan',
         data: CHART_REVENUE
@@ -388,22 +392,22 @@ var revenueOptions = {
         categories: CHART_LABELS,
         axisBorder: { show: false },
         axisTicks: { show: false },
-        labels: { style: { colors: '#8a8578', fontSize: '12px' } }
+        labels: { style: { colors: AXIS_LABEL_COLOR, fontSize: '12px' } }
     },
     yaxis: [{
         title: { text: "Pendapatan (Rp)", style: { color: "#0e7c6b" } },
         labels: { 
-            style: { colors: '#8a8578' },
+            style: { colors: AXIS_LABEL_COLOR },
             formatter: function(val) { return "Rp " + (val / 1000) + "k"; }
         }
     }, {
         opposite: true,
         title: { text: "Pengunjung", style: { color: "#2563eb" } },
-        labels: { style: { colors: '#8a8578' } }
+        labels: { style: { colors: AXIS_LABEL_COLOR } }
     }],
-    grid: { borderColor: 'rgba(0,0,0,0.05)', strokeDashArray: 4 },
+    grid: { borderColor: isThemeDark() ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)', strokeDashArray: 4 },
     legend: { position: 'top', horizontalAlign: 'right' },
-    tooltip: { theme: 'light', x: { show: true } }
+    tooltip: { theme: isThemeDark() ? 'dark' : 'light', x: { show: true } }
 };
 
 var revenueChart = new ApexCharts(document.querySelector("#revenueChart"), revenueOptions);
@@ -412,7 +416,8 @@ revenueChart.render();
 // 2. DISTRIBUTION (Donut Chart)
 var donutOptions = {
     series: [<?= (int)$stats['dist_weekday'] ?>, <?= (int)$stats['dist_weekend'] ?>],
-    chart: { type: 'donut', height: 200, fontFamily: "'Plus Jakarta Sans', sans-serif" },
+    chart: { type: 'donut', height: 200, fontFamily: "'Plus Jakarta Sans', sans-serif", foreColor: isThemeDark() ? '#d1d1d6' : '#374151' },
+    theme: { mode: isThemeDark() ? 'dark' : 'light' },
     labels: ['Weekday', 'Weekend'],
     colors: ['#0e7c6b', '#f59e0b'],
     legend: { position: 'bottom' },
@@ -443,7 +448,7 @@ let gradient = ctxMonthly.createLinearGradient(0, 0, 0, 400);
 gradient.addColorStop(0, '#0e7c6b');
 gradient.addColorStop(1, '#11bba2');
 
-new Chart(ctxMonthly, {
+const monthlyChart = new Chart(ctxMonthly, {
     type: 'bar',
     data: {
         labels: monthlyChartLabels,
@@ -470,30 +475,48 @@ new Chart(ctxMonthly, {
         scales: {
             y: {
                 beginAtZero: true,
-                grid: { color: 'rgba(0,0,0,0.05)' },
+                grid: { color: AXIS_GRID_COLOR },
                 ticks: {
+                    color: AXIS_LABEL_COLOR,
                     callback: function(value) {
                         return 'Rp ' + (value/1000) + 'k';
                     }
                 }
             },
             x: {
-                grid: { display: false }
+                grid: { display: false },
+                ticks: { color: AXIS_LABEL_COLOR }
             }
         }
     }
 });
 
 // THEME TOGGLE SUPPORT
+const axisLabelDark = () => ({ labels: { style: { colors: isThemeDark() ? '#d1d1d6' : '#8a8578', fontSize: '12px' } } });
 window.addEventListener('themeChanged', (e) => {
     const isDark = e.detail.isDark;
+    const axis = isDark ? '#d1d1d6' : '#8a8578';
     revenueChart.updateOptions({
         theme: { mode: isDark ? 'dark' : 'light' },
-        grid: { borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }
+        grid: { borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)' },
+        xaxis: { ...(axisLabelDark().labels ? {} : {}), categories: CHART_LABELS, axisBorder: { show: false }, axisTicks: { show: false }, labels: { style: { colors: axis, fontSize: '12px' } } },
+        yaxis: [
+            { title: { text: "Pendapatan (Rp)", style: { color: "#0e7c6b" } }, labels: { style: { colors: axis }, formatter: function(val) { return "Rp " + (val / 1000) + "k"; } } },
+            { opposite: true, title: { text: "Pengunjung", style: { color: "#2563eb" } }, labels: { style: { colors: axis } } }
+        ],
+        tooltip: { theme: isDark ? 'dark' : 'light', x: { show: true } }
     });
     donutChart.updateOptions({
-        theme: { mode: isDark ? 'dark' : 'light' }
+        theme: { mode: isDark ? 'dark' : 'light' },
+        tooltip: { theme: isDark ? 'dark' : 'light' }
     });
+    // Chart.js: warna sumbu & grid mengikuti tema
+    if (monthlyChart) {
+        monthlyChart.options.scales.y.grid.color = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+        monthlyChart.options.scales.y.ticks.color = axis;
+        monthlyChart.options.scales.x.ticks.color = axis;
+        monthlyChart.update();
+    }
 });
 
 //  SWEETALERT2 — NOTIFICATIONS & ACTIONS 

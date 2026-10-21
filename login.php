@@ -21,6 +21,20 @@ require 'config/security.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Admin - Waterboom Cahaya Abadi</title>
+    <script>
+        (function() {
+            try {
+                var forced = new URLSearchParams(location.search).get('theme');
+                if (forced !== 'dark' && forced !== 'light') forced = localStorage.getItem('theme') || 'light';
+                if (forced === 'dark') {
+                    document.documentElement.style.colorScheme = 'dark';
+                    window.addEventListener('DOMContentLoaded', function() {
+                        document.body.classList.add('dark-theme');
+                    });
+                }
+            } catch (e) {}
+        })();
+    </script>
     <link rel="stylesheet" href="css/style.css">
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -29,7 +43,7 @@ require 'config/security.php';
 
 <div class="login-wrapper">
     <div class="login-box">
-        <p style="font-size:.8rem; color:#0e7c6b; font-weight:600; letter-spacing:.5px; text-transform:uppercase; margin-bottom:6px;">Cahaya Abadi</p>
+        <p style="font-size:.8rem; color:var(--accent); font-weight:600; letter-spacing:.5px; text-transform:uppercase; margin-bottom:6px;">Cahaya Abadi</p>
         <h2>Login Administrator</h2>
         <p class="sub">Masukkan akun Anda untuk mengakses panel admin</p>
 
@@ -47,7 +61,7 @@ require 'config/security.php';
             <button type="submit" class="btn" style="width:100%;">Masuk</button>
         </form>
         <p style="text-align:center; margin-top:14px; font-size:12px;">
-            <a href="index.php" style="color:#0e7c6b; text-decoration:none; font-weight:500;">← Kembali ke Beranda</a>
+            <a href="index.php" style="color:var(--accent); text-decoration:none; font-weight:500;">← Kembali ke Beranda</a>
         </p>
     </div>
 </div>

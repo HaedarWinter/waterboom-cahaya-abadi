@@ -22,15 +22,17 @@
 - CR-01 dashboard tanpa login → redirect, data tak bocor
 - ME-01 GET-delete → 302, tolak
 - RACE-2 booking hingga kuota habis sukses; request ke-9 dicegah (null); counter tak over
-- HI-06 kuota balik ke 0 setelah Dibatalkan; idempotent (update ulang tak mengurangi lagi)
-- Cleanup data tes otomatis (tabel kuota_harian + reservasi tanggal `2099-01-01`)
+- HI-06 kuota balik ke 0 setelah DIBATALKAN; idempotent (update ulang tak mengurangi lagi)
+- Cleanup data tes otomatis (kuota_harian + reservasi tanggal `2099-01-01`)
+
+`php tests/verify_state_machine.php` → **26 PASS / 0 FAIL**: transisi ilegal, upload bukti, verifikasi ganda, check-in ganda, pembatalan tepat sekali, DITOLAK tanpa pelepasan kuota, expire idempoten, dan tanggal baru tanpa baris kuota.
 
 Regresi halaman publik (HTTP): `index.php`, `reservasi.php`, `cek_booking.php`, `login.php` → semua 200.
 `php -l` lulus untuk 11 file yang diubah.
 
 ## Risiko sisa (residual)
 
-1. Booking Ditolak → user upload ulang bukti → status balik Pending, kuota TIDAK diambil kembali. Slot bisa terlepas ke booking lain; konfirmasi admin bisa melampaui kuota. Perbaikan backlog (butuh keputusan produk).
+1. ~~Booking Ditolak → user upload ulang bukti → kuota tidak diambil kembali.~~ **Selesai 22 Okt 2026**: DITOLAK tidak melepas kuota; re-upload diizinkan sampai batas bayar.
 2. `Location: /ujikom1/...` hardcode masih ada di handler lama — backlog ARCH-4.
 3. Grep UI dashboard tidak memanggil `hapus.php` lagi (JS `.swal-hapus` orphan) — file dipertahankan sesuai README; siapkan form POST bila sukses digunakan.
 4. Scanner handler & notifications API tak memanggil `enforce_active_session` (admin nonaktif masih akses sampai session habis) — backlog.

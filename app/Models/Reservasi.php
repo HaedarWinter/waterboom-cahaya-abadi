@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Core\Database;
+use App\Services\BookingStateService;
 
 class Reservasi {
     public static function getByKode($kode) {
@@ -43,13 +44,24 @@ class Reservasi {
         // supaya dua request paralel tidak bisa sama-sama lolos cek (anti oversell).
         $db->begin();
         try {
+            $kuota_default = (int)Setting::get('kuota_default', 200);
+            $ensure = $db->query(
+                "INSERT INTO kuota_harian (tanggal, kuota_max, terisi) VALUES (?, ?, 0)
+                 ON DUPLICATE KEY UPDATE tanggal = VALUES(tanggal)",
+                [$data['tanggal'], $kuota_default],
+                "si"
+            );
+            if ($ensure === false) {
+                $db->rollback();
+                return false;
+            }
+
             $lock = $db->query("SELECT kuota_max, terisi FROM kuota_harian WHERE tanggal = ? FOR UPDATE", [$data['tanggal']], "s");
             if ($lock === false) {
                 $db->rollback();
                 return false;
             }
             $row = $lock->fetch_assoc();
-            $kuota_default = (int)Setting::get('kuota_default', 200);
             $max    = $row ? (int)$row['kuota_max'] : $kuota_default;
             $terisi = $row ? (int)$row['terisi'] : 0;
 
@@ -111,42 +123,26 @@ class Reservasi {
         return $db->query($sql, [$jumlah, $tanggal], "is");
     }
 
-    public static function updateStatus($id, $status, $token = null, $catatan_tolak = null) {
-        $db = Database::getInstance();
-        
-        if ($status === 'Ditolak' || $status === 'Dibatalkan') {
-            $booking = self::getById($id);
-            if ($booking && $booking['status'] !== 'Ditolak' && $booking['status'] !== 'Dibatalkan') {
-                $total_orang = $booking['jumlah_dewasa'] + $booking['jumlah_anak'];
-                self::kurangiKuota($booking['tanggal_kunjungan'], $total_orang);
-            }
-        }
-        
-        $sql = "UPDATE reservasi SET status = ?, qr_token = ?, catatan_tolak = ? WHERE id = ?";
-        return $db->query($sql, [$status, $token, $catatan_tolak, $id], "sssi");
+    public static function updateStatus($id, $status, $token = null, $catatan_tolak = null, $reason = null) {
+        $actorId = $_SESSION['admin_id'] ?? null;
+        $actorRole = $_SESSION['role'] ?? 'SYSTEM';
+        $out = BookingStateService::transition(
+            (int)$id,
+            $status,
+            $actorId !== null ? (int)$actorId : null,
+            $actorRole,
+            $reason ?? $catatan_tolak,
+            $token
+        );
+        return $out['success'];
     }
 
-    public static function checkIn($id) {
-        $db = Database::getInstance();
-        $sql = "UPDATE reservasi SET status = 'Selesai', is_checkin = 1, waktu_checkin = NOW() WHERE id = ?";
-        return $db->query($sql, [$id], "i");
+    public static function checkIn($id, $actorId = null, $actorRole = null) {
+        $out = BookingStateService::checkIn((int)$id, $actorId, $actorRole);
+        return $out['success'];
     }
 
     public static function autoCancelExpired() {
-        $db = Database::getInstance();
-        // Cari reservasi Pending yang berumur lebih dari 24 jam
-        // Asumsi: 'Bayar di Lokasi' tidak kadaluarsa dalam 24 jam, batas berlakunya di hari H (ini opsional, tapi amannya kita panggil khusus Transfer Bank). Atau kita set semua yang pending 24 jam kadaluarsa? Lebih aman Transfer Bank dulu agar masuk nalar.
-        $sql = "SELECT id FROM reservasi 
-                WHERE status = 'Pending' 
-                  AND metode_bayar = 'Transfer Bank' 
-                  AND bukti_bayar IS NULL 
-                  AND created_at < DATE_SUB(NOW(), INTERVAL 24 HOUR)";
-        
-        $result = $db->query($sql);
-        if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                self::updateStatus($row['id'], 'Dibatalkan', null, 'Otomatis Dibatalkan: Melewati batas waktu pembayaran 24 jam');
-            }
-        }
+        return BookingStateService::expireOverdue();
     }
 }

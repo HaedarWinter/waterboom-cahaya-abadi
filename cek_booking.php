@@ -2,6 +2,7 @@
 require_once 'app/init.php';
 use App\Models\Reservasi;
 use App\Models\Setting;
+use App\Services\BookingStateService;
 
 $page_title = "Cek Status Booking";
 $current_page = 'cek_booking';
@@ -19,7 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $error = "Token keamanan tidak valid.";
     } elseif (!$booking) {
         $error = "Kode booking tidak valid.";
-    } elseif ($booking['status'] !== 'Ditolak' && $booking['bukti_bayar'] && file_exists('assets/bukti_bayar/' . $booking['bukti_bayar'])) {
+    } elseif (!BookingStateService::canTransition($booking['status'], BookingStateService::MENUNGGU_VERIFIKASI)) {
+        $error = "Bukti pembayaran tidak dapat diunggah pada status " . BookingStateService::label($booking['status']) . ".";
+    } elseif ($booking['bukti_bayar'] && $booking['status'] !== BookingStateService::DITOLAK && file_exists('assets/bukti_bayar/' . $booking['bukti_bayar'])) {
         $error = "Bukti pembayaran sudah pernah diunggah.";
     } elseif (!isset($_FILES['bukti']) || $_FILES['bukti']['error'] !== UPLOAD_ERR_OK) {
         $error = "Gagal mengunggah file. Pastikan file dipilih.";
@@ -52,17 +55,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $target = 'assets/bukti_bayar/' . $filename;
 
             if (move_uploaded_file($_FILES['bukti']['tmp_name'], $target)) {
-                $db->query("UPDATE reservasi SET bukti_bayar = ?, status = 'Pending' WHERE id = ?", [$filename, $booking['id']], "si");
-                
-                // NOTIFIKASI ADMIN
-                $admin_wa = Setting::get('admin_wa_number', '');
-                if (!empty($admin_wa)) {
-                    $wa_msg = "🔔 *Pemberitahuan Admin*\nAda bukti pembayaran baru diunggah!\n\nNama: *{$booking['nama']}*\nKode Booking: *{$booking['kode_booking']}*\nTotal: *Rp " . format_harga($booking['total_harga']) . "*\n\nCek dashboard admin untuk verifikasi:\n" . base_url('admin/reservasi.php?status=Pending');
-                    \App\Models\WhatsApp::send($admin_wa, $wa_msg);
-                }
+                $out = BookingStateService::submitProof((int)$booking['id'], $filename);
+                if (!$out['success']) {
+                    @unlink($target);
+                    $error = $out['message'];
+                } else {
+                    $admin_wa = Setting::get('admin_wa_number', '');
+                    if (!empty($admin_wa)) {
+                        $wa_msg = "🔔 *Pemberitahuan Admin*\nAda bukti pembayaran baru diunggah!\n\nNama: *{$booking['nama']}*\nKode Booking: *{$booking['kode_booking']}*\nTotal: *Rp " . format_harga($booking['total_harga']) . "*\n\nCek dashboard admin untuk verifikasi:\n" . base_url('admin/reservasi.php?status=MENUNGGU_VERIFIKASI');
+                        \App\Models\WhatsApp::send($admin_wa, $wa_msg);
+                    }
 
-                $booking = Reservasi::getByKode($booking['kode_booking']);
-                $success = "Bukti pembayaran berhasil diunggah! Antrean Anda sedang diverifikasi admin.";
+                    $booking = Reservasi::getByKode($booking['kode_booking']);
+                    $success = "Bukti pembayaran berhasil diunggah! Antrean Anda sedang diverifikasi admin.";
+                }
             } else {
                 $error = "Gagal menyimpan file.";
             }
@@ -93,17 +99,22 @@ $rekening_nama = Setting::get('rekening_nama', 'Waterboom Cahaya Abadi');
 
 // Warna status
 $status_colors = [
-    'Pending'       => ['bg' => '#fffbeb', 'color' => '#92400e', 'border' => '#fef3c7'],
-    'Dikonfirmasi'  => ['bg' => '#ecfdf5', 'color' => '#065f46', 'border' => '#d1fae5'],
-    'Selesai'       => ['bg' => '#e8f0fa', 'color' => '#075985', 'border' => '#e0f2fe'],
-    'Dibatalkan'    => ['bg' => '#fef2f2', 'color' => '#991b1b', 'border' => '#fee2e2'],
-    'Ditolak'       => ['bg' => '#fff1f2', 'color' => '#e11d48', 'border' => '#ffe4e6'],
+    BookingStateService::MENUNGGU_BAYAR      => ['bg' => '#fffbeb', 'color' => '#92400e', 'border' => '#fef3c7'],
+    BookingStateService::MENUNGGU_VERIFIKASI => ['bg' => '#fffbeb', 'color' => '#92400e', 'border' => '#fef3c7'],
+    BookingStateService::LUNAS               => ['bg' => '#ecfdf5', 'color' => '#065f46', 'border' => '#d1fae5'],
+    BookingStateService::SELESAI             => ['bg' => '#e8f0fa', 'color' => '#075985', 'border' => '#e0f2fe'],
+    BookingStateService::KEDALUWARSA         => ['bg' => '#fef2f2', 'color' => '#991b1b', 'border' => '#fee2e2'],
+    BookingStateService::DIBATALKAN          => ['bg' => '#fef2f2', 'color' => '#991b1b', 'border' => '#fee2e2'],
+    BookingStateService::DITOLAK             => ['bg' => '#fff1f2', 'color' => '#e11d48', 'border' => '#ffe4e6'],
+    BookingStateService::REFUND_DIAJUKAN     => ['bg' => '#eff6ff', 'color' => '#1d4ed8', 'border' => '#dbeafe'],
+    BookingStateService::DIREFUND            => ['bg' => '#f5f3ff', 'color' => '#6d28d9', 'border' => '#ede9fe'],
+    BookingStateService::TIDAK_HADIR         => ['bg' => '#f4f4f5', 'color' => '#52525b', 'border' => '#e4e4e7'],
 ];
 
 $extra_head = '
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js"></script>
     <style>
-        body { background-color: #f8f9fa; }
+        body { background-color: var(--bg); }
         @media (min-width: 992px) {
             .main-content {
                 display: grid !important;
@@ -126,7 +137,7 @@ $extra_head = '
         .payment-tabs {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            background: #f1f5f9;
+            background: var(--subtle);
             padding: 4px;
             border-radius: 12px;
             margin-bottom: 1.25rem;
@@ -138,7 +149,7 @@ $extra_head = '
             border-radius: 9px;
             font-size: 0.85rem;
             font-weight: 700;
-            color: #64748b;
+            color: var(--muted);
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
@@ -147,7 +158,7 @@ $extra_head = '
             gap: 8px;
         }
         .pay-tab.active {
-            background: #fff;
+            background: var(--card);
             color: var(--accent);
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
@@ -157,7 +168,7 @@ $extra_head = '
         
         .qris-container {
             text-align: center;
-            background: #fff;
+            background: var(--card);
             padding: 1rem;
             border-radius: 16px;
             border: 1px solid var(--border);
@@ -208,14 +219,14 @@ include 'includes/layouts/navbar.php';
     <?php endif; ?>
 
     <?php if ($booking): ?>
-    <?php $sc = $status_colors[$booking['status']] ?? $status_colors['Pending']; ?>
+    <?php $sc = $status_colors[$booking['status']] ?? $status_colors[BookingStateService::MENUNGGU_BAYAR]; ?>
     <div class="card" style="padding:2rem;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
             <div>
                 <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600;">Kode Booking</div>
                 <div style="font-size:1.5rem;font-weight:900;color:var(--accent);letter-spacing:2px;"><?= htmlspecialchars($booking['kode_booking']) ?></div>
             </div>
-            <span style="background:<?= $sc['bg'] ?>;color:<?= $sc['color'] ?>;border:1px solid <?= $sc['border'] ?>;padding:6px 14px;border-radius:50px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;"><?= $booking['status'] ?></span>
+            <span style="background:<?= $sc['bg'] ?>;color:<?= $sc['color'] ?>;border:1px solid <?= $sc['border'] ?>;padding:6px 14px;border-radius:50px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;"><?= e(BookingStateService::label($booking['status'])) ?></span>
         </div>
 
         <div style="background:var(--subtle);border-radius:12px;padding:1.25rem;font-size:.88rem;line-height:2;">
@@ -236,21 +247,21 @@ include 'includes/layouts/navbar.php';
             <div style="padding:1.25rem;border-radius:12px;border:1.5px solid var(--border);background:var(--subtle);margin-bottom:1.5rem;">
                 <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600;margin-bottom:12px;">Informasi Pembayaran</div>
                 
-                <?php if ($booking['status'] === 'Dikonfirmasi' || $booking['status'] === 'Selesai'): ?>
+                <?php if (in_array($booking['status'], [BookingStateService::LUNAS, BookingStateService::SELESAI], true)): ?>
                     <div style="display:flex;align-items:center;gap:8px;color:#065f46;font-size:.88rem;font-weight:600;">
                         <i data-lucide="check-circle" style="width:18px;height:18px;"></i>
                         Pembayaran Terverifikasi
                     </div>
-                <?php elseif ($booking['status'] === 'Pending' && $booking['bukti_bayar']): ?>
+                <?php elseif ($booking['status'] === BookingStateService::MENUNGGU_VERIFIKASI && $booking['bukti_bayar']): ?>
                     <div style="display:flex;align-items:center;gap:8px;color:#92400e;font-size:.88rem;font-weight:600;margin-bottom:10px;">
                         <i data-lucide="clock" style="width:18px;height:18px;"></i>
                         Menunggu verifikasi admin
                     </div>
                     <img src="assets/bukti_bayar/<?= htmlspecialchars($booking['bukti_bayar']) ?>" alt="Bukti" style="max-width:100%;max-height:150px;border-radius:8px;border:1px solid var(--border);">
-                <?php else: ?>
+                <?php elseif (BookingStateService::canTransition($booking['status'], BookingStateService::MENUNGGU_VERIFIKASI)): ?>
                     <!-- PEMBAYARAN BELUM UPLOAD / DITOLAK -->
-                    <?php if ($booking['status'] === 'Ditolak'): ?>
-                        <div style="background:#fff1f2; border:1px solid #ffe4e6; border-radius:10px; padding:12px; margin-bottom:15px; color:#e11d48;">
+                    <?php if ($booking['status'] === BookingStateService::DITOLAK): ?>
+                        <div style="background:var(--danger-light); border:1px solid transparent; border-radius:10px; padding:12px; margin-bottom:15px; color:var(--danger);">
                             <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; margin-bottom:4px; display:flex; align-items:center; gap:5px;">
                                 <i data-lucide="x-circle" style="width:14px;"></i> Pembayaran Ditolak
                             </div>
@@ -258,11 +269,11 @@ include 'includes/layouts/navbar.php';
                         </div>
                     <?php endif; ?>
 
-                    <div style="background:#fffbeb; border:1px solid #fef3c7; border-radius:10px; padding:12px; margin-bottom:15px;">
+                    <div style="background:var(--warm); border:1px solid transparent; border-radius:10px; padding:12px; margin-bottom:15px;">
                         <div style="font-size:0.7rem; color:#92400e; font-weight:700; text-transform:uppercase; margin-bottom:4px;">Batas Waktu Pembayaran</div>
                         <div style="font-size:1rem; color:#b45309; font-weight:800; display:flex; align-items:center; gap:8px;">
                             <i data-lucide="clock" style="width:18px; height:18px;"></i>
-                            <?= date('d M Y, H:i', strtotime($booking['created_at'] . ' +24 hours')) ?> WIB
+                            <?= ($deadline = BookingStateService::deadlineAt($booking)) ? $deadline->format('d M Y, H:i') : '-' ?> WIB
                         </div>
                     </div>
 
@@ -277,7 +288,7 @@ include 'includes/layouts/navbar.php';
                     </div>
 
                     <div id="bank" class="payment-content active">
-                        <div style="background:#fff;border-radius:10px;padding:1rem;border:1px solid var(--border);font-size:.85rem;">
+                        <div style="background:var(--card);border-radius:10px;padding:1rem;border:1px solid var(--border);font-size:.85rem;">
                             <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="color:var(--muted);">Bank</span><strong><?= htmlspecialchars($rekening_bank) ?></strong></div>
                             <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="color:var(--muted);">No. Rekening</span><strong style="color:var(--accent);" id="noRek"><?= htmlspecialchars($rekening_nomor) ?></strong></div>
                             <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);">A/N</span><strong><?= htmlspecialchars($rekening_nama) ?></strong></div>
@@ -317,12 +328,17 @@ include 'includes/layouts/navbar.php';
                             <i data-lucide="upload"></i> Kirim Bukti Pembayaran
                         </button>
                     </form>
+                <?php else: ?>
+                    <div style="display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.88rem;font-weight:600;">
+                        <i data-lucide="info" style="width:18px;height:18px;"></i>
+                        Pembayaran tidak dapat dilanjutkan pada status <?= e(BookingStateService::label($booking['status'])) ?>.
+                    </div>
                 <?php endif; ?>
             </div>
             <?php endif; ?>
 
         <!-- QR CODE TIKET DIGITAL -->
-        <?php if ($booking['status'] === 'Dikonfirmasi' && $booking['qr_token']): ?>
+        <?php if ($booking['status'] === BookingStateService::LUNAS && $booking['qr_token']): ?>
         <div style="margin-top:1.5rem;text-align:center;padding:1.5rem;background:var(--accent-light);border-radius:16px;border:2px dashed var(--accent);">
             <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--accent);font-weight:700;margin-bottom:1rem;">🎫 Tiket Digital Anda</div>
             <canvas id="qrCanvas" width="200" height="200" style="margin:0 auto; background: white; border-radius: 8px; display: block;"></canvas>
@@ -343,7 +359,7 @@ include 'includes/layouts/navbar.php';
 $js_content = '';
 
 // Script untuk QR Code (Hanya jika dikonfirmasi)
-if ($booking && $booking['status'] === 'Dikonfirmasi' && $booking['qr_token']) {
+if ($booking && $booking['status'] === BookingStateService::LUNAS && $booking['qr_token']) {
     $js_content .= '
     const qrData = "' . $booking['qr_token'] . '";
     const qrCanvas = document.getElementById("qrCanvas");

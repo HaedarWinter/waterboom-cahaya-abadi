@@ -4,10 +4,10 @@ require_once __DIR__ . '/../../app/init.php';
 
 // Ambil jumlah reservasi pending untuk notifikasi
 $db = \App\Core\Database::getInstance();
-$notif_count = $db->query("SELECT COUNT(*) as n FROM reservasi WHERE status = 'Pending'")->fetch_assoc()['n'] ?? 0;
+$notif_count = $db->query("SELECT COUNT(*) as n FROM reservasi WHERE status = 'MENUNGGU_VERIFIKASI'")->fetch_assoc()['n'] ?? 0;
 
 // Ambil 5 reservasi terbaru yang pending
-$recent_notifs = $db->query("SELECT id, kode_booking, nama, created_at FROM reservasi WHERE status = 'Pending' ORDER BY created_at DESC LIMIT 5")->fetch_all(MYSQLI_ASSOC);
+$recent_notifs = $db->query("SELECT id, kode_booking, nama, created_at FROM reservasi WHERE status = 'MENUNGGU_VERIFIKASI' ORDER BY created_at DESC LIMIT 5")->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <header class="admin-header">
@@ -55,7 +55,7 @@ $recent_notifs = $db->query("SELECT id, kode_booking, nama, created_at FROM rese
                                 </div>
                             </a>
                         <?php endforeach; ?>
-                        <a href="/ujikom1/admin/reservasi.php?status=Pending" class="notif-view-all">Lihat Semua Reservasi Pending</a>
+                        <a href="/ujikom1/admin/reservasi.php?status=MENUNGGU_VERIFIKASI" class="notif-view-all">Lihat Semua Reservasi Menunggu Verifikasi</a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -287,7 +287,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                             </a>`;
                     });
-                    html += '<a href="/ujikom1/admin/reservasi.php?status=Pending" class="notif-view-all">Lihat Semua</a>';
+                    html += '<a href="/ujikom1/admin/reservasi.php?status=MENUNGGU_VERIFIKASI" class="notif-view-all">Lihat Semua</a>';
                     list.innerHTML = html;
                     lucide.createIcons();
                 }

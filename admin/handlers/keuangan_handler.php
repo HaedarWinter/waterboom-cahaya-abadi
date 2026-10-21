@@ -7,19 +7,7 @@ require_once '../../app/init.php';
 
 enforce_active_session($koneksi);
 
-// ─── AUTO-CREATE TABLE (Safety net) ───
-$koneksi->query("CREATE TABLE IF NOT EXISTS laporan_keuangan (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    admin_id INT NOT NULL,
-    tipe ENUM('Masuk', 'Keluar') NOT NULL DEFAULT 'Keluar',
-    kategori VARCHAR(50) NOT NULL DEFAULT 'Operasional',
-    nominal DECIMAL(15, 2) NOT NULL DEFAULT 0,
-    keterangan TEXT,
-    lampiran VARCHAR(255),
-    tanggal DATE NOT NULL,
-    status ENUM('Final', 'Draft') DEFAULT 'Final',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)");
+// Skema laporan_keuangan dikelola oleh sql/migration_v3_foundation.sql.
 
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
 
@@ -175,8 +163,8 @@ if ($action === 'export_csv') {
         $total_net += $net;
     }
     
-    // 3. Ambil Pendapatan Sistem (Reservasi Selesai & Dikonfirmasi)
-    $sql_sys = "SELECT * FROM reservasi WHERE status IN ('Selesai', 'Dikonfirmasi') AND MONTH(created_at) = ? AND YEAR(created_at) = ? ORDER BY created_at ASC";
+    // 3. Ambil Pendapatan Sistem (Reservasi Lunas & Selesai)
+    $sql_sys = "SELECT * FROM reservasi WHERE status IN ('SELESAI', 'LUNAS') AND MONTH(created_at) = ? AND YEAR(created_at) = ? ORDER BY created_at ASC";
     $stmt_s = $koneksi->prepare($sql_sys);
     $stmt_s->bind_param("ss", $bulan, $tahun);
     $stmt_s->execute();

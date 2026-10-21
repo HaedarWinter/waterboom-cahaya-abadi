@@ -9,6 +9,7 @@ use App\Models\Reservasi;
 use App\Models\Setting;
 use App\Models\Audit;
 use App\Models\WhatsApp;
+use App\Services\BookingStateService;
 
 $action = $_POST['action'] ?? '';
 
@@ -95,9 +96,32 @@ if (in_array($action, ['update_status', 'verifikasi_bayar', 'tolak_bayar', 'hapu
 
     $id = (int)($_POST['id'] ?? 0);
 
-    if ($action === 'verifikasi_bayar') {
+    if ($action === 'update_status') {
+        $status = (string)($_POST['status'] ?? '');
+        $allowed = [
+            BookingStateService::DIBATALKAN,
+            BookingStateService::TIDAK_HADIR,
+        ];
+        if (!in_array($status, $allowed, true)) {
+            exit(header("Location: /ujikom1/admin/reservasi.php?error=Status tujuan tidak diizinkan."));
+        }
+
+        $reason = trim($_POST['alasan'] ?? '') ?: null;
+        $out = BookingStateService::transition(
+            $id,
+            $status,
+            (int)$_SESSION['admin_id'],
+            $_SESSION['role'] ?? null,
+            $reason
+        );
+        if (!$out['success']) exit(header("Location: /ujikom1/admin/reservasi.php?error=" . urlencode($out['message'])));
+
+        Audit::log('UPDATE_STATUS', 'reservasi', $id, "Status diubah ke {$status}. " . ($reason ?? ''));
+        header("Location: /ujikom1/admin/reservasi.php?pesan=Status reservasi diperbarui.");
+    } elseif ($action === 'verifikasi_bayar') {
         $token = bin2hex(random_bytes(16));
-        Reservasi::updateStatus($id, 'Dikonfirmasi', $token);
+        $out = BookingStateService::transition($id, BookingStateService::LUNAS, (int)$_SESSION['admin_id'], $_SESSION['role'] ?? null, 'Pembayaran diverifikasi.', $token);
+        if (!$out['success']) exit(header("Location: /ujikom1/admin/reservasi.php?error=" . urlencode($out['message'])));
         Audit::log('VERIFY_PAYMENT', 'reservasi', $id, 'Pembayaran berhasil diverifikasi.');
 
         // ── GENERATE & SEND PDF TICKET ──
@@ -127,7 +151,8 @@ if (in_array($action, ['update_status', 'verifikasi_bayar', 'tolak_bayar', 'hapu
         header("Location: /ujikom1/admin/reservasi.php?pesan=Pembayaran terverifikasi & Tiket telah dikirim!");
     } elseif ($action === 'tolak_bayar') {
         $alasan = trim($_POST['alasan'] ?? 'Bukti tidak jelas');
-        Reservasi::updateStatus($id, 'Ditolak', null, $alasan);
+        $out = BookingStateService::transition($id, BookingStateService::DITOLAK, (int)$_SESSION['admin_id'], $_SESSION['role'] ?? null, $alasan);
+        if (!$out['success']) exit(header("Location: /ujikom1/admin/reservasi.php?error=" . urlencode($out['message'])));
         Audit::log('REJECT_PAYMENT', 'reservasi', $id, "Pembayaran ditolak. Alasan: $alasan");
 
         // WhatsApp Notification: Rejected
@@ -139,20 +164,7 @@ if (in_array($action, ['update_status', 'verifikasi_bayar', 'tolak_bayar', 'hapu
 
         header("Location: /ujikom1/admin/reservasi.php?pesan=Pembayaran ditolak.");
     } elseif ($action === 'hapus') {
-        $booking = Reservasi::getById($id);
-        if ($booking) {
-            // Kuota sudah berkurang otomatis hanya untuk status aktif.
-            // Ditolak & Dibatalkan TIDAK dihitung ulang di sini (updateStatus sudah
-            // menguranginya) — cegah double-decrement kuota.
-            if ($booking && $booking['status'] !== 'Ditolak' && $booking['status'] !== 'Dibatalkan') {
-                $total_orang = $booking['jumlah_dewasa'] + $booking['jumlah_anak'];
-                Reservasi::kurangiKuota($booking['tanggal_kunjungan'], $total_orang);
-            }
-            $db = \App\Core\Database::getInstance();
-            $db->query("DELETE FROM reservasi WHERE id = ?", [$id], "i");
-        }
-        Audit::log('DELETE', 'reservasi', $id, 'Data reservasi dihapus permanen.');
-        header("Location: /ujikom1/admin/reservasi.php?pesan=Berhasil dihapus.");
+        exit(header("Location: /ujikom1/admin/reservasi.php?error=Reservasi tidak boleh dihapus. Gunakan pembatalan agar riwayat tetap utuh."));
     }
     exit;
 }

@@ -49,7 +49,7 @@ include 'includes/layouts/navbar.php';
             <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);">Total Harga</span><strong style="color:var(--accent);">Rp <?= format_harga($booking_info['total_harga']) ?></strong></div>
         </div>
 
-        <p style="font-size:.78rem;color:var(--muted);margin-top:1rem;">Status: <strong>Pending</strong> — Silakan lakukan pembayaran di lokasi.</p>
+        <p style="font-size:.78rem;color:var(--muted);margin-top:1rem;">Status: <strong>Menunggu Bayar</strong> — Silakan lakukan pembayaran di lokasi.</p>
 
         <div style="display:flex;gap:.75rem;margin-top:1.5rem;justify-content:center;flex-wrap:wrap;">
             <a href="reservasi.php" class="btn btn-secondary"><i data-lucide="plus"></i> Reservasi Lagi</a>
@@ -92,7 +92,7 @@ include 'includes/layouts/navbar.php';
                     <label for="email">Email</label>
                     <input type="text" id="email" name="email" placeholder="email@contoh.com atau -"
                            value="<?= htmlspecialchars($old['email'] ?? '') ?>" required>
-                    <small style="font-size:11px;color:#8a8578;margin-top:4px;display:block;">* Gunakan '-' jika tidak memiliki email.</small>
+                    <small style="font-size:11px;color:var(--muted);margin-top:4px;display:block;">* Gunakan '-' jika tidak memiliki email.</small>
                 </div>
             </div>
 
@@ -102,8 +102,8 @@ include 'includes/layouts/navbar.php';
                     <input type="date" id="tanggal_kunjungan" name="tanggal_kunjungan"
                            min="<?= date('Y-m-d') ?>" value="<?= htmlspecialchars($old['tanggal_kunjungan'] ?? '') ?>" required>
                     <!-- Kuota Badge -->
-                    <div id="kuota-badge" style="display:none;align-items:center;gap:6px;margin-top:6px;padding:6px 12px;border-radius:8px;font-size:.78rem;font-weight:600;border:1.5px solid #d1fae5;background:#ecfdf5;">
-                        <span class="kuota-text" style="color:#065f46;"></span>
+                    <div id="kuota-badge" style="display:none;align-items:center;gap:6px;margin-top:6px;padding:6px 12px;border-radius:8px;font-size:.78rem;font-weight:600;border:1.5px solid transparent;background:var(--accent-light);">
+                        <span class="kuota-text" style="color:var(--accent);"></span>
                     </div>
                 </div>
                 <div class="form-group">
@@ -228,8 +228,8 @@ function cekKuota(tanggal) {
             badge.querySelector(".kuota-text").textContent = "Tersedia di tanggal ini sisa: " + sisa + " / " + max + " slot";
             
             if (sisa <= 0) {
-                badge.style.background = "#fef2f2";
-                badge.querySelector(".kuota-text").style.color = "#991b1b";
+                badge.style.background = "var(--danger-light)";
+                badge.querySelector(".kuota-text").style.color = "var(--danger)";
                 badge.querySelector(".kuota-text").textContent = "KUOTA PENUH";
                 
                 if(btnSubmit) {
@@ -240,8 +240,8 @@ function cekKuota(tanggal) {
                 if(inputDewasa) inputDewasa.max = 0;
                 if(inputAnak) inputAnak.max = 0;
             } else {
-                badge.style.background = "#ecfdf5";
-                badge.querySelector(".kuota-text").style.color = "#065f46";
+                badge.style.background = "var(--accent-light)";
+                badge.querySelector(".kuota-text").style.color = "var(--accent)";
                 
                 if(btnSubmit) {
                     btnSubmit.disabled = false;

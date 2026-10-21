@@ -1,6 +1,7 @@
 <?php
 require_once '../../app/init.php';
 use App\Models\Reservasi;
+use App\Services\BookingStateService;
 
 header('Content-Type: application/json');
 
@@ -53,12 +54,13 @@ if ($action === 'verify') {
         exit;
     }
 
-    if ($data['status'] !== 'Dikonfirmasi') {
-        echo json_encode(['success' => false, 'message' => 'Tiket harus dalam status Dikonfirmasi (Bukan: ' . $data['status'] . ')']);
+    if ($data['status'] !== BookingStateService::LUNAS) {
+        echo json_encode(['success' => false, 'message' => 'Tiket harus berstatus Lunas (Bukan: ' . BookingStateService::label($data['status']) . ')']);
         exit;
     }
 
-    if (Reservasi::checkIn($data['id'])) {
+    $checkin = BookingStateService::checkIn((int)$data['id'], (int)$_SESSION['admin_id'], $_SESSION['role'] ?? null);
+    if ($checkin['success']) {
         // Catat log aktivitas menggunakan Model Standar
         \App\Models\Audit::log(
             'CHECKIN', 
@@ -69,7 +71,7 @@ if ($action === 'verify') {
 
         echo json_encode(['success' => true, 'message' => 'Check-in berhasil']);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Gagal mengupdate database']);
+        echo json_encode(['success' => false, 'message' => $checkin['message']]);
     }
     exit;
 }
