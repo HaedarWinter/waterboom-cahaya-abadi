@@ -3,7 +3,7 @@
 > **ID:** Sistem reservasi tiket & buku tamu digital untuk Waterboom Cahaya Abadi (Kiangroke, Banjaran, Bandung) — dari form online sampai QR check-in di gerbang.
 > **EN:** Online ticketing & guest book for Waterboom Cahaya Abadi (Banjaran, Indonesia) — from online form to QR gate check-in.
 >
-> Status: `prototype` · Repo: https://github.com/HaedarWinter/ujikom-projek · Cerita lengkap: [`PROJECT_STORY.md`](PROJECT_STORY.md) · Laporan audit: [`docs/audit/`](docs/audit/)
+> Status: `prototype` · Repo: https://github.com/HaedarWinter/waterboom-cahaya-abadi · Cerita lengkap: [`PROJECT_STORY.md`](PROJECT_STORY.md) · Laporan audit: [`docs/audit/`](docs/audit/)
 
 ---
 
@@ -133,7 +133,7 @@ Admin  (dashboard, CRUD, scanner)  ─────┼─→ handlers (POST + CSR
 
 ```bash
 # 1. Clone
-git clone https://github.com/HaedarWinter/ujikom-projek.git ujikom
+git clone https://github.com/HaedarWinter/waterboom-cahaya-abadi.git ujikom
 cd ujikom
 
 # 2. Start XAMPP: Apache + MySQL
@@ -197,7 +197,7 @@ Waterboom Cahaya Abadi's visitors used to arrive without knowing whether slots r
 ## 🙏 11. Tautan & Kredit / Links & Credits
 
 - 🌐 Live: TODO (belum di-hosting)
-- 💻 Repo: https://github.com/HaedarWinter/ujikom-projek
+- 💻 Repo: https://github.com/HaedarWinter/waterboom-cahaya-abadi
 - 🎥 Demo: TODO
 - 🙏 Kredit / Credits: Waterboom Cahaya Abadi (venue klien) · FPDF · SweetAlert2 · html5-qrcode · Fonnte
 - 📄 Lisensi / License: All rights reserved
