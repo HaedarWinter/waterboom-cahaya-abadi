@@ -1,5 +1,5 @@
 ---
-slug: "aquatix-cahaya-abadi"
+slug: "waterboom-cahaya-abadi"
 status: "prototype"
 featured: false
 year: 2026
@@ -7,8 +7,8 @@ role:
   id: "Full-stack Developer"
   en: "Full-stack Developer"
 title:
-  id: "AquaTix — Reservasi Waterpark"
-  en: "AquaTix — Waterpark Booking"
+  id: "Waterboom Cahaya Abadi — Reservasi Tiket"
+  en: "Waterboom Cahaya Abadi — Ticket Booking"
 tagline:
   id: "Reservasi tiket waterpark tanpa antre: dari form online sampai QR check-in di gerbang."
   en: "Waterpark ticketing without queues: online form to QR gate check-in."
@@ -29,13 +29,13 @@ links:
   repo: "https://github.com/HaedarWinter/ujikom-projek"
   demo_video: ""
   case_study: ""
-cover_image: "/images/projects/aquatix-cahaya-abadi-cover.png"
+cover_image: "/images/projects/waterboom-cahaya-abadi-cover.png"
 ---
 
-# AquaTix Cahaya Abadi
+# Waterboom Cahaya Abadi — Reservasi Tiket & Buku Tamu Digital
 
-> **ID:** Reservasi tiket & buku tamu digital untuk Waterboom Cahaya Abadi (Banjaran, Bandung) — dari form online sampai QR check-in di gerbang.
-> **EN:** Online ticketing & guest book for Waterboom Cahaya Abadi (Banjaran, Indonesia) — from online form to QR gate check-in.
+> **ID:** Sistem reservasi tiket & buku tamu digital untuk Waterboom Cahaya Abadi (Kiangroke, Banjaran, Bandung) — dari form online sampai QR check-in di gerbang.
+> **EN:** Online ticketing & guest book for Waterboom Cahaya Abadi (Kiangroke, Banjaran, Indonesia) — from online form to QR gate check-in.
 
 ---
 
@@ -222,10 +222,10 @@ mysql -u root < sql/db.sql
 ## 10. 🎬 Cerita Singkat untuk Halaman Detail / Short Story
 
 **🇮🇩** *(~100 kata)*
-Pengunjung Waterboom Cahaya Abadi dulu datang tanpa yakin ada slot sisa: petugas mencatat tamu di buku kertas, tiket hanya dijual di loket, dan kapasitas kolam tak pernah jadi bilangan yang pasti. AquaTix mengubah alurnya: reservasi kecil di form online, kuota harian dikunci di dalam satu transaksi database, pembayaran lewat transfer dengan bukti diunggah, lalu tiket PDF ber-QR muncul langsung di WhatsApp pengunjung. Di gerbang, petugas scan QR sekali; di dashboard, operator melihat kuota, pendapatan bulanan, dan jejak audit setiap aksi. Buku kertas hilang, antrean loket menipis, dan setiap kunjungan kini meninggalkan data yang bisa dinilai ulang.
+Pengunjung Waterboom Cahaya Abadi dulu datang tanpa yakin ada slot sisa: petugas mencatat tamu di buku kertas, tiket hanya dijual di loket, dan kapasitas kolam tak pernah jadi bilangan yang pasti. Sistem reservasi ini mengubah alurnya: reservasi kecil di form online, kuota harian dikunci di dalam satu transaksi database, pembayaran lewat transfer dengan bukti diunggah, lalu tiket PDF ber-QR muncul langsung di WhatsApp pengunjung. Di gerbang, petugas scan QR sekali; di dashboard, operator melihat kuota, pendapatan bulanan, dan jejak audit setiap aksi. Buku kertas hilang, antrean loket menipis, dan setiap kunjungan kini meninggalkan data yang bisa dinilai ulang.
 
 **🇬🇧** *(~100 words)*
-Waterboom Cahaya Abadi's visitors used to arrive without knowing whether slots remained: staff logged guests in a paper book, tickets were sold only at the counter, and pool capacity was never a number anyone could trust. AquaTix rewired the flow: a short online reservation form, a daily quota locked inside a single database transaction, bank transfer with uploaded proof, and a QR-carrying PDF ticket delivered straight to the visitor's WhatsApp. At the gate, staff scan the QR once. On the dashboard, operators see quotas, monthly revenue, and an audit trail of every action. The paper book is gone, queues shrink, and every visit now leaves measurable data.
+Waterboom Cahaya Abadi's visitors used to arrive without knowing whether slots remained: staff logged guests in a paper book, tickets were sold only at the counter, and pool capacity was never a number anyone could trust. This booking system rewired the flow: a short online reservation form, a daily quota locked inside a single database transaction, bank transfer with uploaded proof, and a QR-carrying PDF ticket delivered straight to the visitor's WhatsApp. At the gate, staff scan the QR once. On the dashboard, operators see quotas, monthly revenue, and an audit trail of every action. The paper book is gone, queues shrink, and every visit now leaves measurable data.
 
 ---
 
