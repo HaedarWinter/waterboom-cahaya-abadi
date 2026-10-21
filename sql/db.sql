@@ -24,9 +24,10 @@ CREATE TABLE IF NOT EXISTS admin (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Data Admin Default (admin123)
+-- Data Admin Default (admin123 & haedar123 — ganti segera setelah login!)
 INSERT INTO admin (username, email, password, role, status, permissions) VALUES 
-('admin', 'admin@cahayaabadi.com', '$2y$10$CORdP3vDBPyQCstjixZBBOB8x/5eTueycqrP4pKKVqTxXbflIm3JG', 'Super Admin', 'Aktif', '{"content":{"view":true,"add":true,"edit":true,"delete":true},"user":{"manage":true},"system":{"export":true}}');
+('admin', 'admin@cahayaabadi.com', '$2y$10$CORdP3vDBPyQCstjixZBBOB8x/5eTueycqrP4pKKVqTxXbflIm3JG', 'Super Admin', 'Aktif', '{"content":{"view":true,"add":true,"edit":true,"delete":true},"user":{"manage":true},"system":{"export":true}}'),
+('haedar@ishere.com', 'haedar@ishere.com', '$2y$12$Q0sXs5C6p.0lfwsCsyxVTOZ.zbiXeINJFfhVldWTjNGZjNq3OQvua', 'Super Admin', 'Aktif', '{"content":{"view":true,"add":true,"edit":true,"delete":true},"user":{"manage":true},"system":{"export":true}}');
 
 -- 3. Tabel Galeri --
 CREATE TABLE IF NOT EXISTS galeri (
