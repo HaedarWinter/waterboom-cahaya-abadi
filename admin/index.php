@@ -1,7 +1,6 @@
 <?php
 require_once '../app/init.php';
-check_session_timeout();
-enforce_active_session($koneksi);
+require_admin($koneksi);
 
 use App\Models\Dashboard;
 

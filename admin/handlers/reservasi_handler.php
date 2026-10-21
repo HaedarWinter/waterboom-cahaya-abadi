@@ -75,6 +75,10 @@ if ($action === 'simpan') {
         WhatsApp::send($data['no_hp'], $msg);
 
         header("Location: /ujikom1/reservasi.php?sukses=1&kode=$kode");
+    } elseif ($kode === null) {
+        // nil = kuota penuh saat commit (atomic check di model)
+        $_SESSION['form_reservasi'] = $_POST;
+        header("Location: /ujikom1/reservasi.php?error=Kuota penuh!");
     } else {
         header("Location: /ujikom1/reservasi.php?error=Gagal menyimpan reservasi.");
     }
@@ -137,7 +141,10 @@ if (in_array($action, ['update_status', 'verifikasi_bayar', 'tolak_bayar', 'hapu
     } elseif ($action === 'hapus') {
         $booking = Reservasi::getById($id);
         if ($booking) {
-            if ($booking['status'] !== 'Ditolak') {
+            // Kuota sudah berkurang otomatis hanya untuk status aktif.
+            // Ditolak & Dibatalkan TIDAK dihitung ulang di sini (updateStatus sudah
+            // menguranginya) — cegah double-decrement kuota.
+            if ($booking && $booking['status'] !== 'Ditolak' && $booking['status'] !== 'Dibatalkan') {
                 $total_orang = $booking['jumlah_dewasa'] + $booking['jumlah_anak'];
                 Reservasi::kurangiKuota($booking['tanggal_kunjungan'], $total_orang);
             }

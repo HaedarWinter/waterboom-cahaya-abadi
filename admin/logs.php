@@ -129,18 +129,18 @@ function get_action_badge($action) {
                             <td><span class="date-badge" style="background:#f8f9fa; color:#444; border:1px solid #ddd;"><?= date('d/m/y H:i:s', strtotime($r['created_at'])) ?></span></td>
                             <td class="td-name"><strong><?= e($r['admin_username']) ?></strong></td>
                             <td class="log-action-cell"><?= get_action_badge($r['action']) ?></td>
-                            <td style="font-size:0.8rem; color:#666;"><?= $r['target_table'] ?: '—' ?></td>
+                            <td style="font-size:0.8rem; color:#666;"><?= e($r['target_table'] ?: '—') ?></td>
                             <td class="log-details"><?= e($r['details']) ?></td>
-                            <td><span class="ip-badge"><?= $r['ip_address'] ?></span></td>
+                            <td><span class="ip-badge"><?= e($r['ip_address']) ?></span></td>
                             <td class="td-actions">
                                 <button class="action-btn detail btn-view-log" 
                                         data-admin="<?= e($r['admin_username']) ?>"
-                                        data-action="<?= $r['action'] ?>"
+                                        data-action="<?= e($r['action']) ?>"
                                         data-time="<?= date('d M Y H:i:s', strtotime($r['created_at'])) ?>"
                                         data-details="<?= e($r['details']) ?>"
                                         data-table="<?= e($r['target_table']) ?>"
                                         data-id="<?= $r['target_id'] ?>"
-                                        data-ip="<?= $r['ip_address'] ?>">
+                                        data-ip="<?= e($r['ip_address']) ?>">
                                     <i data-lucide="info"></i>
                                 </button>
                             </td>

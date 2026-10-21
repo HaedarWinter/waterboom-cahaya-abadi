@@ -31,10 +31,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $mime = finfo_file($finfo, $_FILES['bukti']['tmp_name']);
             finfo_close($finfo);
         } else {
-            $mime = $_FILES['bukti']['type'];
+            // fallback jika fileinfo extension tidak tersedia
+            $mime = strtolower($_FILES['bukti']['type'] ?? '');
         }
 
-        if (!in_array($mime, $allowed)) {
+        // Peta MIME → ekstensi aman. Ekstensi final TIDAK ambil dari nama asli
+        // uploadan user (antisipasi file polos seperti 'shell.php.jpg').
+        $ext_map = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+        $ext = $ext_map[$mime] ?? '';
+
+        if (!in_array($mime, $allowed) || $ext === '') {
             $error = "Format file tidak didukung. Gunakan JPG, PNG, atau WebP.";
         } elseif ($_FILES['bukti']['size'] > 3 * 1024 * 1024) {
             $error = "Ukuran file terlalu besar (Maks 3MB).";
@@ -42,7 +48,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             if (!is_dir('assets/bukti_bayar')) {
                 mkdir('assets/bukti_bayar', 0777, true);
             }
-            $ext = pathinfo($_FILES['bukti']['name'], PATHINFO_EXTENSION);
             $filename = 'bukti_' . $booking['kode_booking'] . '_' . time() . '.' . $ext;
             $target = 'assets/bukti_bayar/' . $filename;
 
@@ -462,10 +467,10 @@ if (fileInput) {
 
 // SweetAlert notifications
 if ($success) {
-    $js_content .= "Swal.fire({ icon:'success', title:'Berhasil!', text:'" . addslashes($success) . "', confirmButtonColor:'#0e7c6b' });";
+    $js_content .= "Swal.fire({ icon:'success', title:'Berhasil!', text:" . json_encode($success) . ", confirmButtonColor:'#0e7c6b' });";
 }
 if ($error && isset($_POST['action'])) {
-    $js_content .= "Swal.fire({ icon:'error', title:'Oops!', text:'" . addslashes($error) . "', confirmButtonColor:'#0e7c6b' });";
+    $js_content .= "Swal.fire({ icon:'error', title:'Oops!', text:" . json_encode($error) . ", confirmButtonColor:'#0e7c6b' });";
 }
 
 $extra_footer = '<script>' . $js_content . '</script>';

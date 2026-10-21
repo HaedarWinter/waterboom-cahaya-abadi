@@ -7,11 +7,21 @@ class Database {
     private $koneksi;
 
     private function __construct() {
-        // Menggunakan parameter dari koneksi asli Anda
-        $this->koneksi = mysqli_connect("localhost", "root", "", "db_ujikom", null, "/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock");
-        
+        // Migrasi portabel: coba koneksi standar (socket OS default) dulu,
+        // fallback ke path socket XAMPP macOS bila ada. Eliminasi hardcode tunggal.
+        // mode sekolah lama: gagal koneksi = false (bukan exception),
+        // biar fallback ke socket XAMPP macOS masih bisa jalan.
+        mysqli_report(MYSQLI_REPORT_OFF);
+        $this->koneksi = mysqli_connect("localhost", "root", "", "db_ujikom");
+
         if (!$this->koneksi) {
-            die("Koneksi Database Gagal: " . mysqli_connect_error());
+            $this->koneksi = mysqli_connect("localhost", "root", "", "db_ujikom", null, "/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock");
+        }
+
+        if (!$this->koneksi) {
+            // Detail internal cukup di log server; pesan ke user generik (DATA-6)
+            error_log("Database connect gagal: " . mysqli_connect_error());
+            die("Koneksi database gagal. Silakan coba lagi atau hubungi administrator.");
         }
     }
 
@@ -24,6 +34,18 @@ class Database {
 
     public function getConnection() {
         return $this->koneksi;
+    }
+
+    public function begin() {
+        return $this->koneksi->begin_transaction();
+    }
+
+    public function commit() {
+        return $this->koneksi->commit();
+    }
+
+    public function rollback() {
+        return $this->koneksi->rollback();
     }
 
     // Helper untuk Prepared Statement (Best Practice)

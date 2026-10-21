@@ -316,7 +316,7 @@ $kategori_list = ['Reservasi', 'Operasional', 'Gaji Karyawan', 'Pemeliharaan', '
                             </td>
                             <td>
                                 <?php if ($r['lampiran']): ?>
-                                    <button class="action-btn" onclick="viewBukti('<?= $r['lampiran'] ?>')"><i data-lucide="image"></i></button>
+                                    <button class="action-btn" onclick="viewBukti('<?= htmlspecialchars($r['lampiran'], ENT_QUOTES, 'UTF-8') ?>')"><i data-lucide="image"></i></button>
                                 <?php else: ?>
                                     <span style="color:#ccc; font-size:10px;">-</span>
                                 <?php endif; ?>

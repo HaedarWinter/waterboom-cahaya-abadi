@@ -1,8 +1,6 @@
 <?php
 // ini file backend khusus buat ngecek bener ga nih si admin yang login
-// sementara nyalain error reporting biar kalo ada yang error pas develop langsung keliatan
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// display_errors sengaja mati — detail error hanya di log server (DATA-6)
 
 // panggil init.php untuk autoloader, session, dan database
 require_once '../../app/init.php';
@@ -63,21 +61,13 @@ if ($result->num_rows == 1) {
     $db_pass = $row['password'];
 
     // 1. Cek pake teknik kekinian: verify hash password buat tingkat keamanan tinggi (hashing)
-    if (password_verify($password, $db_pass) || $password === $db_pass) {
+    // Fallback plaintext SENGAJA dihapus (AUTH-1): kolom password wajib hash bcrypt.
+    if (password_verify($password, $db_pass)) {
         // Cek status aktif
         if ($row['status'] === 'Nonaktif') {
             header("Location: /ujikom1/login.php?error=Akun Anda telah dinonaktifkan. Silakan hubungi Super Admin.");
             exit;
         }
-
-        // Kalau password masih plain text, ditiban ke hash
-        if ($password === $db_pass) {
-            $new_hash = password_hash($password, PASSWORD_DEFAULT);
-            $stmt_update = $koneksi->prepare("UPDATE admin SET password = ? WHERE id = ?");
-            $stmt_update->bind_param("si", $new_hash, $row['id']);
-            $stmt_update->execute();
-        }
-
         // BERHASIL: Bersihkan percobaan login yang gagal
         $stmt_clear = $koneksi->prepare("DELETE FROM login_attempts WHERE ip_address = ? OR username = ?");
         $stmt_clear->bind_param("ss", $ip, $login_username);
