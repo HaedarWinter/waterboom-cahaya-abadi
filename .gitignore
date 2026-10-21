@@ -1,2 +1,7 @@
 .DS_Store
 *.DS_Store
+assets/bukti_bayar/*
+!assets/bukti_bayar/.htaccess
+assets/tickets/*
+assets/berita/*
+assets/galeri/*
