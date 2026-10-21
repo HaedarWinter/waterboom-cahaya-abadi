@@ -26,7 +26,7 @@ highlight_metric:
   label_en: "open Critical/High security findings after audit & hardening"
 links:
   live: ""
-  repo: "https://github.com/HaedarWinter/ujikom-projek"
+  repo: "https://github.com/HaedarWinter/waterboom-cahaya-abadi"
   demo_video: ""
   case_study: ""
 cover_image: "/images/projects/waterboom-cahaya-abadi-cover.png"
@@ -187,7 +187,7 @@ Admin  (dashboard, CRUD, scanner)  ─────┼─→ handlers (POST + CSR
 
 ```bash
 # 1. Clone
-git clone https://github.com/HaedarWinter/ujikom-projek.git ujikom
+git clone https://github.com/HaedarWinter/waterboom-cahaya-abadi.git ujikom
 cd ujikom
 
 # 2. Jalankan XAMPP: Apache + MySQL
@@ -232,7 +232,7 @@ Waterboom Cahaya Abadi's visitors used to arrive without knowing whether slots r
 ## 11. 🔗 Tautan & Kredit / Links & Credits
 
 - 🌐 Live: TODO (belum di-hosting)
-- 💻 Repo: https://github.com/HaedarWinter/ujikom-projek
+- 💻 Repo: https://github.com/HaedarWinter/waterboom-cahaya-abadi
 - 🎥 Demo: TODO
 - 🙏 Kredit / Credits: Waterboom Cahaya Abadi (venue klien) · FPDF · SweetAlert2 · html5-qrcode · Fonnte
 - 📄 Lisensi / License: All rights reserved
