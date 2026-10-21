@@ -4,11 +4,17 @@ date_default_timezone_set('Asia/Jakarta');
 
 // file ini buat ngonekin php ke database mysql
 // pastikan xampp udah nyala (apache sama mysql)
-// parameter: nama server, username db, password db, nama database
-$koneksi = mysqli_connect("localhost", "root", "", "db_ujikom", null, "/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock");
+//
+// SATU sumber kebenaran: parameter koneksi hanya ditulis di App\Core\Database.
+// File lama yang masih require config/koneksi.php otomatis dapat koneksi yang sama.
+require_once __DIR__ . '/../app/Core/Database.php';
 
-// validasi koneksi, kalo gagal langsung munculin pesan error biar gampang debunggingnya
+// validasi koneksi, kalo gagal langsung munculin pesan error biar gampang debubuggingnya
+// (pesan detail internal di-log ke error_log, bukan ke layar — DATA-6)
+$koneksi = \App\Core\Database::getInstance()->getConnection();
+
 if (!$koneksi) {
-    die("Koneksi ke database gagal woi: " . mysqli_connect_error());
+    error_log("koneksi.php gagal memperoleh koneksi database.");
+    die("Koneksi ke database gagal. Silakan coba lagi nanti.");
 }
 ?>

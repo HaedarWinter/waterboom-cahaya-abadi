@@ -36,32 +36,58 @@ class Reservasi {
 
     public static function create($data) {
         $db = Database::getInstance();
+        $total_orang = $data['dewasa'] + $data['anak'];
         
-        // Generate unique code
-        do {
-            $kode = 'CA-' . strtoupper(bin2hex(random_bytes(3)));
-            $exists = self::getByKode($kode);
-        } while ($exists);
+        // ─── ATOMIK (RACE-2): transaksi + row lock ───
+        // Cek kuota dan penambahan counter dalam 1 transaksi terkunci (FOR UPDATE)
+        // supaya dua request paralel tidak bisa sama-sama lolos cek (anti oversell).
+        $db->begin();
+        try {
+            $lock = $db->query("SELECT kuota_max, terisi FROM kuota_harian WHERE tanggal = ? FOR UPDATE", [$data['tanggal']], "s");
+            if ($lock === false) {
+                $db->rollback();
+                return false;
+            }
+            $row = $lock->fetch_assoc();
+            $kuota_default = (int)Setting::get('kuota_default', 200);
+            $max    = $row ? (int)$row['kuota_max'] : $kuota_default;
+            $terisi = $row ? (int)$row['terisi'] : 0;
 
-        $sql = "INSERT INTO reservasi (kode_booking, nama, no_hp, email, tanggal_kunjungan, jenis_tiket, jumlah_dewasa, jumlah_anak, total_harga, catatan, metode_bayar) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
-        $params = [
-            $kode, $data['nama'], $data['no_hp'], $data['email'], 
-            $data['tanggal'], $data['jenis'], $data['dewasa'], 
-            $data['anak'], (int)$data['total_harga'], $data['catatan'], $data['metode']
-        ];
+            if ($terisi + $total_orang > $max) {
+                $db->rollback();
+                return null; // Kuota penuh
+            }
 
-        $res = $db->query($sql, $params, "ssssssiiiss");
-        
-        if ($res) {
-            // Update kuota terisi
-            $total_orang = $data['dewasa'] + $data['anak'];
-            self::tambahKuota($data['tanggal'], $total_orang);
-            return $kode;
+            // Generate unique code
+            do {
+                $kode = 'CA-' . strtoupper(bin2hex(random_bytes(3)));
+                $exists = self::getByKode($kode);
+            } while ($exists);
+
+            $sql = "INSERT INTO reservasi (kode_booking, nama, no_hp, email, tanggal_kunjungan, jenis_tiket, jumlah_dewasa, jumlah_anak, total_harga, catatan, metode_bayar) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            
+            $params = [
+                $kode, $data['nama'], $data['no_hp'], $data['email'], 
+                $data['tanggal'], $data['jenis'], $data['dewasa'], 
+                $data['anak'], (int)$data['total_harga'], $data['catatan'], $data['metode']
+            ];
+
+            $res = $db->query($sql, $params, "ssssssiiiss");
+            
+            if ($res) {
+                // Update kuota terisi (di dalam transaksi yang sama, barisnya udah di-lock)
+                self::tambahKuota($data['tanggal'], $total_orang);
+                $db->commit();
+                return $kode;
+            }
+
+            $db->rollback();
+            return false;
+        } catch (\Throwable $e) {
+            $db->rollback();
+            return false;
         }
-
-        return false;
     }
 
     public static function getByToken($token) {
