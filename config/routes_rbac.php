@@ -31,5 +31,7 @@ return [
     'admin/expenses.php' => 'ledger.entry_manual',
     'admin/closings.php' => 'closing.perform',
     'admin/reports.php' => 'report.finance.view',
+    'admin/notifications.php' => 'settings.manage',
+    'admin/templates.php' => 'settings.manage',
     'admin/logs.php' => 'activity.view',
 ];
