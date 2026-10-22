@@ -1,5 +1,5 @@
 <?php
-require_once '../../app/init.php';
+require_once __DIR__ . '/../../app/init.php';
 enforce_active_session($koneksi);
 
 if (!has_canonical_permission('reconciliation.manage')) {
