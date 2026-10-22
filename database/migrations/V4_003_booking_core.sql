@@ -11,20 +11,28 @@ SET @has_visit_date = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TAB
 SET @sql = IF(@has_payment_deadline = 0, 'ALTER TABLE `reservasi` ADD COLUMN `payment_deadline_at` DATETIME NULL AFTER `created_at`', 'SELECT 1');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
-SET @sql = IF(@has_channel = 0, 'ALTER TABLE `reservasi` ADD COLUMN `channel` ENUM('ONLINE','COUNTER') NOT NULL DEFAULT 'ONLINE' AFTER `metode_bayar`', 'SELECT 1');
+SET @sql = IF(@has_channel = 0, 'ALTER TABLE `reservasi` ADD COLUMN `channel` ENUM(\'ONLINE\',\'COUNTER\') NOT NULL DEFAULT \'ONLINE\' AFTER `metode_bayar`', 'SELECT 1');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
-SET @sql = IF(@has_visit_date = 0, 'ALTER TABLE `reservasi` ADD COLUMN `visit_date` DATE NOT NULL AFTER `tanggal_kunjungan`', 'SELECT 1');
+SET @sql = IF(@has_visit_date = 0, 'ALTER TABLE `reservasi` ADD COLUMN `visit_date` DATE NULL AFTER `tanggal_kunjungan`', 'SELECT 1');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+-- Backfill visit_date dari tanggal_kunjungan (VARCHAR → DATE)
+UPDATE `reservasi` SET `visit_date` = STR_TO_DATE(`tanggal_kunjungan`, '%Y-%m-%d') WHERE `visit_date` IS NULL AND `tanggal_kunjungan` IS NOT NULL;
 
 -- 2. Indeks untuk query expire & lookup
-ALTER TABLE `reservasi` ADD INDEX IF NOT EXISTS `idx_reservasi_status_deadline` (`status`, `payment_deadline_at`);
-ALTER TABLE `reservasi` ADD INDEX IF NOT EXISTS `idx_reservasi_visit_date` (`visit_date`);
+SET @idx_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'reservasi' AND INDEX_NAME = 'idx_reservasi_status_deadline');
+SET @sql = IF(@idx_exists = 0, 'ALTER TABLE `reservasi` ADD INDEX `idx_reservasi_status_deadline` (`status`, `payment_deadline_at`)', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @idx_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'reservasi' AND INDEX_NAME = 'idx_reservasi_visit_date');
+SET @sql = IF(@idx_exists = 0, 'ALTER TABLE `reservasi` ADD INDEX `idx_reservasi_visit_date` (`visit_date`)', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 -- 3. Tabel booking_items (snapshot harga)
 CREATE TABLE IF NOT EXISTS `booking_items` (
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `booking_id` BIGINT UNSIGNED NOT NULL,
+    `booking_id` INT NOT NULL,
     `ticket_type_id` BIGINT UNSIGNED NOT NULL,
     `qty` INT UNSIGNED NOT NULL,
     `unit_price` BIGINT UNSIGNED NOT NULL,
