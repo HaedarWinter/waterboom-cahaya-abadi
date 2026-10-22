@@ -186,6 +186,7 @@ $extra_head = '
             margin-bottom: 1rem;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>';
 
 include 'includes/layouts/header.php';
@@ -279,6 +280,15 @@ include 'includes/layouts/navbar.php';
                             </div>
                             <div style="font-size:0.85rem;"><strong>Alasan:</strong> <?= htmlspecialchars($booking['catatan_tolak']) ?></div>
                         </div>
+                    <?php endif; ?>
+
+                    <?php if (getenv('APP_ENV') === 'demo' && $booking['status'] === BookingStateService::MENUNGGU_BAYAR): ?>
+                    <div style="background:#e0f2fe;border:1px solid #bae6fd;border-radius:10px;padding:12px;margin-bottom:15px;">
+                        <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.5px;color:#0369a1;font-weight:700;margin-bottom:8px;">MODE DEMO — Simulasi Pembayaran</div>
+                        <button id="btnSimulatePayment" class="btn" style="width:100%;background:#0284c7;border-color:#0284c7;">
+                            <i data-lucide="credit-card" style="width:14px;"></i> Simulasi Bayar Sekarang
+                        </button>
+                    </div>
                     <?php endif; ?>
 
                     <div style="background:var(--warm); border:1px solid transparent; border-radius:10px; padding:12px; margin-bottom:15px;">
@@ -463,8 +473,39 @@ if ($booking && $booking['status'] === BookingStateService::LUNAS && $booking['q
     ';
 }
 
-// Script untuk Tab & Upload Preview
+// Script untuk Simulate Payment (Demo Mode)
 $js_content .= '
+if (document.getElementById("btnSimulatePayment")) {
+    document.getElementById("btnSimulatePayment").addEventListener("click", function() {
+        var btn = this;
+        var originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = \'<i data-lucide="loader" style="width:14px;height:14px;animation:spin 1s linear infinite;"></i> Memproses...\';
+        
+        fetch("internal/simulate_payment.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "kode=' . $booking['kode_booking'] . '&csrf_token=' + document.querySelector("input[name=csrf_token]").value
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.success) {
+                Swal.fire({ icon:"success", title:"Simulasi Berhasil!", text:"Pembayaran diverifikasi otomatis. Status berubah ke LUNAS.", confirmButtonColor:"#0e7c6b" })
+                .then(function() { window.location.reload(); });
+            } else {
+                Swal.fire({ icon:"error", title:"Gagal", text:data.message || "Terjadi kesalahan", confirmButtonColor:"#0e7c6b" });
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        })
+        .catch(function() {
+            Swal.fire({ icon:"error", title:"Error", text:"Request gagal", confirmButtonColor:"#0e7c6b" });
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        });
+    });
+}
+
 document.querySelectorAll(".pay-tab").forEach(tab => {
     tab.addEventListener("click", () => {
         document.querySelectorAll(".pay-tab").forEach(t => t.classList.remove("active"));

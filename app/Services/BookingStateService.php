@@ -16,6 +16,7 @@ class BookingStateService {
     public const REFUND_DIAJUKAN = 'REFUND_DIAJUKAN';
     public const DIREFUND = 'DIREFUND';
     public const TIDAK_HADIR = 'TIDAK_HADIR';
+    private static array $RELEASE_QUOTA_ON = [self::DIBATALKAN, self::KEDALUWARSA, self::DIREFUND, self::TIDAK_HADIR];
 
     private static function loadConfig(): array {
         if (empty(self::$stateConfig)) {

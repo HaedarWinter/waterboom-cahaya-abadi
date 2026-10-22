@@ -11,18 +11,18 @@ INSERT IGNORE INTO `booking_items` (`booking_id`, `ticket_type_id`, `qty`, `unit
 (3, 1, 3, 150000, 450000);
 
 -- 2. Dummy payments (MENUNGGU_VERIFIKASI, TERVERIFIKASI, DITOLAK)
-INSERT IGNORE INTO `payments` (`booking_id`, `attempt_no`, `method`, `amount`, `amount_received`, `status`, `verified_by`, `verified_at`) VALUES
-(1, 1, 'TRANSFER_BANK', 400000, 400000, 'TERVERIFIKASI', 6, NOW()),
-(2, 1, 'TRANSFER_BANK', 200000, NULL, 'MENUNGGU_VERIFIKASI', NULL, NULL),
-(3, 1, 'TRANSFER_BANK', 450000, 450000, 'TERVERIFIKASI', 6, NOW()),
-(4, 1, 'TRANSFER_BANK', 250000, 250000, 'TERVERIFIKASI', 6, NOW());
+-- Use IDs that match existing ledger entries (1000001, 3, 4) + new one (2)
+INSERT IGNORE INTO `payments` (`id`, `booking_id`, `attempt_no`, `method`, `amount`, `amount_received`, `status`, `verified_by`, `verified_at`) VALUES
+(2, 2, 1, 'TRANSFER_BANK', 200000, NULL, 'MENUNGGU_VERIFIKASI', NULL, NULL),
+(1000006, 1, 1, 'TRANSFER_BANK', 400000, 400000, 'TERVERIFIKASI', 6, NOW()),
+(1000007, 3, 1, 'TRANSFER_BANK', 450000, 450000, 'TERVERIFIKASI', 6, NOW()),
+(1000008, 4, 1, 'TRANSFER_BANK', 250000, 250000, 'TERVERIFIKASI', 6, NOW());
 
--- 3. Dummy ledger entries (IN/TIKET, OUT/BIAYA_OPERASIONAL, IN/SALDO_AWAL already seeded)
--- Add TERVERIFIKASI payment ledger entries
+-- 3. Dummy ledger entries - use matching payment IDs
 INSERT IGNORE INTO `ledger_entries` (`entry_no`, `entry_date`, `cash_account_id`, `direction`, `category`, `amount`, `source_type`, `source_id`, `created_by`, `note`) VALUES
-('LED-20261022-1000002', '2026-10-20', 1, 'IN', 'TIKET', 400000, 'PAYMENT', 1, 6, 'Booking TEST-E2E-1 verified'),
-('LED-20261022-1000003', '2026-10-21', 1, 'IN', 'TIKET', 450000, 'PAYMENT', 3, 6, 'Booking TEST-E2E-3 verified'),
-('LED-20261022-1000004', '2026-10-22', 1, 'IN', 'TIKET', 250000, 'PAYMENT', 4, 6, 'Booking TEST-E2E-4 verified');
+('LED-20261022-1000005', '2026-10-20', 1, 'IN', 'TIKET', 400000, 'PAYMENT', 1000006, 6, 'Booking demo payment verified'),
+('LED-20261022-1000006', '2026-10-20', 1, 'IN', 'TIKET', 450000, 'PAYMENT', 1000007, 6, 'Booking demo payment verified'),
+('LED-20261022-1000007', '2026-10-20', 1, 'IN', 'TIKET', 250000, 'PAYMENT', 1000008, 6, 'Booking demo payment verified');
 
 -- 4. Dummy daily closing (for demo - legacy schema)
 INSERT IGNORE INTO `daily_closings` (`closing_date`, `cash_account_id`, `total_in`, `total_out`, `system_balance`, `physical_balance`, `difference`, `status`, `closed_by`, `closed_at`) VALUES

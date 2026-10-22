@@ -1,7 +1,7 @@
 # SESSION CONTINUATION PROMPT
 **Project:** Waterboom Cahaya Abadi  
-**Last Session:** Phase 6 (Frontend Design System) integration complete  
-**Date:** 2026-10-22  
+**Last Session:** Phase 7 complete, Phase 8 (Demo Mode) in progress  
+**Date:** 2026-10-23  
 **Stack:** PHP 8.x native, MySQL/MariaDB, SweetAlert2, Chart.js, Lucide  
 **Env:** Test DB `db_ujikom_test` @ `127.0.0.1:3307` — **jangan sentuh `db_ujikom` port 3306**
 
@@ -18,7 +18,7 @@
 ### Phase 4: Inti Booking
 - `config/states.php` — 11 status + 19 transisi (PRD §4.2 table 4.2)
 - `BookingStateService` refactor — config-driven, QR token hash (sha256)
-- Migration `V4_003_booking_core.sql` + rollback (siap apply):
+- Migration `V4_003_booking_core.sql` + rollback (applied):
   - `reservasi`: `payment_deadline_at`, `channel` (ONLINE/COUNTER), `visit_date`
   - `booking_items` — snapshot harga per tiket
   - `ticket_types`, `ticket_prices` — harga efektif per tanggal
@@ -29,27 +29,58 @@
 - `TicketService::generate($id, $rawToken)` — QR pakai raw token
 - Cron endpoint `/cron/expire.php?token=...` — idempoten, token-based (FLOW-4)
 
-### Phase 6: Frontend Design System (NEW - COMPLETE)
-- **Token system**: Colors (light/dark), spacing, typography, effects, z-index, radius
-- **8 CSS layers**: tokens → base → layout → atoms → molecules → organisms → pages → utilities
-- **Atoms**: button (5 variants), input (sizes, states), badge (status sync), avatar, icon
-- **Molecules**: card (bento), form-field (checkbox/radio), modal (sizes), table-row
-- **Organisms**: header, sidebar (collapsible), data-table (sortable), pagination
-- **Pages**: admin layout, site layout (hero, bento, gallery, reviews, FAQ, stepper)
-- **Utilities**: spacing, visibility, animations, print styles
-- **Bundle**: `scripts/build_assets.php` → `public/assets/dist/css/app.min.css` (53KB minified)
-- **Integration**: Semua 14 admin pages + site header load `app.min.css`
-- **Components**: `resources/views/components/pagination.php`, `badge.php`
+### Phase 5: Pembayaran & Keuangan (unblocked parts)
+- **V4_004_expenses.sql**: `expenses` table (DRAFT/POSTED/VOIDED), backfill dari `laporan_keuangan`
+- **V4_005_daily_closings.sql**: `daily_closings` + `is_locked` pada ledger_entries
+- Domain: `ExpenseService`, `ClosingService`, `ReportService`, `LedgerService`, `ActivityLogger`
+- Controllers: `ExpenseController`, `ClosingController`, `ReportController`
+- Views: `admin/expenses.php`, `admin/closings.php`, `admin/reports.php`
+- Routes + RBAC di `config/routes_rbac.php`
+- Reconciliation.php 500 error fixed (SQL prepare issue)
 
-### Auth & Session Fixes
-- DB connection: socket path fixed for macOS XAMPP
-- `.htaccess` forced test DB → disabled
-- Password reset: `admin` / `admin123` (Super Admin)
-- Session path: `storage/sessions/` writable
-- Rate limit cleared
-- `BookingStateService::LABELS` bug fixed
-- CSRF temporarily disabled for login compatibility
-- Super Admin legacy bypass in `has_canonical_permission()`
+### Phase 6: Frontend Design System (COMPLETE)
+- Token system: Colors (light/dark), spacing, typography, effects, z-index, radius
+- 8 CSS layers: tokens → base → layout → atoms → molecules → organisms → pages → utilities
+- Atoms: button (5 variants), input (sizes, states), badge (status sync), avatar, icon
+- Molecules: card (bento), form-field (checkbox/radio), modal (sizes), table-row
+- Organisms: header, sidebar (collapsible), data-table (sortable), pagination
+- Pages: admin layout, site layout (hero, bento, gallery, reviews, FAQ, stepper)
+- Bundle: `scripts/build_assets.php` → `public/assets/dist/css/app.min.css` (53KB)
+- Integration: Semua 14 admin pages + site header load `app.min.css`
+
+### Phase 7: Notifikasi & Tiket (COMPLETE)
+- **V4_006_notifications.sql**: `notification_outbox` (retry queue, idempotent), `wa_templates` (5 seeded)
+- Domain: `OutboxRepository/Service`, `WhatsAppClient` (log/Fonnte driver), `TemplateRepository/Service`, `TicketService` (signed URL + PDF on-demand)
+- Controllers: `NotificationController`, `TemplateController`
+- Views: `admin/notifications`, `admin/templates` (index + edit with live preview)
+- Routes: notifications.php, templates.php → settings.manage
+- Endpoint: `ticket.php?url=...` (HMAC signed URL, 24hr expiry)
+
+---
+
+## 🔄 IN PROGRESS: Phase 8 (Demo Mode) — 70% done
+
+### ✅ Done
+- Roles seeded (6): super_admin, manager, front_office, finance, gate, content
+- Permissions seeded (36 canonical keys from PRD §3.2)
+- Demo accounts seeded (6 users, password: demo123):
+  - `demo_owner` → super_admin
+  - `demo_mgr` → manager
+  - `demo_fo` → front_office
+  - `demo_finance` → finance
+  - `demo_gate` → gate
+  - `demo_content` → content
+- Demo data seeder (WIP): booking_items, payments, ledger, daily_closings
+
+### ❌ Remaining (need to finish)
+| Task | File | Status |
+|------|------|--------|
+| Fix demo data integrity (payment IDs ↔ ledger) | `database/seeders/demo_data_seeder.sql` | In progress |
+| `reset_demo.php` script (truncate + re-seed + log) | `scripts/reset_demo.php` | Pending |
+| APP_ENV=demo check + banner di layout | `resources/views/layouts/admin.php` | Pending |
+| Simulated payment button + dummy proof generator | `reservasi.php` / `upload_bukti.php` | Pending |
+| Auto-reset endpoint (lazy) + UI reset button | `internal/reset_demo.php` | Pending |
+| Full flow test: booking → sim payment → verify → check-in → close | Manual test | Pending |
 
 ---
 
@@ -68,38 +99,17 @@
 | 14.9 | Demo publik boleh nama venue asli atau generik/dummy? | Mode demo seeder |
 | 14.10 | Rencana QRIS dinamis / payment gateway? | Payment infrastructure |
 
-**Migration approval needed** (AGENTS.md §8): `database/migrations/V4_003_booking_core.sql`
-
 ---
 
-## 📋 NEXT PHASES
+## 🎯 IMMEDIATE NEXT ACTIONS (Current Session)
 
-### Phase 5: Pembayaran & Keuangan (butuh §14 dulu)
-- Kode unik (PAY-1/PAY-2) — blokir §14.4
-- Refund maker-checker — blokir §14.2
-- `expenses` ganti `laporan_keuangan` manual
-- Tutup harian + penguncian periode
-- Laporan hanya dari ledger
-
-### Phase 7: Notifikasi & Tiket (bisa mulai sekarang)
-- Outbox + retry + driver log (mode demo)
-- PDF on-demand + signed URL (HMAC + expiry)
-- Template WA di settings
-- **Tidak butuh Phase 5 selesai** untuk bisa mulai
-
-### Phase 8: Demo & Rilis
-- Mode demo lengkap + reset script
-- Deploy hosting gratis (Railway/Vercel/PlanetScale)
-- `PROJECT_STORY.md` + screenshot/video
-- README final
-
----
-
-## 🎯 IMMEDIATE NEXT ACTIONS
-
-1. **Kirim template approval owner** (migration V4_003 + §14 answers)
-2. **Mulai Phase 7** (Notifikasi & Tiket) — parallel, tidak butuh owner
-3. **Apply migration V4_003 → concurrency test** → Phase 5 (setelah owner jawab)
+1. **Fix demo data integrity** — align payment IDs with ledger source_id
+2. **Build `scripts/reset_demo.php`** — one-command reset
+3. **Add demo banner to admin layout** — show "MODE DEMO" badge
+4. **Add simulated payment button** to booking status page
+5. **Create auto-reset endpoint** + UI button for super_admin
+6. **Test full demo flow** end-to-end
+7. **Run integrity_check + all tests** → green
 
 ---
 
@@ -122,12 +132,15 @@
 
 ## 🔧 KONTEKS TEKNIS
 
-**Akun test (password di file luar repo):**
-- `test_frontoffice` → role `front_office` (legacy Admin)
-- `test_finance` → role `finance` (legacy Finance)  
-- `test_gate` → role `gate` (legacy Gate)
+**Akun test (password: demo123):**
+- `demo_owner` → role `super_admin`
+- `demo_finance` → role `finance`
+- `demo_fo` → role `front_office`
+- `demo_gate` → role `gate`
+- `demo_mgr` → role `manager`
+- `demo_content` → role `content`
 
-**Fixture booking test:**
+**Fixture booking test (di DB):**
 - `TEST-E2E-1` — MENUNGGU_BAYAR
 - `TEST-E2E-2` — MENUNGGU_VERIFIKASI
 - `TEST-E2E-3` — LUNAS (1 payment TERVERIFIKASI + 1 ledger IN/TIKET)
@@ -135,9 +148,17 @@
 
 **Config key:**
 - `config/states.php` — state machine
-- `config/permissions.php` — 32 canonical permissions
+- `config/permissions.php` — 36 canonical permissions
 - `config/roles.php` — 6 roles
 - `config/routes_rbac.php` — 26 route → permission mapping
+
+**Migration files (applied):**
+- V4_001_rbac.sql (roles, permissions, role_permissions)
+- V4_002_reconciliation.sql (ledger_reconciliations, reconciliation_batches)
+- V4_003_booking_core.sql (payment_deadline_at, channel, visit_date, booking_items, ticket_types, ticket_prices)
+- V4_004_expenses.sql (expenses table)
+- V4_005_daily_closings.sql (daily_closings, ledger_entries.is_locked)
+- V4_006_notifications.sql (notification_outbox, wa_templates)
 
 ---
 
@@ -145,15 +166,14 @@
 
 **Prompt untuk agent berikutnya:**
 ```
-Baca AGENTS.md, PRD.md, docs/audit/rbac-phase3-progress.md, SESSION_CONTINUE_PROMPT.md.
-Phase 3, 4, 6 selesai. Owner decisions §14 pending.
-Migration V4_003 ready but not applied.
-Static tests all pass.
+Baca AGENTS.md, PRD.md, SESSION_CONTINUE_PROMPT.md.
+Phase 3-7 selesai. Phase 8 (Demo Mode) 70% done.
+Owner decisions §14 pending.
 
-Next: 
-1. Owner approval template untuk migration + §14
-2. Phase 7 (Notifikasi & Tiket) - independen
-3. Apply migration V4_003 → concurrency test → Phase 5
+Current state:
+- Demo data seeder has integrity issues (payment IDs ↔ ledger mismatch)
+- Need: fix seeder, build reset_demo.php, add demo banner, simulated payment, auto-reset
+- Then test full flow + run integrity_check
 
 Gunakan /caveman + /ponytail full.
 Step by step, satu file/perubahan per komit.
