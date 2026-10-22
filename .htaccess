@@ -4,3 +4,15 @@
 # SetEnv DB_DATABASE db_ujikom_test
 # SetEnv DB_USER root
 # SetEnv DB_PASSWORD
+
+# Redirect root to public/ (Phase 8A restructuring)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^$ public/ [L]
+    RewriteRule ^index\.php$ public/index.php [L]
+    RewriteRule ^login\.php$ public/login.php [L]
+    RewriteRule ^reservasi\.php$ public/reservasi.php [L]
+    RewriteRule ^cek_booking\.php$ public/cek_booking.php [L]
+    RewriteRule ^ticket\.php$ public/ticket.php [L]
+    RewriteRule ^upload_bukti\.php$ public/upload_bukti.php [L]
+</IfModule>
