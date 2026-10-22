@@ -1,0 +1,62 @@
+@layer utilities {
+  @media print {
+    .u-print-hidden { display: none !important; }
+    .u-print-block { display: block !important; }
+    .u-print-inline { display: inline !important; }
+    .u-print-flex { display: flex !important; }
+
+    .u-print-text-black { color: #000 !important; }
+    .u-print-bg-white { background: #fff !important; }
+    .u-print-no-shadow { box-shadow: none !important; }
+    .u-print-no-border { border: none !important; }
+
+    .c-sidebar,
+    .c-header,
+    .p-admin__header,
+    .p-hero,
+    .c-modal,
+    .c-pagination,
+    .c-button,
+    .c-pagination-wrapper {
+      display: none !important;
+    }
+
+    .p-admin__main {
+      margin-left: 0 !important;
+    }
+
+    .p-admin__content {
+      padding: 0 !important;
+    }
+
+    .c-card,
+    .p-card {
+      border: 1px solid #ccc !important;
+      box-shadow: none !important;
+      break-inside: avoid;
+    }
+
+    .c-data-table {
+      border: 1px solid #ccc !important;
+    }
+
+    .c-data-table th,
+    .c-data-table td {
+      border: 1px solid #ccc !important;
+    }
+
+    body {
+      font-size: 12pt;
+      line-height: 1.5;
+    }
+
+    a {
+      text-decoration: none;
+      color: #000;
+    }
+
+    .u-page-break-before { page-break-before: always; }
+    .u-page-break-after { page-break-after: always; }
+    .u-page-break-avoid { page-break-inside: avoid; }
+  }
+}

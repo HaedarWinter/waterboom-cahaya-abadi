@@ -1,0 +1,50 @@
+@layer atoms {
+  .c-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1em;
+    height: 1em;
+  }
+
+  .c-icon--xs { width: 12px; height: 12px; }
+  .c-icon--sm { width: 16px; height: 16px; }
+  .c-icon--md { width: 20px; height: 20px; }
+  .c-icon--lg { width: 24px; height: 24px; }
+  .c-icon--xl { width: 32px; height: 32px; }
+  .c-icon--2xl { width: 48px; height: 48px; }
+
+  .c-icon[aria-hidden="true"] {
+    pointer-events: none;
+  }
+
+  .c-icon--stroke-1 { stroke-width: 1; }
+  .c-icon--stroke-2 { stroke-width: 1.5; }
+  .c-icon--stroke-3 { stroke-width: 2; }
+  .c-icon--stroke-4 { stroke-width: 2.5; }
+
+  .c-icon--current {
+    color: currentColor;
+  }
+
+  .c-icon--brand {
+    color: var(--color-brand);
+  }
+
+  .c-icon--muted {
+    color: var(--color-fg-muted);
+  }
+
+  .c-icon--success {
+    color: var(--color-success);
+  }
+
+  .c-icon--danger {
+    color: var(--color-danger);
+  }
+
+  .c-icon--warning {
+    color: var(--color-warning);
+  }
+}
