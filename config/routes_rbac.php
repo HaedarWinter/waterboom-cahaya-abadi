@@ -28,5 +28,8 @@ return [
     'admin/edit.php' => 'guestbook.moderate',
     'admin/handlers/buku_kas_handler.php' => 'ledger.view',
     'admin/audit_keuangan.php' => 'report.finance.view',
+    'admin/expenses.php' => 'ledger.entry_manual',
+    'admin/closings.php' => 'closing.perform',
+    'admin/reports.php' => 'report.finance.view',
     'admin/logs.php' => 'activity.view',
 ];
