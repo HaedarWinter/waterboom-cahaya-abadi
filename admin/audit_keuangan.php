@@ -8,13 +8,13 @@ enforce_active_session($koneksi);
 
 // Skema laporan_keuangan dikelola oleh sql/migration_v3_foundation.sql.
 
-// Cek hak akses: finance.view
-if (!has_permission('finance', 'view')) {
+// Cek hak akses: report.finance.view
+if (!has_canonical_permission('report.finance.view')) {
     header("Location: /ujikom1/admin/?error=Akses ditolak! Anda tidak memiliki izin untuk melihat laporan keuangan.");
     exit;
 }
 
-$can_manage = has_permission('finance', 'manage');
+$can_manage = has_canonical_permission('ledger.entry_manual');
 
 // ─── FILTER & PAGINATION ───
 $bulan   = $_GET['bulan'] ?? date('m');
@@ -133,6 +133,10 @@ $kategori_list = ['Reservasi', 'Operasional', 'Gaji Karyawan', 'Pemeliharaan', '
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audit Keuangan — Cahaya Abadi</title>
+        <!-- Design System (Atomic CSS) -->
+    <link rel="stylesheet" href="../public/assets/dist/css/app.min.css">
+    
+    <!-- Legacy Admin Styles (fallback) -->
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/admin_style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -170,9 +174,13 @@ $kategori_list = ['Reservasi', 'Operasional', 'Gaji Karyawan', 'Pemeliharaan', '
             <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / Keuangan</span>
         </div>
         <div style="display:flex; gap:10px;">
-            <a href="handlers/keuangan_handler.php?action=export_csv" class="header-logout" style="background:var(--surface-hover); border:1px solid var(--border); color:var(--fg-muted);">
-                <i data-lucide="download"></i><span>Export CSV</span>
-            </a>
+<form method="post" action="handlers/keuangan_handler.php" style="display:inline">
+    <input type="hidden" name="action" value="export_csv">
+    <?= csrf_field() ?>
+    <button type="submit" class="header-logout" style="background:var(--surface-hover); border:1px solid var(--border); color:var(--fg-muted);">
+        <i data-lucide="download"></i><span>Export CSV</span>
+    </button>
+</form>
             <button onclick="window.print()" class="header-logout" style="background:var(--surface-hover); border:1px solid var(--border); color:var(--fg-muted);">
                 <i data-lucide="printer"></i><span>Cetak PDF</span>
             </button>

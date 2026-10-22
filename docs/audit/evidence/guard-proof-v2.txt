@@ -1,0 +1,32 @@
+=== STEP 2: Guard proof v2 ===
+Timestamp: 2026-10-22T03:35:26Z
+
+--- Case a: no env vars (--guard-only) ---
+GUARD: FAIL
+CHARACTERIZATION: SKIPPED (guard rejected configuration)
+EXIT=2
+
+--- Case b: APP_ENV=test, DB_DATABASE=db_ujikom (--guard-only) ---
+GUARD: FAIL
+CHARACTERIZATION: SKIPPED (guard rejected configuration)
+EXIT=2
+
+--- Case c: APP_ENV=test, DB_DATABASE=db_ujikom_test, port 3306 (--guard-only) ---
+GUARD: FAIL
+CHARACTERIZATION: SKIPPED (guard rejected configuration)
+EXIT=2
+
+--- Case d: correct test config (--guard-only) ---
+GUARD: PASS
+CHARACTERIZATION: SKIPPED (guard-only)
+EXIT=0
+
+--- Case e: APP_ENV=test, DB_HOST=127.0.0.1, DB_PORT=3307, DB_DATABASE=db_ujikom (--guard-only) ---
+GUARD: FAIL
+CHARACTERIZATION: SKIPPED (guard rejected configuration)
+EXIT=2
+
+--- Case f: APP_ENV=production, otherwise identical to d (--guard-only) ---
+GUARD: FAIL
+CHARACTERIZATION: SKIPPED (guard rejected configuration)
+EXIT=2

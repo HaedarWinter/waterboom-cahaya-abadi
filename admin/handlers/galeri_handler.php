@@ -14,7 +14,7 @@ check_session_timeout();
 enforce_active_session($koneksi);
 
 // Cek hak akses: gallery.manage
-if (!has_permission('gallery', 'manage')) {
+if (!has_canonical_permission('content.gallery.manage')) {
     header("Location: /ujikom1/admin/galeri.php?error=Anda tidak memiliki hak akses untuk mengelola galeri.");
     exit;
 }

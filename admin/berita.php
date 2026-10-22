@@ -6,7 +6,7 @@ require_once '../app/init.php';
 check_session_timeout();
 enforce_active_session($koneksi);
 
-if (!has_permission('news', 'view')) {
+if (!has_canonical_permission('content.news.manage')) {
     header("Location: /ujikom1/admin/?error=Akses ditolak! Anda tidak memiliki izin untuk mengelola Berita.");
     exit;
 }
@@ -39,6 +39,10 @@ if (isset($_GET['edit'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Berita — Cahaya Abadi</title>
+        <!-- Design System (Atomic CSS) -->
+    <link rel="stylesheet" href="../public/assets/dist/css/app.min.css">
+    
+    <!-- Legacy Admin Styles (fallback) -->
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/admin_style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -56,7 +60,7 @@ if (isset($_GET['edit'])) {
             <h1 class="page-heading">Kelola Berita & Event</h1>
             <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / Berita</span>
         </div>
-        <a href="logout.php" class="header-logout swal-logout"><i data-lucide="log-out"></i><span>Keluar</span></a>
+        <a href="logout.php?token=<?= e(csrf_token()) ?>" class="header-logout swal-logout"><i data-lucide="log-out"></i><span>Keluar</span></a>
     </header>
 
     <div class="admin-content">

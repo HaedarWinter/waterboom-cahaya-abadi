@@ -14,9 +14,16 @@ if (!isset($_SESSION['login'])) {
 require '../../config/koneksi.php';
 require '../../config/security.php';
 check_session_timeout();
+enforce_active_session($koneksi);
+
+// SEC-2: ekspor adalah aksi sensitif, wajib token CSRF.
+if (!validate_csrf($_GET['token'] ?? '')) {
+    http_response_code(403);
+    die('Token keamanan tidak valid. Muat ulang halaman lalu coba lagi.');
+}
 
 // ─── PROTEKSI PERMISSION ───
-if (!has_permission('system', 'export')) {
+if (!has_canonical_permission('guestbook.moderate')) {
     header("Location: /ujikom1/admin/?error=Anda tidak memiliki izin untuk mengekspor data.");
     exit;
 }

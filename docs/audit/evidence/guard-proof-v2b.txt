@@ -1,0 +1,25 @@
+=== STEP 2b: guard proof v2b ===
+--- Case a ---
+GUARD: FAIL
+CHARACTERIZATION: SKIPPED (guard rejected configuration)
+CASE=a EXIT=2
+--- Case b ---
+GUARD: FAIL
+CHARACTERIZATION: SKIPPED (guard rejected configuration)
+CASE=b EXIT=2
+--- Case c ---
+GUARD: FAIL
+CHARACTERIZATION: SKIPPED (guard rejected configuration)
+CASE=c EXIT=2
+--- Case d ---
+GUARD: PASS
+CHARACTERIZATION: SKIPPED (guard-only)
+CASE=d EXIT=0
+--- Case e ---
+GUARD: FAIL
+CHARACTERIZATION: SKIPPED (guard rejected configuration)
+CASE=e EXIT=2
+--- Case f ---
+GUARD: FAIL
+CHARACTERIZATION: SKIPPED (guard rejected configuration)
+CASE=f EXIT=2

@@ -9,6 +9,11 @@ if (session_status() === PHP_SESSION_NONE) {
         'httponly' => true,                 // Mencegah akses cookie via JavaScript (Anti-XSS)
         'samesite' => 'Lax'                // Proteksi tambahan terhadap CSRF
     ]);
+    // Custom session path untuk menghindari permission issue di macOS
+    if (!is_dir(__DIR__ . '/../storage/sessions')) {
+        mkdir(__DIR__ . '/../storage/sessions', 0755, true);
+    }
+    ini_set('session.save_path', __DIR__ . '/../storage/sessions');
     session_start();
 }
 /**
@@ -74,3 +79,8 @@ function base_url($path = '') {
 
 // Fitur Lazy Cron: Auto-Cancel Reservasi kedaluwarsa secara otomatis
 \App\Models\Reservasi::autoCancelExpired();
+
+// Centralized middleware: enforce RBAC for admin routes
+if (str_starts_with(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/admin/')) {
+    require_once __DIR__ . '/Http/Middleware/Bootstrap.php';
+}

@@ -5,6 +5,7 @@ use App\Core\Database;
 use App\Models\Setting;
 
 class BookingStateService {
+    private static array $stateConfig = [];
     public const MENUNGGU_BAYAR = 'MENUNGGU_BAYAR';
     public const MENUNGGU_VERIFIKASI = 'MENUNGGU_VERIFIKASI';
     public const LUNAS = 'LUNAS';
@@ -16,40 +17,25 @@ class BookingStateService {
     public const DIREFUND = 'DIREFUND';
     public const TIDAK_HADIR = 'TIDAK_HADIR';
 
-    private const TRANSITIONS = [
-        self::MENUNGGU_BAYAR => [self::MENUNGGU_VERIFIKASI, self::KEDALUWARSA, self::DIBATALKAN],
-        self::MENUNGGU_VERIFIKASI => [self::LUNAS, self::DITOLAK, self::DIBATALKAN],
-        self::DITOLAK => [self::MENUNGGU_VERIFIKASI, self::KEDALUWARSA, self::DIBATALKAN],
-        self::LUNAS => [self::SELESAI, self::REFUND_DIAJUKAN, self::TIDAK_HADIR],
-        self::REFUND_DIAJUKAN => [self::DIREFUND, self::LUNAS],
-        self::SELESAI => [],
-        self::KEDALUWARSA => [],
-        self::DIBATALKAN => [],
-        self::DIREFUND => [],
-        self::TIDAK_HADIR => [],
-    ];
-
-    private const LABELS = [
-        self::MENUNGGU_BAYAR => 'Menunggu Bayar',
-        self::MENUNGGU_VERIFIKASI => 'Menunggu Verifikasi',
-        self::LUNAS => 'Lunas',
-        self::DITOLAK => 'Ditolak',
-        self::KEDALUWARSA => 'Kedaluwarsa',
-        self::DIBATALKAN => 'Dibatalkan',
-        self::SELESAI => 'Selesai',
-        self::REFUND_DIAJUKAN => 'Refund Diajukan',
-        self::DIREFUND => 'Direfund',
-        self::TIDAK_HADIR => 'Tidak Hadir',
-    ];
-
-    private const RELEASE_QUOTA_ON = [self::KEDALUWARSA, self::DIBATALKAN, self::DIREFUND];
+    private static function loadConfig(): array {
+        if (empty(self::$stateConfig)) {
+            self::$stateConfig = require __DIR__ . '/../../config/states.php';
+        }
+        return self::$stateConfig;
+    }
 
     public static function labels(): array {
-        return self::LABELS;
+        $config = self::loadConfig();
+        $labels = [];
+        foreach ($config as $status => $data) {
+            $labels[$status] = $data['label'] ?? $status;
+        }
+        return $labels;
     }
 
     public static function label(?string $status): string {
-        return self::LABELS[$status] ?? ($status ?? '-');
+        $config = self::loadConfig();
+        return $config[$status]['label'] ?? ($status ?? '-');
     }
 
     public static function badgeClass(?string $status): string {
@@ -62,14 +48,26 @@ class BookingStateService {
     }
 
     public static function allowedFrom(?string $status): array {
-        return self::TRANSITIONS[$status] ?? [];
+        $config = self::loadConfig();
+        if (!isset($config[$status]['transitions'])) return [];
+        return array_keys($config[$status]['transitions']);
     }
 
     public static function canTransition(?string $from, string $to): bool {
         return in_array($to, self::allowedFrom($from), true);
     }
 
+    public static function getTransitionConfig(?string $from, string $to): ?array {
+        $config = self::loadConfig();
+        return $config[$from]['transitions'][$to] ?? null;
+    }
+
     public static function deadlineAt(array $booking): ?\DateTimeImmutable {
+        if (!empty($booking['payment_deadline_at'])) {
+            try {
+                return new \DateTimeImmutable($booking['payment_deadline_at']);
+            } catch (\Throwable) {}
+        }
         if (empty($booking['created_at'])) return null;
         $minutes = max(1, (int)Setting::get('payment_deadline_minutes', 120));
         try {
@@ -101,7 +99,8 @@ class BookingStateService {
         ?string $qrToken = null,
         ?string $proofFilename = null
     ): array {
-        if (!isset(self::LABELS[$to])) {
+        $labels = self::labels();
+        if (!isset($labels[$to])) {
             return ['success' => false, 'message' => 'Status tujuan tidak dikenal.'];
         }
 
@@ -140,8 +139,10 @@ class BookingStateService {
             }
 
             $token = $qrToken;
+            $rawToken = null;
             if ($to === self::LUNAS) {
-                $token = $qrToken ?: bin2hex(random_bytes(16));
+                $rawToken = $qrToken ?: bin2hex(random_bytes(16));
+                $token = hash('sha256', $rawToken);
             } elseif (in_array($to, [self::DITOLAK, self::DIBATALKAN, self::KEDALUWARSA, self::DIREFUND, self::TIDAK_HADIR], true)) {
                 $token = null;
             } else {
@@ -177,6 +178,109 @@ class BookingStateService {
                 self::releaseQuota($booking);
             }
 
+            if ($to === self::LUNAS) {
+                $amount = (int)$booking['total_harga'];
+                $method = match ($booking['metode_bayar'] ?? '') {
+                    'Transfer Bank' => 'TRANSFER_BANK',
+                    'QRIS' => 'QRIS',
+                    'Bayar di Lokasi' => 'CASH_COUNTER',
+                    'Lainnya' => 'LAINNYA',
+                    default => 'LAINNYA',
+                };
+
+                $conn = $db->getConnection();
+                $res = $db->query(
+                    "SELECT id FROM payments WHERE booking_id = ? FOR UPDATE",
+                    [$bookingId],
+                    "i"
+                );
+                $paymentId = $res ? ($res->fetch_assoc()['id'] ?? null) : null;
+
+                if ($paymentId) {
+                    $db->query(
+                        "UPDATE payments SET amount_received = ?, status = 'TERVERIFIKASI', verified_by = ?, verified_at = NOW(), provider_ref = ?, method = ?
+                         WHERE id = ?",
+                        [$amount, $actorId, $qrToken ?: null, $method, $paymentId],
+                        "iissi"
+                    );
+                } else {
+                    $db->query(
+                        "INSERT INTO payments (booking_id, attempt_no, method, amount, amount_received, status, verified_by, verified_at, provider_ref)
+                         VALUES (?, 1, ?, ?, ?, 'TERVERIFIKASI', ?, NOW(), ?)",
+                        [$bookingId, $method, $amount, $amount, $actorId, $qrToken ?: null],
+                        "isiiis"
+                    );
+                    $paymentId = $conn->insert_id;
+                }
+
+                $entryNo = 'LED-' . date('Ymd') . '-' . str_pad($paymentId, 6, '0', STR_PAD_LEFT);
+                $db->query(
+                    "INSERT INTO ledger_entries (
+                        entry_no, entry_date, cash_account_id, direction, category,
+                        amount, source_type, source_id, created_by, note
+                    ) VALUES (?, ?, (SELECT id FROM cash_accounts WHERE code = 'KAS_001'), 'IN', 'TIKET', ?, 'PAYMENT', ?, ?, ?)",
+                    [
+                        $entryNo,
+                        date('Y-m-d'),
+                        $amount,
+                        $paymentId,
+                        $actorId,
+                        'Pembayaran berhasil diverifikasi untuk booking #' . $bookingId
+                    ],
+                    "ssiiis"
+                );
+            } elseif ($to === self::DIREFUND) {
+                $amount = (int)$booking['total_harga'];
+                $conn = $db->getConnection();
+                
+                // Ambil payment terkait
+                $resPay = $db->query("SELECT id FROM payments WHERE booking_id = ? AND status = 'TERVERIFIKASI' LIMIT 1", [$bookingId], "i");
+                $paymentId = $resPay ? ($resPay->fetch_assoc()['id'] ?? null) : null;
+
+                // Update / create entry in refunds
+                $resRef = $db->query("SELECT id FROM refunds WHERE booking_id = ? AND status = 'DIAJUKAN' ORDER BY id DESC LIMIT 1", [$bookingId], "i");
+                $refundId = $resRef ? ($resRef->fetch_assoc()['id'] ?? null) : null;
+
+                if ($refundId) {
+                    $db->query(
+                        "UPDATE refunds SET status = 'DIREFUND', approved_by = ?, approved_at = NOW() WHERE id = ?",
+                        [$actorId, $refundId],
+                        "ii"
+                    );
+                } else {
+                    $db->query(
+                        "INSERT INTO refunds (booking_id, payment_id, amount, reason, status, requested_by, approved_by, approved_at)
+                         VALUES (?, ?, ?, ?, 'DIREFUND', ?, ?, NOW())",
+                        [$bookingId, $paymentId, $amount, $reason ?: 'Refund diproses oleh admin', $actorId, $actorId],
+                        "iiisii"
+                    );
+                    $refundId = $conn->insert_id;
+                }
+
+                // Update payment status jika ada
+                if ($paymentId) {
+                    $db->query("UPDATE payments SET status = 'DIREFUND_PENUH' WHERE id = ?", [$paymentId], "i");
+                }
+
+                // Tulis buku kas (Ledger OUT - REFUND)
+                $entryNo = 'LED-REF-' . date('Ymd') . '-' . str_pad($refundId, 6, '0', STR_PAD_LEFT);
+                $db->query(
+                    "INSERT INTO ledger_entries (
+                        entry_no, entry_date, cash_account_id, direction, category,
+                        amount, source_type, source_id, created_by, note
+                    ) VALUES (?, ?, (SELECT id FROM cash_accounts WHERE code = 'KAS_001'), 'OUT', 'REFUND', ?, 'REFUND', ?, ?, ?)",
+                    [
+                        $entryNo,
+                        date('Y-m-d'),
+                        $amount,
+                        $refundId,
+                        $actorId,
+                        'Refund dana untuk booking #' . $bookingId . ($reason ? ' - ' . $reason : '')
+                    ],
+                    "ssiiis"
+                );
+            }
+
             $history = $db->query(
                 "INSERT INTO booking_status_history
                     (booking_id, from_status, to_status, actor_id, actor_role, reason)
@@ -195,6 +299,7 @@ class BookingStateService {
                 'message' => 'Status diubah ke ' . self::label($to) . '.',
                 'from' => $from,
                 'to' => $to,
+                'qr_token_raw' => $rawToken ?? null,
             ];
         } catch (\Throwable $e) {
             $db->rollback();

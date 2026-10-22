@@ -6,6 +6,8 @@
 **Metode:** telaah kode, `sql/`, `docs/audit/`, inspeksi skema database live secara read-only, dan menjalankan `tests/verify_hardening.php`.
 
 > Dokumen ini memetakan kondisi nyata terhadap `docs/Dokumentasi Alur CRUD Keuangan.md`. Snapshot awal diambil sebelum migrasi v3. Per 22 Oktober 2026, `sql/migration_v3_foundation.sql` dan `sql/migration_v3_state_machine.sql` sudah diterapkan; temuan yang sudah ditutup ditandai di tiap bagian.
+>
+> **Bagian 12 adalah status terbaru** (diverifikasi ulang pada commit `1c1e76c`). Beberapa tabel di bagian 1–11 masih menggambarkan kondisi sebelum state machine; bila berbeda, pakai bagian 12.
 
 ---
 
@@ -411,3 +413,44 @@ Item `TODO: konfirmasi akuntan` di PRD tetap terbuka:
 - target hosting (menentukan cron dan hak DB).
 
 Tanpa keputusan ini, implementasi buku kas dan pajak berisiko mengunci asumsi yang salah.
+
+---
+
+## 12. Status R-01…R-20 (verifikasi ulang, 22 Oktober 2026)
+
+**Baseline:** commit `1c1e76c`. **Metode:** baca kode + jalankan tes. Bukti tes: `verify_state_machine.php` 26 PASS, `verify_hardening.php` 10 PASS, `test_payment_ledger_invariant.php` lulus.
+
+| ID | Status | Bukti |
+|---|---|---|
+| R-01 | Sebagian | Transisi terpusat di `app/Services/BookingStateService.php:19-30`. Tabel memuat transisi di luar PRD 4.2: `MENUNGGU_VERIFIKASI→DIBATALKAN` dan `DITOLAK→DIBATALKAN`. Pelaku/izin tidak dicek di service, hanya di handler. |
+| R-02 | Belum | `ledger_entries` masih punya `reconciled_at`/`reconciliation_id` (`sql/migration_v3_foundation.sql:176-177`) dan di-UPDATE (`admin/handlers/reconciliation_handler.php:24,44`). `ledger_reconciliations` tidak ada. |
+| R-03 | Belum | Laporan masih menggabungkan `reservasi` LUNAS/SELESAI + `laporan_keuangan` (`admin/audit_keuangan.php:45-54,101-105`). Dashboard memakai query sendiri (`app/Models/Dashboard.php:21-22`). |
+| R-04 | Sebagian | Enum peran bertambah (`Finance`,`Gate`,`Akuntan`) di `sql/migration_v3_foundation.sql:65-67`, tetapi otorisasi masih hardcode `Super Admin` + JSON per user. Tidak ada maker-checker. |
+| R-05 | Belum | Izin masih `admin.permissions` JSON (`admin/handlers/cek_login.php:85`, `config/security.php:114-126`). Belum ada tabel `roles`/`permissions`/`role_permissions`. |
+| R-06 | Selesai | `audit_logs` dibuat migrasi (`sql/migration_v3_foundation.sql:20-33`). Catatan: tidak ada di `sql/db.sql`. |
+| R-07 | Belum | Batas bayar dihitung ulang dari setting saat dibaca, bukan snapshot (`BookingStateService.php:72-80`). Expire hanya `metode_bayar='Transfer Bank'` (`:336`), melanggar FLOW-2. |
+| R-08 | Belum | Kolom `payments.unique_code` ada tetapi tidak pernah diisi. Verifikasi mencatat satu entri `TIKET` sebesar `total_harga` penuh (`BookingStateService.php:180-230`); tidak ada baris `KODE_UNIK`. |
+| R-09 | Belum | `booking_items` tidak ada. Kolom ganda tetap di `reservasi` (`sql/db.sql:66-85`): `bukti_bayar`, `metode_bayar`, `is_checkin`, `waktu_checkin`. |
+| R-10 | Selesai | `sql/` tidak lagi memuat view/procedure/trigger berlogika. |
+| R-11 | Sebagian | Lazy expiry dipanggil setiap request (`app/init.php:66`). Belum ada `scripts/cron_expire.php` atau endpoint `/cron/expire?token=`. |
+| R-12 | Selesai | `hapus.php` & `simpan.php` sudah POST+CSRF+permission, dipakai UI. `export.php` POST+CSRF. Tidak ada lagi handler "generik" tanpa validasi. Penempatan `simpan.php` di `admin/handlers/` melayani publik — tersisa, tapi aman. |
+| R-13 | Sebagian | Tiga skrip tes (33+ assertion) tanpa `tests/run.php` dan tanpa CI (`.github/` tidak ada). Tes menulis ke DB live lalu menghapus, termasuk `DELETE FROM ledger_entries` (`tests/test_payment_ledger_invariant.php`), sehingga tidak menghormati aturan append-only. |
+| R-14 | Sebagian | Socket hardcode di `app/Core/Database.php:15-19` (fallback XAMPP macOS) — perlu `.env` fase 2. Redirect `/ujikom1/` dihapus dari `logout.php`; `security.php` masih punya hardcode (login/logout redirect) — perlu bersihkan di fase 2. `.env`/`.env.example` belum ada. |
+| R-15 | Belum | PDF ditulis ke `assets/tickets/` di dalam web root dan path dikembalikan mentah (`app/Services/TicketService.php:97-108`). Tidak ada signed URL/on-demand. |
+| R-16 | Belum | Pajak masih default 10% (`admin/audit_keuangan.php:42`), bukan setting; `pajak_persen` tidak ada di DB. |
+| R-17 | Belum | `css/admin_style.css` 2057 baris, `css/style.css` 1977 baris, `css/scanner_style.css` 370 baris. Tidak ada `public/assets/css`. |
+| R-18 | Selesai | PRD dan AGENTS.md sudah dipisah. |
+| R-19 | Selesai | Scanner & notifikasi memakai `require_api_session()` + CSRF (`config/security.php`, `scanner_handler.php`). Logout hanya POST+CSRF (`admin/logout.php`, `sidebar.php` handler capture). Ekspor hanya POST+CSRF (`export.php`, `keuangan_handler.php`, `buku_kas_handler.php`, form di `audit_keuangan.php`, `buku_kas.php`). Tidak ada lagi GET tanpa token. |
+| R-20 | Belum | `qr_token` disimpan plaintext di `reservasi`; scan tidak memvalidasi tanggal kunjungan (`admin/handlers/scanner_handler.php:51-75`). |
+
+### 12.1 Selisih struktur
+
+Target PRD 6.2 belum ada: tidak ada `public/`, `routes/`, `app/Http/`, `app/Domain/`, `database/migrations/`, `storage/`. Yang ada masih struktur v3 (`admin/`, `app/Models/`, `app/Services/`, `sql/`). Fase 2 belum dimulai.
+
+### 12.2 Temuan baru di luar R-01…R-20
+
+1. `BookingStateService::transition()` mengizinkan `MENUNGGU_VERIFIKASI→DIBATALKAN` dan `DITOLAK→DIBATALKAN`, tetapi PRD 4.2 hanya mengizinkan pembatalan dari `MENUNGGU_BAYAR`. Perlu keputusan owner: tambahkan ke PRD atau tolak di service.
+2. `entry_no` ledger memakai `payment_id`/`refund_id` (`BookingStateService.php:215,265`), sehingga nomor tidak berurutan per tahun seperti PRD 5.3.
+3. `payments` di-`UPDATE` saat verifikasi tanpa `FOR UPDATE` pada baris booking yang sudah dikunci; dua verifikasi paralel masih bergantung pada guard status `from === to`, belum pada constraint sumber ledger.
+4. Tes state machine menghapus `reservasi`/`kuota_harian`; tes ledger menghapus `ledger_entries`. Ini bertentangan dengan larangan §15 AGENTS.md dan harus dipindah ke DB tes terpisah.
+5. `audit_logs` tidak mencatat verifikasi pembayaran, entri ledger, refund, atau perubahan harga/kuota (AUD-2).

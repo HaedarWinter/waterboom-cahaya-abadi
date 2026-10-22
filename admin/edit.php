@@ -3,7 +3,7 @@ check_session_timeout();
 enforce_active_session($koneksi);
 
 // ─── PROTEKSI PERMISSION ───
-if (!has_permission('content', 'edit')) {
+if (!has_canonical_permission('guestbook.moderate')) {
     header("Location: /ujikom1/admin/?error=Anda tidak memiliki izin untuk mengedit data pengunjung.");
     exit;
 }
@@ -87,6 +87,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Data — Cahaya Abadi Admin</title>
+        <!-- Design System (Atomic CSS) -->
+    <link rel="stylesheet" href="../public/assets/dist/css/app.min.css">
+    
+    <!-- Legacy Admin Styles (fallback) -->
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/admin_style.css">
     <!-- SweetAlert2 CDN -->
@@ -108,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / Edit Pengunjung</span>
         </div>
         <!-- tombol keluar header -->
-        <a href="logout.php" class="header-logout swal-logout">
+        <a href="logout.php?token=<?= e(csrf_token()) ?>" class="header-logout swal-logout">
             <i data-lucide="log-out"></i>
             <span>Keluar</span>
         </a>

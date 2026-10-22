@@ -62,7 +62,7 @@ $recent_notifs = $db->query("SELECT id, kode_booking, nama, created_at FROM rese
         </div>
 
         <div class="header-user-nav">
-            <a href="logout.php" class="header-logout swal-logout">
+            <a href="logout.php?token=<?= e(csrf_token()) ?>" class="header-logout swal-logout">
                 <i data-lucide="log-out"></i>
                 <span>Keluar</span>
             </a>

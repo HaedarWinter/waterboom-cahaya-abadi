@@ -79,12 +79,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_GET['kode'])) {
     $kode = trim($_POST['kode'] ?? $_GET['kode'] ?? '');
+    $hp_last4 = trim($_POST['hp_last4'] ?? $_GET['hp_last4'] ?? '');
+    
     if (!empty($kode)) {
         if (!$booking) {
-            $booking = Reservasi::getByKode($kode);
+            if (strlen($hp_last4) !== 4 || !ctype_digit($hp_last4)) {
+                $error = "Masukkan 4 digit terakhir nomor HP untuk verifikasi.";
+            } else {
+                $booking = Reservasi::getByKodeAndHpLast4($kode, $hp_last4);
+            }
         }
-        if (!$booking) {
-            $error = "Kode booking '$kode' tidak ditemukan. Pastikan kode booking benar.";
+        if (!$booking && empty($error)) {
+            $error = "Kode booking atau 4 digit HP tidak cocok.";
         }
     } elseif (!isset($_POST['action'])) {
         $error = "Silakan masukkan kode booking Anda.";
@@ -202,6 +208,12 @@ include 'includes/layouts/navbar.php';
                 <input type="text" id="kode" name="kode" placeholder="Contoh: CA-A1B2C3"
                        value="<?= htmlspecialchars($_POST['kode'] ?? $_GET['kode'] ?? '') ?>"
                        style="text-transform:uppercase;letter-spacing:1px;font-weight:700;font-size:1.1rem;text-align:center;" required>
+            </div>
+            <div class="form-group">
+                <label for="hp_last4">4 Digit Terakhir No. HP</label>
+                <input type="text" id="hp_last4" name="hp_last4" placeholder="Contoh: 1234"
+                       value="<?= htmlspecialchars($_POST['hp_last4'] ?? $_GET['hp_last4'] ?? '') ?>"
+                       maxlength="4" pattern="[0-9]{4}" style="text-align:center;letter-spacing:2px;font-size:1.1rem;" required>
             </div>
             <button type="submit" class="btn" style="width:100%;">
                 <i data-lucide="search"></i> Cari Booking

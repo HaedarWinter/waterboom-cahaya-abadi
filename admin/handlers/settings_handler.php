@@ -15,7 +15,7 @@ check_session_timeout();
 enforce_active_session($koneksi);
 
 // Cek hak akses: settings.manage
-if (!has_permission('settings', 'manage')) {
+if (!has_canonical_permission('settings.manage')) {
     header("Location: /ujikom1/admin/pengaturan.php?error=Akses ditolak! Anda tidak memiliki izin untuk mengubah pengaturan.");
     exit;
 }

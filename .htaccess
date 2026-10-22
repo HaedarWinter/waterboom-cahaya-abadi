@@ -1,0 +1,6 @@
+# SetEnv APP_ENV test
+# SetEnv DB_HOST 127.0.0.1
+# SetEnv DB_PORT 3307
+# SetEnv DB_DATABASE db_ujikom_test
+# SetEnv DB_USER root
+# SetEnv DB_PASSWORD

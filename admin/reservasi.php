@@ -7,8 +7,8 @@ use App\Services\BookingStateService;
 check_session_timeout();
 enforce_active_session($koneksi);
 
-// Cek hak akses: reservasi.view
-if (!has_permission('reservasi', 'view')) {
+// Cek hak akses: reservation.view
+if (!has_canonical_permission('reservation.view')) {
     header("Location: /ujikom1/admin/?error=Anda tidak memiliki hak akses untuk melihat data reservasi.");
     exit;
 }
@@ -66,6 +66,10 @@ $stats_revenue = $koneksi->query("SELECT SUM(total_harga) as s FROM reservasi WH
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Reservasi — Cahaya Abadi</title>
+        <!-- Design System (Atomic CSS) -->
+    <link rel="stylesheet" href="../public/assets/dist/css/app.min.css">
+    
+    <!-- Legacy Admin Styles (fallback) -->
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/admin_style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -217,7 +221,17 @@ $stats_revenue = $koneksi->query("SELECT SUM(total_harga) as s FROM reservasi WH
                                     </button>
                                     <?php endif; ?>
 
-                                    <?php if (in_array($r['status'], ['MENUNGGU_BAYAR', 'MENUNGGU_VERIFIKASI', 'DITOLAK'], true)): ?>
+                                     <?php if ($r['status'] === 'LUNAS'): ?>
+                                     <button class="action-btn btn-icon-square x btn-refund-ajukan" data-id="<?= $r['id'] ?>" data-kode="<?= $r['kode_booking'] ?>" title="Ajukan Refund">
+                                         <i data-lucide="rotate-ccw" style="width:14px;height:14px;"></i>
+                                     </button>
+                                     <?php elseif ($r['status'] === 'REFUND_DIAJUKAN'): ?>
+                                     <button class="action-btn btn-icon-square check btn-refund-proses" data-id="<?= $r['id'] ?>" data-kode="<?= $r['kode_booking'] ?>" title="Proses Refund">
+                                         <i data-lucide="wallet-cards" style="width:14px;height:14px;"></i>
+                                     </button>
+                                     <?php endif; ?>
+
+                                     <?php if (in_array($r['status'], ['MENUNGGU_BAYAR', 'MENUNGGU_VERIFIKASI', 'DITOLAK'], true)): ?>
                                     <button class="action-btn del btn-hapus-rsv" data-id="<?= $r['id'] ?>" data-kode="<?= $r['kode_booking'] ?>" data-status="<?= $r['status'] ?>" title="Batalkan Reservasi">
                                         <i data-lucide="x-circle" style="width:14px;height:14px;"></i>
                                     </button>
@@ -275,6 +289,22 @@ $stats_revenue = $koneksi->query("SELECT SUM(total_harga) as s FROM reservasi WH
     <input type="hidden" name="action" value="tolak_bayar">
     <input type="hidden" name="id" id="tolak-id">
     <input type="hidden" name="alasan" id="tolak-alasan">
+</form>
+
+<!-- Refund forms -->
+<form id="form-refund-ajukan" action="handlers/reservasi_handler.php" method="post" style="display:none;">
+    <?= csrf_field() ?>
+    <input type="hidden" name="action" value="update_status">
+    <input type="hidden" name="status" value="REFUND_DIAJUKAN">
+    <input type="hidden" name="id" id="refund-ajukan-id">
+    <input type="hidden" name="alasan" id="refund-ajukan-alasan">
+</form>
+<form id="form-refund-proses" action="handlers/reservasi_handler.php" method="post" style="display:none;">
+    <?= csrf_field() ?>
+    <input type="hidden" name="action" value="update_status">
+    <input type="hidden" name="status" value="DIREFUND">
+    <input type="hidden" name="id" id="refund-proses-id">
+    <input type="hidden" name="alasan" id="refund-proses-alasan">
 </form>
 
 <script>
@@ -397,6 +427,54 @@ document.querySelectorAll('.btn-tolak-bayar').forEach(el => {
                 document.getElementById('tolak-alasan').value = r.value;
                 document.getElementById('form-tolak').submit(); 
             } 
+        });
+    });
+});
+
+// Refund Ajukan
+document.querySelectorAll('.btn-refund-ajukan').forEach(el => {
+    el.addEventListener('click', function() {
+        const id = this.dataset.id, kode = this.dataset.kode;
+        Swal.fire({
+            title: 'Ajukan Refund?',
+            html: '<p style="font-size:.88rem;margin-bottom:1rem;">Booking <strong>' + kode + '</strong> akan diajukan refund penuh.</p>',
+            input: 'textarea',
+            inputPlaceholder: 'Masukkan alasan refund...',
+            showCancelButton: true,
+            confirmButtonColor: '#eab308',
+            cancelButtonColor: '#52525b',
+            confirmButtonText: 'Ajukan Refund',
+            cancelButtonText: 'Batal',
+            inputValidator: (value) => { if (!value) { return 'Alasan refund wajib diisi!' } }
+        }).then(r => {
+            if(r.isConfirmed) {
+                document.getElementById('refund-ajukan-id').value = id;
+                document.getElementById('refund-ajukan-alasan').value = r.value;
+                document.getElementById('form-refund-ajukan').submit();
+            }
+        });
+    });
+});
+
+// Refund Proses
+document.querySelectorAll('.btn-refund-proses').forEach(el => {
+    el.addEventListener('click', function() {
+        const id = this.dataset.id, kode = this.dataset.kode;
+        Swal.fire({
+            icon: 'warning',
+            title: 'Proses Refund Penuh?',
+            html: 'Dana akan dikembalikan ke pengunjung untuk <strong>' + kode + '</strong>. Tindakan ini tidak dapat dibatalkan.',
+            showCancelButton: true,
+            confirmButtonColor: '#0e7c6b',
+            cancelButtonColor: '#52525b',
+            confirmButtonText: 'Ya, Refund Penuh',
+            cancelButtonText: 'Batal'
+        }).then(r => {
+            if(r.isConfirmed) {
+                document.getElementById('refund-proses-id').value = id;
+                document.getElementById('refund-proses-alasan').value = 'Refund diproses oleh admin';
+                document.getElementById('form-refund-proses').submit();
+            }
         });
     });
 });

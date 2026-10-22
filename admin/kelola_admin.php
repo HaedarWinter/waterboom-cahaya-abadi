@@ -7,11 +7,11 @@ require_once '../app/init.php';
 enforce_active_session($koneksi);
 
 // Pastikan hanya Super Admin yang bisa mengelola ini
-if ($_SESSION['role'] !== 'Super Admin') {
+if (!has_canonical_permission('user.manage') || !has_canonical_permission('role.manage')) {
     header("Location: /ujikom1/admin/?error=Akses ditolak! Halaman ini hanya untuk Super Admin.");
     exit;
 }
-$is_super = true; // Karena sudah lewat pengecekan di atas
+$is_super = true;
 
 // Search
 $search = $_GET['q'] ?? '';
@@ -243,6 +243,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Admin — Cahaya Abadi</title>
+        <!-- Design System (Atomic CSS) -->
+    <link rel="stylesheet" href="../public/assets/dist/css/app.min.css">
+    
+    <!-- Legacy Admin Styles (fallback) -->
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/admin_style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -261,7 +265,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             <h1 class="page-heading">Kelola Admin</h1>
             <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / Kelola Admin</span>
         </div>
-        <a href="logout.php" class="header-logout swal-logout">
+        <a href="logout.php?token=<?= e(csrf_token()) ?>" class="header-logout swal-logout">
             <i data-lucide="log-out"></i>
             <span>Keluar</span>
         </a>
@@ -348,13 +352,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                                 <div style="display:flex; align-items:center; gap:.75rem;">
                                     <div class="name-avatar"><?= strtoupper(substr($row['username'], 0, 1)) ?></div>
                                     <div>
-                                        <div style="font-weight:700; color:#1a1a1a;">
+                                        <div style="font-weight:700; color:var(--fg);">
                                             <?= htmlspecialchars($row['username']) ?>
                                             <?php if ($is_self): ?>
                                                 <span class="badge badge-success" style="padding:2px 8px; font-size:.6rem; margin-left:4px;">Anda</span>
                                             <?php endif; ?>
                                         </div>
-                                        <div style="font-size:.75rem; color:#888; font-weight:400;"><?= htmlspecialchars($row['email']) ?></div>
+                                        <div style="font-size:.75rem; color:var(--fg-muted); font-weight:400;"><?= htmlspecialchars($row['email']) ?></div>
                                     </div>
                                 </div>
                             </td>

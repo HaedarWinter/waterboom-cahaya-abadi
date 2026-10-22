@@ -3,13 +3,13 @@
 require_once '../../app/init.php';
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['admin_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
+$db = \App\Core\Database::getInstance();
+require_api_session($db->getConnection());
+if (!has_canonical_permission('dashboard.view')) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Akses ditolak.']);
     exit;
 }
-
-$db = \App\Core\Database::getInstance();
 
 // Hitung total pending
 $count = $db->query("SELECT COUNT(*) as n FROM reservasi WHERE status = 'MENUNGGU_VERIFIKASI'")->fetch_assoc()['n'] ?? 0;

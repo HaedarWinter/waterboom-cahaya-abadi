@@ -12,8 +12,10 @@ function nav_active($file, $current) {
 <!-- Theme Init Script (Prevent Flash) -->
 <script>
     (function() {
-        const theme = localStorage.getItem('theme') || 'light';
+        const forced = new URLSearchParams(location.search).get('theme');
+        const theme = (forced === 'dark' || forced === 'light') ? forced : (localStorage.getItem('theme') || 'light');
         if (theme === 'dark') {
+            document.documentElement.style.colorScheme = 'dark';
             document.body.classList.add('dark-theme');
         }
     })();
@@ -61,6 +63,14 @@ function nav_active($file, $current) {
         <a href="/ujikom1/admin/audit_keuangan.php" class="nav-item <?= nav_active('audit_keuangan.php', $current_file) ?>">
             <i data-lucide="wallet" class="nav-icon"></i>
             <span>Audit Keuangan</span>
+        </a>
+        <a href="/ujikom1/admin/buku_kas.php" class="nav-item <?= nav_active('buku_kas.php', $current_file) ?>">
+            <i data-lucide="book-open-check" class="nav-icon"></i>
+            <span>Buku Kas</span>
+        </a>
+        <a href="/ujikom1/admin/reconciliation.php" class="nav-item <?= nav_active('reconciliation.php', $current_file) ?>">
+            <i data-lucide="calculator" class="nav-icon"></i>
+            <span>Rekonsiliasi</span>
         </a>
         <?php endif; ?>
 
@@ -112,16 +122,38 @@ function nav_active($file, $current) {
             <div class="user-role"><?= $_SESSION['role'] ?></div>
         </div>
         <div style="display:flex; gap:5px;">
-            <button id="themeToggle" class="logout-btn" title="Ganti Tema" style="cursor:pointer; border:none;">
-                <i data-lucide="moon"></i>
+            <button id="themeToggle" class="logout-btn" title="Ganti Tema" aria-label="Ganti tema terang/gelap" style="cursor:pointer; border:none;">
+                <i data-lucide="moon" class="icon-theme-moon"></i>
+                <i data-lucide="sun" class="icon-theme-sun"></i>
             </button>
-            <a href="logout.php" class="logout-btn swal-logout" title="Logout"><i data-lucide="log-out"></i></a>
+            <a href="logout.php?token=<?= e(csrf_token()) ?>" class="logout-btn swal-logout" title="Logout"><i data-lucide="log-out"></i></a>
         </div>
     </div>
 </aside>
 
 <!-- Sidebar Overlay (Mobile) -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<form id="logout-form" method="post" action="<?= e(base_url('admin/logout.php')) ?>" hidden>
+    <?= csrf_field() ?>
+</form>
+
+<script>
+// SEC-2: semua tautan logout menjadi POST ber-CSRF. Handler capture ini
+// menggantikan handler lama per halaman tanpa perlu menyentuh semuanya.
+document.addEventListener('click', function(e) {
+    const el = e.target.closest('.swal-logout');
+    if (!el) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const submit = () => document.getElementById('logout-form').submit();
+    if (typeof Swal === 'undefined') { submit(); return; }
+    Swal.fire({
+        icon: 'question', title: 'Logout?', text: 'Sesi Anda akan diakhiri.',
+        showCancelButton: true, confirmButtonColor: '#0e7c6b', confirmButtonText: 'Ya, Logout'
+    }).then(function(res) { if (res.isConfirmed) submit(); });
+}, true);
+</script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -153,22 +185,15 @@ overlay.addEventListener('click', () => {
 const themeToggle = document.getElementById('themeToggle');
 const body = document.body;
 
-// Sync toggle icon on load
-if (body.classList.contains('dark-theme')) {
-    themeToggle.querySelector('i').setAttribute('data-lucide', 'sun');
-}
+themeToggle.setAttribute('aria-pressed', body.classList.contains('dark-theme') ? 'true' : 'false');
 
 themeToggle.addEventListener('click', () => {
     const isDark = body.classList.toggle('dark-theme');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    
-    // Update Icon
-    const icon = themeToggle.querySelector('i');
-    icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
-    lucide.createIcons(); // Refresh Lucide
 
     // Dispatch event for other components (like Charts)
+    themeToggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
     window.dispatchEvent(new CustomEvent('themeChanged', { detail: { isDark } }));
-    });
+});
 });
 </script>

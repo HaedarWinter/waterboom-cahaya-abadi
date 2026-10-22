@@ -55,6 +55,30 @@ function enforce_active_session($koneksi) {
     }
 }
 
+// ─── GUARD API (JSON) ────────────────────────────────────────────────
+// Endpoint AJAX tidak boleh redirect HTML. Tolak dengan 401/403 JSON bila
+// sesi tidak ada atau akun sudah dinonaktifkan.
+function require_api_session($koneksi) {
+    if (!isset($_SESSION['admin_id'])) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+        exit;
+    }
+
+    $stmt = $koneksi->prepare("SELECT status FROM admin WHERE id = ? LIMIT 1");
+    $stmt->bind_param("i", $_SESSION['admin_id']);
+    $stmt->execute();
+    $res = $stmt->get_result()->fetch_assoc();
+
+    if (!$res || $res['status'] === 'Nonaktif') {
+        session_unset();
+        session_destroy();
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'Sesi tidak valid.']);
+        exit;
+    }
+}
+
 // ─── CSRF TOKEN ───────────────────────────────────────────────────────
 // Generate token unik per session untuk mencegah Cross-Site Request Forgery
 
@@ -110,19 +134,37 @@ function check_rate_limit($form_name = 'default') {
 }
 
 // ─── PERMISSION CHECK ─────────────────────────────────────────────────
-// Cek apakah admin memiliki hak akses tertentu
-function has_permission($category, $action) {
-    if (!isset($_SESSION['role'])) return false;
-    
-    // Super Admin selalu punya akses ke semua fitur
-    if ($_SESSION['role'] === 'Super Admin') return true;
+function has_canonical_permission(string $permission): bool {
+    if (!isset($_SESSION['admin_id'])) return false;
 
-    // Untuk Admin biasa, cek array permissions di session
-    if (isset($_SESSION['permissions'][$category][$action])) {
-        return $_SESSION['permissions'][$category][$action] === true;
+    // Fallback: Super Admin legacy gets all permissions
+    if (isset($_SESSION['role']) && $_SESSION['role'] === 'Super Admin') {
+        return true;
     }
 
-    return false;
+    global $koneksi;
+    $stmt = $koneksi->prepare(
+        'SELECT 1 FROM admin a
+         JOIN role_permissions rp ON rp.role_id = a.role_id
+         JOIN permissions p ON p.id = rp.permission_id
+         WHERE a.id = ? AND a.status = \'Aktif\' AND p.permission_key = ? LIMIT 1'
+    );
+    if (!$stmt) return false;
+
+    $stmt->bind_param('is', $_SESSION['admin_id'], $permission);
+    $stmt->execute();
+    return $stmt->get_result()->num_rows === 1;
+}
+
+function has_permission($category, $action) {
+    $legacyMap = require __DIR__ . '/legacy_permission_map.php';
+    $legacyKey = $category . '.' . $action;
+    $permission = $legacyMap[$legacyKey] ?? $legacyKey;
+
+    if (has_canonical_permission($permission)) return true;
+
+    return isset($_SESSION['permissions'][$category][$action])
+        && $_SESSION['permissions'][$category][$action] === true;
 }
 
 // Cek apakah admin aktif (status)

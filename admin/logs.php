@@ -7,8 +7,7 @@
 require_once '../app/init.php';
 enforce_active_session($koneksi);
 
-// Pastikan hanya Super Admin yang bisa melihat log
-if ($_SESSION['role'] !== 'Super Admin') {
+if (!has_canonical_permission('activity.view')) {
     header("Location: /ujikom1/admin/?error=Halaman Log Aktivitas hanya dapat diakses oleh Super Admin.");
     exit;
 }
@@ -65,14 +64,18 @@ function get_action_badge($action) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Log Aktivitas — Cahaya Abadi</title>
+        <!-- Design System (Atomic CSS) -->
+    <link rel="stylesheet" href="../public/assets/dist/css/app.min.css">
+    
+    <!-- Legacy Admin Styles (fallback) -->
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/admin_style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        .log-details { font-size: 0.8rem; color: #666; max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .log-details { font-size: 0.8rem; color: var(--fg-muted); max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .log-action-cell { font-family: monospace; font-size: 0.75rem; font-weight: 600; }
-        .ip-badge { font-family: monospace; font-size: 0.7rem; color: #888; background: #f0f0f0; padding: 2px 5px; border-radius: 4px; }
+        .ip-badge { font-family: monospace; font-size: 0.7rem; color: var(--fg); background: var(--surface-hover); border: 1px solid var(--border-subtle); padding: 2px 5px; border-radius: 4px; }
     </style>
 </head>
 <body class="admin-body">
@@ -87,7 +90,7 @@ function get_action_badge($action) {
             <h1 class="page-heading">Log Aktivitas Sistem</h1>
             <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / Audit Logs</span>
         </div>
-        <a href="logout.php" class="header-logout swal-logout"><i data-lucide="log-out"></i><span>Keluar</span></a>
+        <a href="logout.php?token=<?= e(csrf_token()) ?>" class="header-logout swal-logout"><i data-lucide="log-out"></i><span>Keluar</span></a>
     </header>
 
     <div class="admin-content">
@@ -126,10 +129,10 @@ function get_action_badge($action) {
                         <?php $no = $offset + 1; while ($r = $result->fetch_assoc()): ?>
                         <tr>
                             <td class="td-num"><?= $no++ ?></td>
-                            <td><span class="date-badge" style="background:#f8f9fa; color:#444; border:1px solid #ddd;"><?= date('d/m/y H:i:s', strtotime($r['created_at'])) ?></span></td>
+                            <td><span class="date-badge"><?= date('d/m/y H:i:s', strtotime($r['created_at'])) ?></span></td>
                             <td class="td-name"><strong><?= e($r['admin_username']) ?></strong></td>
                             <td class="log-action-cell"><?= get_action_badge($r['action']) ?></td>
-                            <td style="font-size:0.8rem; color:#666;"><?= e($r['target_table'] ?: '—') ?></td>
+                            <td style="font-size:0.8rem; color:var(--fg-muted);"><?= e($r['target_table'] ?: '—') ?></td>
                             <td class="log-details"><?= e($r['details']) ?></td>
                             <td><span class="ip-badge"><?= e($r['ip_address']) ?></span></td>
                             <td class="td-actions">
@@ -184,12 +187,12 @@ document.querySelectorAll('.btn-view-log').forEach(el => {
             html: `
                 <div style="text-align:left; font-size:0.9rem; line-height:1.6;">
                     <table style="width:100%; border-collapse:collapse;">
-                        <tr style="border-bottom:1px solid #eee;"><td style="padding:8px; color:#888; width:100px;">Waktu</td><td style="padding:8px;"><strong>${d.time}</strong></td></tr>
-                        <tr style="border-bottom:1px solid #eee;"><td style="padding:8px; color:#888;">Admin</td><td style="padding:8px;">${d.admin}</td></tr>
-                        <tr style="border-bottom:1px solid #eee;"><td style="padding:8px; color:#888;">Aksi</td><td style="padding:8px;"><span class="badge badge-success">${d.action}</span></td></tr>
-                        <tr style="border-bottom:1px solid #eee;"><td style="padding:8px; color:#888;">Target</td><td style="padding:8px;">${d.table || '—'} #${d.id || '—'}</td></tr>
-                        <tr style="border-bottom:1px solid #eee;"><td style="padding:8px; color:#888;">IP Address</td><td style="padding:8px;"><span class="ip-badge">${d.ip}</span></td></tr>
-                        <tr><td style="padding:8px 8px 0 8px; color:#888;" colspan="2">Keterangan:</td></tr>
+                        <tr style=">border-bottom:1px solid var(--border-subtle);"><td style="padding:8px; color:var(--fg-muted); width:100px;">Waktu</td><td style="padding:8px;"><strong>${d.time}</strong></td></tr>
+                        <tr style=">border-bottom:1px solid var(--border-subtle);"><td style="padding:8px; color:var(--fg-muted);">Admin</td><td style="padding:8px;">${d.admin}</td></tr>
+                        <tr style=">border-bottom:1px solid var(--border-subtle);"><td style="padding:8px; color:var(--fg-muted);">Aksi</td><td style="padding:8px;"><span class="badge badge-success">${d.action}</span></td></tr>
+                        <tr style=">border-bottom:1px solid var(--border-subtle);"><td style="padding:8px; color:var(--fg-muted);">Target</td><td style="padding:8px;">${d.table || '—'} #${d.id || '—'}</td></tr>
+                        <tr style=">border-bottom:1px solid var(--border-subtle);"><td style="padding:8px; color:var(--fg-muted);">IP Address</td><td style="padding:8px;"><span class="ip-badge">${d.ip}</span></td></tr>
+                        <tr><td style="padding:8px 8px 0 8px; color:var(--fg-muted);" colspan="2">Keterangan:</td></tr>
                         <tr><td style="padding:4px 8px 8px 8px; font-style:italic;" colspan="2">${d.details || 'Tidak ada keterangan tambahan.'}</td></tr>
                     </table>
                 </div>

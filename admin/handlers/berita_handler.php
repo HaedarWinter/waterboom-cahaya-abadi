@@ -14,7 +14,7 @@ if (!isset($_SESSION['login'])) {
 }
 check_session_timeout();
 
-if (!has_permission('settings', 'manage')) {
+if (!has_canonical_permission('content.news.manage')) {
     header("Location: /ujikom1/admin/?error=Akses ditolak!");
     exit;
 }

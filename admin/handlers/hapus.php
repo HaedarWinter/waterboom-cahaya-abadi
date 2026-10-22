@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // ─── PROTEKSI PERMISSION ───
-if (!has_permission('content', 'delete')) {
+if (!has_canonical_permission('guestbook.moderate')) {
     header("Location: /ujikom1/admin/?error=Anda tidak memiliki izin untuk menghapus data pengunjung.");
     exit;
 }

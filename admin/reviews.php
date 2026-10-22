@@ -6,7 +6,7 @@ require_once '../app/init.php';
 enforce_active_session($koneksi);
 check_session_timeout();
 
-if (!has_permission('reviews', 'view')) {
+if (!has_canonical_permission('review.moderate')) {
     header("Location: /ujikom1/admin/?error=Akses ditolak! Anda tidak memiliki izin untuk mengelola Review.");
     exit;
 }
@@ -53,12 +53,6 @@ $result = $stmt->get_result();
 $stats_pending  = $koneksi->query("SELECT COUNT(*) as c FROM reviews WHERE status = 'Pending'")->fetch_assoc()['c'];
 $stats_approved = $koneksi->query("SELECT COUNT(*) as c FROM reviews WHERE status = 'Approved'")->fetch_assoc()['c'];
 $avg_rating     = $koneksi->query("SELECT ROUND(AVG(rating), 1) as avg FROM reviews WHERE status = 'Approved'")->fetch_assoc()['avg'] ?? 0;
-
-$status_colors = [
-    'Pending'  => ['bg'=>'#fffbeb','color'=>'#92400e','border'=>'#fef3c7'],
-    'Approved' => ['bg'=>'#ecfdf5','color'=>'#065f46','border'=>'#d1fae5'],
-    'Ditolak'  => ['bg'=>'#fef2f2','color'=>'#991b1b','border'=>'#fee2e2'],
-];
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -66,6 +60,10 @@ $status_colors = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Review — Cahaya Abadi</title>
+        <!-- Design System (Atomic CSS) -->
+    <link rel="stylesheet" href="../public/assets/dist/css/app.min.css">
+    
+    <!-- Legacy Admin Styles (fallback) -->
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/admin_style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -82,7 +80,7 @@ $status_colors = [
             <h1 class="page-heading">Kelola Review</h1>
             <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / Review</span>
         </div>
-        <a href="logout.php" class="header-logout swal-logout"><i data-lucide="log-out"></i><span>Keluar</span></a>
+        <a href="logout.php?token=<?= e(csrf_token()) ?>" class="header-logout swal-logout"><i data-lucide="log-out"></i><span>Keluar</span></a>
     </header>
 
     <div class="admin-content">
@@ -150,9 +148,7 @@ $status_colors = [
                     </thead>
                     <tbody>
                         <?php if ($result->num_rows > 0): ?>
-                        <?php $no = $offset + 1; while ($r = $result->fetch_assoc()):
-                            $sc = $status_colors[$r['status']] ?? $status_colors['Pending'];
-                        ?>
+                        <?php $no = $offset + 1; while ($r = $result->fetch_assoc()): ?>
                         <tr>
                             <td class="td-num"><?= $no++ ?></td>
                             <td class="td-name"><?= htmlspecialchars($r['nama']) ?></td>

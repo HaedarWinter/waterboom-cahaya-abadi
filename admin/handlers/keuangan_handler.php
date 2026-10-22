@@ -12,15 +12,26 @@ enforce_active_session($koneksi);
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
 
 // Check Manage Permission for non-export actions
-if ($action !== 'export_csv' && !has_permission('finance', 'manage')) {
+if ($action !== 'export_csv' && !has_canonical_permission('ledger.entry_manual')) {
     header("Location: ../audit_keuangan.php?error=Akses ditolak! Anda tidak memiliki izin untuk mengelola keuangan.");
     exit;
 }
 
-// Check View Permission for export
-if ($action === 'export_csv' && !has_permission('finance', 'view')) {
-    header("Location: ../audit_keuangan.php?error=Akses ditolak!");
-    exit;
+// SEC-2: ekspor hanya POST bertoken CSRF.
+if ($action === 'export_csv') {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        header('Allow: POST');
+        die('Ekspor harus dikirim lewat form.');
+    }
+    if (!has_canonical_permission('report.finance.export')) {
+        header("Location: ../audit_keuangan.php?error=Akses ditolak!");
+        exit;
+    }
+    if (!validate_csrf($_POST['csrf_token'] ?? '')) {
+        http_response_code(403);
+        die('Token keamanan tidak valid. Muat ulang halaman lalu coba lagi.');
+    }
 }
 
 // ─── ACTION: SIMPAN (TAMBAH/EDIT) ───

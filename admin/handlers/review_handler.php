@@ -8,7 +8,7 @@ $action = $_POST['action'] ?? '';
 
 // ── SIMPAN REVIEW BARU (dari halaman publik) ──
 if ($action === 'simpan') {
-    if (!validate_csrf($_POST['csrf_token'] ?? '')) {
+if (!validate_csrf($_POST['csrf_token'] ?? '')) {
         header("Location: /ujikom1/index.php?error_review=Token keamanan tidak valid.#testimoni");
         exit;
     }
@@ -55,6 +55,10 @@ if (!isset($_SESSION['login'])) {
     exit;
 }
 check_session_timeout();
+if (!has_canonical_permission('review.moderate')) {
+    header("Location: /ujikom1/admin/?error=Akses ditolak.");
+    exit;
+}
 
 if (!validate_csrf($_POST['csrf_token'] ?? '')) {
     header("Location: /ujikom1/admin/reviews.php?error=Token tidak valid.");

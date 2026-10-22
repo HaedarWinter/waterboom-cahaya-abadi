@@ -6,7 +6,7 @@ require_once '../app/init.php';
 enforce_active_session($koneksi);
 
 // Cek hak akses: gallery.view
-if (!has_permission('gallery', 'view')) {
+if (!has_canonical_permission('content.gallery.manage')) {
     header("Location: /ujikom1/admin/?error=Anda tidak memiliki hak akses untuk melihat galeri.");
     exit;
 }
@@ -20,6 +20,10 @@ $result = $koneksi->query("SELECT * FROM galeri ORDER BY urutan ASC, id DESC");
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Galeri — Cahaya Abadi</title>
+        <!-- Design System (Atomic CSS) -->
+    <link rel="stylesheet" href="../public/assets/dist/css/app.min.css">
+    
+    <!-- Legacy Admin Styles (fallback) -->
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/admin_style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -35,7 +39,7 @@ $result = $koneksi->query("SELECT * FROM galeri ORDER BY urutan ASC, id DESC");
             <h1 class="page-heading">Kelola Galeri</h1>
             <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / Kelola Galeri</span>
         </div>
-        <a href="logout.php" class="header-logout swal-logout">
+        <a href="logout.php?token=<?= e(csrf_token()) ?>" class="header-logout swal-logout">
             <i data-lucide="log-out"></i>
             <span>Keluar</span>
         </a>
@@ -98,7 +102,7 @@ $result = $koneksi->query("SELECT * FROM galeri ORDER BY urutan ASC, id DESC");
                         ? "../assets/galeri/" . $row['file_gambar']
                         : "../assets/" . $row['file_gambar'];
                 ?>
-                <div style="background:#fff; border:1px solid #eae7e0; border-radius:12px; overflow:hidden; position:relative;">
+                <div style="background:var(--surface); border:1px solid var(--border-subtle); border-radius:12px; overflow:hidden; position:relative;">
                     <img src="<?= $img_path ?>" alt="<?= htmlspecialchars($row['judul']) ?>"
                          style="width:100%; height:180px; object-fit:cover; display:block;">
 
@@ -109,8 +113,8 @@ $result = $koneksi->query("SELECT * FROM galeri ORDER BY urutan ASC, id DESC");
                     <?php endif; ?>
 
                     <div style="padding:.85rem;">
-                        <div style="font-weight:700; font-size:.88rem; color:#1a1a1a; margin-bottom:2px;"><?= htmlspecialchars($row['judul']) ?></div>
-                        <div style="font-size:.75rem; color:#8a8578; margin-bottom:8px;"><?= htmlspecialchars($row['deskripsi'] ?? '') ?></div>
+                        <div style="font-weight:700; font-size:.88rem; color:var(--fg); margin-bottom:2px;"><?= htmlspecialchars($row['judul']) ?></div>
+                        <div style="font-size:.75rem; color:var(--fg-muted); margin-bottom:8px;"><?= htmlspecialchars($row['deskripsi'] ?? '') ?></div>
                         <div style="display:flex; gap:6px;">
                             <button class="action-btn edit btn-edit-galeri"
                                 data-id="<?= $row['id'] ?>"

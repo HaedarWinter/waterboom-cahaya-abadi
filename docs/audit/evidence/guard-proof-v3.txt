@@ -1,0 +1,29 @@
+=== CASE a: dev-style env (APP_ENV unset, DB_DATABASE=db_ujikom) ===
+GUARD: FAIL
+CHARACTERIZATION: SKIPPED (guard rejected configuration)
+CASE=a EXIT=2
+
+=== CASE b: test env but wrong host (127.0.0.1:3307 -> 3306) ===
+GUARD: FAIL
+CHARACTERIZATION: SKIPPED (guard rejected configuration)
+CASE=b EXIT=2
+
+=== CASE c: test env but wrong DB name (not _test) ===
+GUARD: FAIL
+CHARACTERIZATION: SKIPPED (guard rejected configuration)
+CASE=c EXIT=2
+
+=== CASE d: correct test env ===
+GUARD: PASS
+CHARACTERIZATION: SKIPPED (guard-only)
+CASE=d EXIT=0
+
+=== CASE e: test env but port 3306 ===
+GUARD: FAIL
+CHARACTERIZATION: SKIPPED (guard rejected configuration)
+CASE=e EXIT=2
+
+=== CASE f: test env but wrong host (not 127.0.0.1) ===
+GUARD: FAIL
+CHARACTERIZATION: SKIPPED (guard rejected configuration)
+CASE=f EXIT=2

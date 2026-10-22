@@ -4,7 +4,7 @@ check_session_timeout();
 enforce_active_session($koneksi);
 
 // Pastikan user punya akses mengelola reservasi
-if (!has_permission('reservasi', 'view')) {
+if (!has_canonical_permission('checkin.scan')) {
     header("Location: /ujikom1/admin/index.php?error=Anda tidak memiliki akses ke fitur ini.");
     exit;
 }
@@ -17,6 +17,10 @@ $page_title = "Scanner Tiket Premium";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $page_title ?> — Cahaya Abadi</title>
+        <!-- Design System (Atomic CSS) -->
+    <link rel="stylesheet" href="../public/assets/dist/css/app.min.css">
+    
+    <!-- Legacy Admin Styles (fallback) -->
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/admin_style.css">
     <link rel="stylesheet" href="../css/scanner_style.css">
@@ -236,6 +240,7 @@ $page_title = "Scanner Tiket Premium";
         const formData = new FormData();
         formData.append('token', token);
         formData.append('action', 'verify');
+        formData.append('csrf_token', <?= json_encode(csrf_token()) ?>);
         if(isManual) formData.append('type', 'kode');
 
         fetch('handlers/scanner_handler.php', {
@@ -303,6 +308,7 @@ $page_title = "Scanner Tiket Premium";
                 const formData = new FormData();
                 formData.append('token', currentQrToken);
                 formData.append('action', 'checkin');
+                formData.append('csrf_token', <?= json_encode(csrf_token()) ?>);
 
                 fetch('handlers/scanner_handler.php', { method: 'POST', body: formData })
                 .then(r => r.json())

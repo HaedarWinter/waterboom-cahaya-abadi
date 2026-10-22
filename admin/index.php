@@ -1,6 +1,10 @@
 <?php
 require_once '../app/init.php';
 require_admin($koneksi);
+if (!has_canonical_permission('dashboard.view')) {
+    header('Location: /ujikom1/login.php?error=Akses ditolak.');
+    exit;
+}
 
 use App\Models\Dashboard;
 
@@ -90,6 +94,10 @@ $no_start    = $offset + 1;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin — Cahaya Abadi</title>
+        <!-- Design System (Atomic CSS) -->
+    <link rel="stylesheet" href="../public/assets/dist/css/app.min.css">
+    
+    <!-- Legacy Admin Styles (fallback) -->
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/admin_style.css">
     <!-- SweetAlert2 CDN -->
@@ -285,17 +293,20 @@ $no_start    = $offset + 1;
                                 <td class="td-name"><?= htmlspecialchars($row['nama']) ?></td>
                                 <td style="font-size:.8rem; color:var(--fg-muted);"><?= htmlspecialchars($row['no_hp']) ?></td>
                                 <td><span class="date-badge" style="font-size:.68rem"><?= date('d/m/y H:i', strtotime($row['tanggal'])) ?></span></td>
-                                <td class="td-actions">
-                                    <button class="action-btn detail swal-detail"
-                                        data-id="<?= $row['id'] ?>"
-                                        data-nama="<?= htmlspecialchars($row['nama']) ?>"
-                                        data-hp="<?= htmlspecialchars($row['no_hp']) ?>"
-                                        data-email="<?= htmlspecialchars($row['email']) ?>"
-                                        data-tanggal="<?= date('d M Y H:i', strtotime($row['tanggal'])) ?>"
-                                        data-created="<?= date('d M Y H:i', strtotime($row['created_at'])) ?>">
-                                        <i data-lucide="eye"></i>
-                                    </button>
-                                </td>
+<td class="td-actions">
+                            <button class="action-btn detail swal-detail"
+                                data-id="<?= $row['id'] ?>"
+                                data-nama="<?= htmlspecialchars($row['nama']) ?>"
+                                data-hp="<?= htmlspecialchars($row['no_hp']) ?>"
+                                data-email="<?= htmlspecialchars($row['email']) ?>"
+                                data-tanggal="<?= date('d M Y H:i', strtotime($row['tanggal'])) ?>"
+                                data-created="<?= date('d M Y H:i', strtotime($row['created_at'])) ?>">
+                                <i data-lucide="eye"></i>
+                            </button>
+                            <button class="action-btn del btn-delete-visitor" data-id="<?= $row['id'] ?>" data-nama="<?= htmlspecialchars($row['nama']) ?>" title="Hapus Log">
+                                <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+                            </button>
+                        </td>
                             </tr>
                         <?php endwhile; else: ?>
                             <tr><td colspan="5" style="text-align:center; padding:2rem; color:var(--fg-subtle);">Kosong.</td></tr>
@@ -307,9 +318,9 @@ $no_start    = $offset + 1;
                 <?php if ($total_pages > 1): ?>
                 <div class="pagination">
                     <div class="pagination-btns">
-                        <a href="<?= $page > 1 ? '?page='.($page-1).($search ? '&q='.urlencode($search) : '') : '#' ?>" class="page-btn <?= $page <= 1 ? 'disabled' : '' ?>">&larr;</a>
-                        <span class="page-current">HAL <?= $page ?></span>
-                        <a href="<?= $page < $total_pages ? '?page='.($page+1).($search ? '&q='.urlencode($search) : '') : '#' ?>" class="page-btn <?= $page >= $total_pages ? 'disabled' : '' ?>">&rarr;</a>
+                        <a href="<?= $page > 1 ? '?page='.($page-1).($search ? '&q='.urlencode($search) : '') : '#' ?>" class="page-btn <?= $page <= 1 ? 'disabled' : '' ?>" aria-label="Sebelumnya"><i data-lucide="chevron-left" style="width:16px;height:16px;"></i></a>
+                        <?= \App\PaginationHelper::renderPages($page, $total_pages, ['q' => $search ?: null]) ?>
+                        <a href="<?= $page < $total_pages ? '?page='.($page+1).($search ? '&q='.urlencode($search) : '') : '#' ?>" class="page-btn <?= $page >= $total_pages ? 'disabled' : '' ?>" aria-label="Berikutnya"><i data-lucide="chevron-right" style="width:16px;height:16px;"></i></a>
                     </div>
                 </div>
                 <?php endif; ?>
@@ -547,6 +558,25 @@ document.querySelectorAll('.swal-hapus').forEach(el => {
             icon: 'warning', title: 'Hapus data?', html: `Data <b>${el.dataset.nama}</b> akan dihapus permanen.`,
             showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'Ya, Hapus'
         }).then(res => { if (res.isConfirmed) window.location.href = el.getAttribute('href'); });
+    });
+});
+
+// HAPUS LOG BUKU TAMU (POST + CSRF)
+document.querySelectorAll('.btn-delete-visitor').forEach(el => {
+    el.addEventListener('click', () => {
+        Swal.fire({
+            icon: 'warning', title: 'Hapus log pengunjung?',
+            html: `Log <b>${el.dataset.nama}</b> akan dihapus permanen.`,
+            showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'Ya, Hapus', cancelButtonText: 'Batal'
+        }).then(res => {
+            if (res.isConfirmed) {
+                const fd = new FormData();
+                fd.append('csrf_token', '<?= $_SESSION['csrf_token'] ?>');
+                fd.append('id', el.dataset.id);
+                fetch('handlers/hapus.php', { method: 'POST', body: fd })
+                    .then(() => location.href = '/ujikom1/admin/?pesan=Log pengunjung dihapus');
+            }
+        });
     });
 });
 

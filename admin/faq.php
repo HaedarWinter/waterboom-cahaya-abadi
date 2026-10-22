@@ -6,7 +6,7 @@ require_once '../app/init.php';
 enforce_active_session($koneksi);
 
 check_session_timeout();
-if (!has_permission('faq', 'view')) {
+if (!has_canonical_permission('content.faq.manage')) {
     header("Location: /ujikom1/admin/?error=Akses ditolak! Anda tidak memiliki izin untuk mengelola FAQ.");
     exit;
 }
@@ -29,6 +29,10 @@ $result = $koneksi->query("SELECT * FROM faq ORDER BY urutan ASC, id ASC LIMIT $
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola FAQ — Cahaya Abadi</title>
+        <!-- Design System (Atomic CSS) -->
+    <link rel="stylesheet" href="../public/assets/dist/css/app.min.css">
+    
+    <!-- Legacy Admin Styles (fallback) -->
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/admin_style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -46,7 +50,7 @@ $result = $koneksi->query("SELECT * FROM faq ORDER BY urutan ASC, id ASC LIMIT $
             <h1 class="page-heading">Kelola FAQ</h1>
             <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / FAQ</span>
         </div>
-        <a href="logout.php" class="header-logout swal-logout"><i data-lucide="log-out"></i><span>Keluar</span></a>
+        <a href="logout.php?token=<?= e(csrf_token()) ?>" class="header-logout swal-logout"><i data-lucide="log-out"></i><span>Keluar</span></a>
     </header>
 
     <div class="admin-content">

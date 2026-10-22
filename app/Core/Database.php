@@ -7,15 +7,36 @@ class Database {
     private $koneksi;
 
     private function __construct() {
-        // Migrasi portabel: coba koneksi standar (socket OS default) dulu,
-        // fallback ke path socket XAMPP macOS bila ada. Eliminasi hardcode tunggal.
-        // mode sekolah lama: gagal koneksi = false (bukan exception),
-        // biar fallback ke socket XAMPP macOS masih bisa jalan.
         mysqli_report(MYSQLI_REPORT_OFF);
-        $this->koneksi = mysqli_connect("localhost", "root", "", "db_ujikom");
+
+        if (getenv('APP_ENV') === 'test') {
+            // Mode tes: satu konfigurasi eksplisit saja (env). Tanpa fallback,
+            // supaya tes tidak bisa jatuh ke server DB dev (lihat docs/audit/test-setup.md).
+            $dbName = getenv('DB_DATABASE') ?: '';
+            $host = getenv('DB_HOST') ?: '';
+            $port = (int)(getenv('DB_PORT') ?: 0);
+            $user = getenv('DB_USER') ?: '';
+            $pass = getenv('DB_PASSWORD') ?: '';
+
+            if ($dbName === '' || $host === '' || $port === 0) {
+                error_log("Database test: DB_HOST/DB_PORT/DB_DATABASE wajib diisi untuk mode test.");
+                die("Konfigurasi database test tidak lengkap.");
+            }
+
+            $this->koneksi = mysqli_connect($host, $user, $pass, $dbName, $port);
+
+            if (!$this->koneksi) {
+                error_log("Database test connect gagal: " . mysqli_connect_error());
+                die("Koneksi database test gagal.");
+            }
+            return;
+        }
+
+        // Mode web/dev: koneksi standar dengan socket XAMPP macOS
+        $this->koneksi = mysqli_connect("localhost", "root", "", 'db_ujikom', 3306, "/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock");
 
         if (!$this->koneksi) {
-            $this->koneksi = mysqli_connect("localhost", "root", "", "db_ujikom", null, "/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock");
+            $this->koneksi = mysqli_connect("localhost", "root", "", 'db_ujikom');
         }
 
         if (!$this->koneksi) {

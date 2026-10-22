@@ -4,6 +4,15 @@
  * Butuh MySQL aktif dan sql/migration_v3_state_machine.sql sudah diterapkan.
  */
 declare(strict_types=1);
+
+require_once __DIR__ . '/guard.php';
+require_test_database_guard('SCRIPT: BLOCKED (guard rejected configuration)');
+
+if (!defined('WRITE_SCRIPT_APPROVED') || WRITE_SCRIPT_APPROVED !== true) {
+    fwrite(STDERR, "BLOCKED: write policy not approved for " . basename(__FILE__) . "\n");
+    exit(3);
+}
+
 error_reporting(E_ALL & ~E_WARNING);
 
 $pass = 0;
@@ -15,6 +24,7 @@ function check(string $name, bool $ok): void {
 }
 
 require __DIR__ . '/../app/init.php';
+require_test_database_connection(\App\Core\Database::getInstance()->getConnection(), 'SCRIPT: BLOCKED (guard rejected connection)');
 
 use App\Services\BookingStateService as State;
 

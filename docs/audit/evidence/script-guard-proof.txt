@@ -1,0 +1,54 @@
+=== integrity_check.php: dev env (should exit 2, guard before any DB) ===
+GUARD: FAIL
+SCRIPT: BLOCKED (guard rejected configuration)
+EXIT=2
+
+=== integrity_check.php: test env (should exit with its own code after guard) ===
+GUARD: PASS
+Memeriksa invarian sistem...
+
+Selesai.
+
+✗ Ditemukan pelanggaran:
+
+  • Orphan booking_status_history: query gagal — Table 'db_ujikom_test.reservasi' doesn't exist
+  • Orphan payments: query gagal — Table 'db_ujikom_test.reservasi' doesn't exist
+  • Orphan refunds: query gagal — Table 'db_ujikom_test.refunds' doesn't exist
+  • Ledger payment orphan: 2 pelanggaran
+  • Refund DIREFUND tanpa ledger OUT: query gagal — Table 'db_ujikom_test.refunds' doesn't exist
+  • Kuota terisi tidak sesuai dengan booking aktif: query gagal — Table 'db_ujikom_test.kuota_harian' doesn't exist
+  • Ledger entries pada periode tertutup (tanpa pembukaan kembali): query gagal — Table 'db_ujikom_test.daily_closings' doesn't exist
+  • Booking dengan status tidak dikenal: query gagal — Table 'db_ujikom_test.reservasi' doesn't exist
+  • Booking LUNAS tanpa QR token: query gagal — Table 'db_ujikom_test.reservasi' doesn't exist
+  • Booking terminal (batal/tolak/expire) masih punya QR token: query gagal — Table 'db_ujikom_test.reservasi' doesn't exist
+  • Booking SELESAI tanpa check-in flag: query gagal — Table 'db_ujikom_test.reservasi' doesn't exist
+  • Booking belum SELESAI tapi sudah check-in: query gagal — Table 'db_ujikom_test.reservasi' doesn't exist
+
+EXIT=1
+
+=== test_payment_ledger_invariant.php: dev env (should exit 2) ===
+GUARD: FAIL
+SCRIPT: BLOCKED (guard rejected configuration)
+EXIT=2
+
+=== test_payment_ledger_invariant.php: test env (should exit 3, write blocked) ===
+BLOCKED: write policy not approved for test_payment_ledger_invariant.php
+EXIT=3
+
+=== verify_hardening.php: dev env (should exit 2) ===
+GUARD: FAIL
+SCRIPT: BLOCKED (guard rejected configuration)
+EXIT=2
+
+=== verify_hardening.php: test env (should exit 3, write blocked) ===
+BLOCKED: write policy not approved for verify_hardening.php
+EXIT=3
+
+=== verify_state_machine.php: dev env (should exit 2) ===
+GUARD: FAIL
+SCRIPT: BLOCKED (guard rejected configuration)
+EXIT=2
+
+=== verify_state_machine.php: test env (should exit 3, write blocked) ===
+BLOCKED: write policy not approved for verify_state_machine.php
+EXIT=3

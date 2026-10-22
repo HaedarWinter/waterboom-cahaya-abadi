@@ -5,9 +5,18 @@ use App\Services\BookingStateService;
 
 header('Content-Type: application/json');
 
-// Pastikan session valid
-if (!isset($_SESSION['admin_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+// Pastikan sesi aktif dan permintaan membawa token CSRF.
+require_api_session($koneksi);
+
+if (!has_canonical_permission('checkin.scan')) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Akses ditolak.']);
+    exit;
+}
+
+if (!validate_csrf($_POST['csrf_token'] ?? '')) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Token CSRF tidak valid.']);
     exit;
 }
 
@@ -23,7 +32,7 @@ if (empty($token)) {
 if ($action === 'verify') {
     $data = ($type === 'kode') 
            ? Reservasi::getByKode($token) 
-           : Reservasi::getByToken($token);
+           : Reservasi::getByTokenHash($token);
     
     if (!$data) {
         echo json_encode(['success' => false, 'message' => 'Tiket tidak ditemukan']);
@@ -41,8 +50,7 @@ if ($action === 'verify') {
     exit;
 
 } else if ($action === 'checkin') {
-    // Cari data dulu buat pastiin exist
-    $data = Reservasi::getByToken($token) ?: Reservasi::getByKode($token);
+    $data = Reservasi::getByTokenHash($token) ?: Reservasi::getByKode($token);
 
     if (!$data) {
         echo json_encode(['success' => false, 'message' => 'Tiket tidak ditemukan']);

@@ -15,12 +15,12 @@ class TicketService {
      * @param int $id Booking ID
      * @return string|bool Path to generated PDF or false on failure
      */
-    public static function generate($id) {
+    public static function generate($id, $rawToken = null) {
         $booking = Reservasi::getById($id);
         if (!$booking) return false;
 
         $kode = $booking['kode_booking'];
-        $qrToken = $booking['qr_token'];
+        $qrToken = $rawToken ?: $booking['qr_token'];
         if (!$qrToken) return false;
 
         // QR Code URL (GoQR API)

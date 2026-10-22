@@ -5,3 +5,5 @@ assets/bukti_bayar/*
 assets/tickets/*
 assets/berita/*
 assets/galeri/*
+.env.test
+storage/
