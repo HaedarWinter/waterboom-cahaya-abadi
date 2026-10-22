@@ -15,60 +15,68 @@ $bulan = $_GET['bulan'] ?? date('m');
 $tahun = $_GET['tahun'] ?? date('Y');
 $status_filter = $_GET['status'] ?? '';
 
-$latestReconciliation = "(
-    SELECT lr.ledger_entry_id, lr.status, lr.created_at, lr.notes
-    FROM ledger_reconciliations lr
-    INNER JOIN (
-        SELECT ledger_entry_id, MAX(id) AS latest_id
-        FROM ledger_reconciliations
-        GROUP BY ledger_entry_id
-    ) latest ON latest.latest_id = lr.id
-)";
 $where = "MONTH(le.entry_date) = ? AND YEAR(le.entry_date) = ?";
 $params = [(int)$bulan, (int)$tahun];
 $types = "ii";
 
 if ($status_filter === 'unreconciled') {
-    $where .= " AND (rec.status IS NULL OR rec.status = 'REVERTED')";
+    $where .= " AND (lr.status IS NULL OR lr.status = 'REVERTED')";
 } elseif ($status_filter === 'reconciled') {
-    $where .= " AND rec.status = 'RECONCILED'";
+    $where .= " AND lr.status = 'RECONCILED'";
 }
 
-$stmt_unrec = $koneksi->prepare("SELECT COUNT(*) as c FROM ledger_entries le LEFT JOIN $latestReconciliation rec ON rec.ledger_entry_id = le.id WHERE rec.status IS NULL OR rec.status = 'REVERTED'");
-$stmt_unrec->execute();
-$unreconciled_count = $stmt_unrec->get_result()->fetch_assoc()['c'];
+$stmt_unrec = $koneksi->prepare("SELECT COUNT(*) as c FROM ledger_entries le LEFT JOIN ledger_reconciliations lr ON le.id = lr.ledger_entry_id WHERE lr.status IS NULL OR lr.status = 'REVERTED'");
+if ($stmt_unrec) {
+    $stmt_unrec->execute();
+    $unreconciled_count = $stmt_unrec->get_result()->fetch_assoc()['c'];
+} else {
+    $unreconciled_count = 0;
+}
 
-$stmt_rec = $koneksi->prepare("SELECT COUNT(*) as c FROM ledger_entries le INNER JOIN $latestReconciliation rec ON rec.ledger_entry_id = le.id WHERE rec.status = 'RECONCILED'");
-$stmt_rec->execute();
-$reconciled_count = $stmt_rec->get_result()->fetch_assoc()['c'];
+$stmt_rec = $koneksi->prepare("SELECT COUNT(*) as c FROM ledger_entries le LEFT JOIN ledger_reconciliations lr ON le.id = lr.ledger_entry_id WHERE lr.status = 'RECONCILED'");
+if ($stmt_rec) {
+    $stmt_rec->execute();
+    $reconciled_count = $stmt_rec->get_result()->fetch_assoc()['c'];
+} else {
+    $reconciled_count = 0;
+}
 
 // Pagination
 $per_page = 25;
 $page = max(1, (int)($_GET['page'] ?? 1));
 $offset = ($page - 1) * $per_page;
 
-$count_stmt = $koneksi->prepare("SELECT COUNT(*) as total FROM ledger_entries le LEFT JOIN $latestReconciliation rec ON rec.ledger_entry_id = le.id WHERE $where");
-$count_stmt->bind_param($types, ...$params);
-$count_stmt->execute();
-$total_rows = $count_stmt->get_result()->fetch_assoc()['total'];
+$count_sql = "SELECT COUNT(*) as total FROM ledger_entries le LEFT JOIN ledger_reconciliations lr ON le.id = lr.ledger_entry_id WHERE $where";
+$count_stmt = $koneksi->prepare($count_sql);
+if ($count_stmt) {
+    $count_stmt->bind_param($types, ...$params);
+    $count_stmt->execute();
+    $total_rows = $count_stmt->get_result()->fetch_assoc()['total'];
+} else {
+    $total_rows = 0;
+}
 $total_pages = ceil($total_rows / $per_page);
 
 // Fetch Data
-$sql = "SELECT le.*, ca.name as account_name, COALESCE(a.username, 'SYSTEM') as created_by_name,
-        rec.status as reconciliation_status, rec.created_at as reconciliation_at, rec.notes as reconciliation_notes
-        FROM ledger_entries le
-        LEFT JOIN cash_accounts ca ON le.cash_account_id = ca.id
-        LEFT JOIN admin a ON le.created_by = a.id
-        LEFT JOIN $latestReconciliation rec ON rec.ledger_entry_id = le.id
-        WHERE $where
-        ORDER BY le.entry_date ASC, le.id ASC
-        LIMIT ? OFFSET ?";
-$p_list = array_merge($params, [$per_page, $offset]);
-$t_list = $types . "ii";
-$stmt = $koneksi->prepare($sql);
-$stmt->bind_param($t_list, ...$p_list);
-$stmt->execute();
-$result = $stmt->get_result();
+    $sql = "SELECT le.*, ca.name as account_name, COALESCE(a.username, 'SYSTEM') as created_by_name,
+            lr.status as reconciliation_status, lr.created_at as reconciliation_at, lr.notes as reconciliation_notes
+            FROM ledger_entries le
+            LEFT JOIN cash_accounts ca ON le.cash_account_id = ca.id
+            LEFT JOIN admin a ON le.created_by = a.id
+            LEFT JOIN ledger_reconciliations lr ON le.id = lr.ledger_entry_id
+            WHERE $where
+            ORDER BY le.entry_date ASC, le.id ASC
+            LIMIT ? OFFSET ?";
+    $p_list = array_merge($params, [$per_page, $offset]);
+    $t_list = $types . "ii";
+    $stmt = $koneksi->prepare($sql);
+    if ($stmt) {
+        $stmt->bind_param($t_list, ...$p_list);
+        $stmt->execute();
+        $result = $stmt->get_result();
+    } else {
+        $result = false;
+    }
 ?>
 <!DOCTYPE html>
 <html lang="id">
