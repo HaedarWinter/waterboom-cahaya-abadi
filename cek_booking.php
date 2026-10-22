@@ -474,7 +474,8 @@ if ($booking && $booking['status'] === BookingStateService::LUNAS && $booking['q
 }
 
 // Script untuk Simulate Payment (Demo Mode)
-$js_content .= '
+if ($booking && $booking['status'] === BookingStateService::MENUNGGU_BAYAR) {
+    $js_content .= '
 if (document.getElementById("btnSimulatePayment")) {
     document.getElementById("btnSimulatePayment").addEventListener("click", function() {
         var btn = this;
@@ -482,10 +483,12 @@ if (document.getElementById("btnSimulatePayment")) {
         btn.disabled = true;
         btn.innerHTML = \'<i data-lucide="loader" style="width:14px;height:14px;animation:spin 1s linear infinite;"></i> Memproses...\';
         
+        var formData = "kode=' . $booking['kode_booking'] . '&csrf_token=" + document.querySelector("input[name=csrf_token]").value;
+        
         fetch("internal/simulate_payment.php", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: "kode=' . $booking['kode_booking'] . '&csrf_token=' + document.querySelector("input[name=csrf_token]").value
+            body: formData
         })
         .then(function(r) { return r.json(); })
         .then(function(data) {
@@ -505,7 +508,11 @@ if (document.getElementById("btnSimulatePayment")) {
         });
     });
 }
+';
+}
 
+// Script untuk Tab & Upload Preview
+$js_content .= '
 document.querySelectorAll(".pay-tab").forEach(tab => {
     tab.addEventListener("click", () => {
         document.querySelectorAll(".pay-tab").forEach(t => t.classList.remove("active"));
