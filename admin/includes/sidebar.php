@@ -59,7 +59,7 @@ function nav_active($file, $current) {
         </a>
         <?php endif; ?>
 
-        <?php if (has_permission('finance', 'view')): ?>
+        <?php if (has_permission('finance', 'view') || has_canonical_permission('ledger.view')): ?>
         <a href="/ujikom1/admin/audit_keuangan.php" class="nav-item <?= nav_active('audit_keuangan.php', $current_file) ?>">
             <i data-lucide="wallet" class="nav-icon"></i>
             <span>Audit Keuangan</span>
@@ -71,6 +71,38 @@ function nav_active($file, $current) {
         <a href="/ujikom1/admin/reconciliation.php" class="nav-item <?= nav_active('reconciliation.php', $current_file) ?>">
             <i data-lucide="calculator" class="nav-icon"></i>
             <span>Rekonsiliasi</span>
+        </a>
+        <?php endif; ?>
+
+        <?php if (has_canonical_permission('ledger.entry_manual')): ?>
+        <a href="/ujikom1/admin/expenses.php" class="nav-item <?= nav_active('expenses.php', $current_file) ?>">
+            <i data-lucide="credit-card" class="nav-icon"></i>
+            <span>Pengeluaran</span>
+        </a>
+        <?php endif; ?>
+
+        <?php if (has_canonical_permission('closing.perform')): ?>
+        <a href="/ujikom1/admin/closings.php" class="nav-item <?= nav_active('closings.php', $current_file) ?>">
+            <i data-lucide="lock" class="nav-icon"></i>
+            <span>Tutup Harian</span>
+        </a>
+        <?php endif; ?>
+
+        <?php if (has_canonical_permission('report.finance.view')): ?>
+        <a href="/ujikom1/admin/reports.php" class="nav-item <?= nav_active('reports.php', $current_file) ?>">
+            <i data-lucide="bar-chart-3" class="nav-icon"></i>
+            <span>Laporan Keuangan</span>
+        </a>
+        <?php endif; ?>
+
+        <?php if (has_canonical_permission('settings.manage')): ?>
+        <a href="/ujikom1/admin/notifications.php" class="nav-item <?= nav_active('notifications.php', $current_file) ?>">
+            <i data-lucide="bell" class="nav-icon"></i>
+            <span>Notifikasi</span>
+        </a>
+        <a href="/ujikom1/admin/templates.php" class="nav-item <?= nav_active('templates.php', $current_file) ?>">
+            <i data-lucide="message-square" class="nav-icon"></i>
+            <span>Template WA</span>
         </a>
         <?php endif; ?>
 
