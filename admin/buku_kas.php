@@ -117,7 +117,7 @@ $categories = ['TIKET', 'KODE_UNIK', 'REFUND', 'BIAYA_OPERASIONAL', 'KOREKSI', '
             <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / <a href="audit_keuangan.php">Keuangan</a> / Buku Kas</span>
         </div>
         <div style="display:flex; gap:10px;">
-<form method="post" action="handlers/buku_kas_handler.php" style="display:inline">
+<form method="post" action="../../app/Http/Controllers/Admin/$1" style="display:inline">
     <input type="hidden" name="action" value="export_csv">
     <input type="hidden" name="bulan" value="<?= e($bulan) ?>">
     <input type="hidden" name="tahun" value="<?= e($tahun) ?>">

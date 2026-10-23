@@ -71,7 +71,7 @@ include '../resources/views/layouts/layouts/navbar.php';
             Pesan tiket Anda sekarang untuk menghindari antrean! Isi formulir berikut dan dapatkan kode booking.
         </p>
 
-        <form action="../admin/handlers/reservasi_handler.php" method="post" id="formReservasi">
+        <form action="../app/Http/Controllers/Admin/reservasi_handler.php" method="post" id="formReservasi">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="simpan">
             <div style="position:absolute;left:-9999px;" aria-hidden="true">
@@ -209,7 +209,7 @@ if (metodeSelect) {
 
 window.sisaKuota = null;
 function cekKuota(tanggal) {
-    fetch("../admin/handlers/reservasi_handler.php", {
+    fetch("../app/Http/Controllers/Admin/reservasi_handler.php", {
         method: "POST",
         headers: {"Content-Type": "application/x-www-form-urlencoded"},
         body: "action=cek_kuota&tanggal=" + tanggal

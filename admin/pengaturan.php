@@ -63,7 +63,7 @@ $kategori_labels = [
     </header>
 
     <div class="admin-content">
-        <form action="handlers/settings_handler.php" method="post">
+        <form action="../../app/Http/Controllers/Admin/$1" method="post">
             <?= csrf_field() ?>
 
             <?php foreach ($kategori_labels as $kat_key => $kat_info): ?>

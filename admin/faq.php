@@ -152,7 +152,7 @@ $result = $koneksi->query("SELECT * FROM faq ORDER BY urutan ASC, id ASC LIMIT $
 </main>
 
 <!-- Hidden forms -->
-<form id="form-simpan-faq" action="handlers/faq_handler.php" method="post" style="display:none;">
+<form id="form-simpan-faq" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" id="faq-action" value="simpan">
     <input type="hidden" name="id" id="faq-id">
@@ -160,12 +160,12 @@ $result = $koneksi->query("SELECT * FROM faq ORDER BY urutan ASC, id ASC LIMIT $
     <input type="hidden" name="jawaban" id="faq-jawaban">
     <input type="hidden" name="urutan" id="faq-urutan">
 </form>
-<form id="form-toggle-faq" action="handlers/faq_handler.php" method="post" style="display:none;">
+<form id="form-toggle-faq" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="toggle_aktif">
     <input type="hidden" name="id" id="toggle-faq-id">
 </form>
-<form id="form-hapus-faq" action="handlers/faq_handler.php" method="post" style="display:none;">
+<form id="form-hapus-faq" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="hapus">
     <input type="hidden" name="id" id="hapus-faq-id">

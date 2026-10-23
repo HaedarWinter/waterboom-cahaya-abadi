@@ -74,7 +74,7 @@ if (isset($_GET['edit'])) {
                 </div>
             </div>
             <div style="padding: 1.5rem;">
-                <form action="handlers/berita_handler.php" method="post" enctype="multipart/form-data">
+                <form action="../../app/Http/Controllers/Admin/$1" method="post" enctype="multipart/form-data">
                     <?= csrf_field() ?>
                     <input type="hidden" name="action" value="<?= $edit_data ? 'update' : 'simpan' ?>">
                     <?php if ($edit_data): ?>
@@ -203,12 +203,12 @@ if (isset($_GET['edit'])) {
 </main>
 
 <!-- Hidden forms -->
-<form id="form-toggle-berita" action="handlers/berita_handler.php" method="post" style="display:none;">
+<form id="form-toggle-berita" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="toggle_aktif">
     <input type="hidden" name="id" id="toggle-berita-id">
 </form>
-<form id="form-hapus-berita" action="handlers/berita_handler.php" method="post" style="display:none;">
+<form id="form-hapus-berita" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="hapus">
     <input type="hidden" name="id" id="hapus-berita-id">

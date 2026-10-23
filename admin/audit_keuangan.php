@@ -174,7 +174,7 @@ $kategori_list = ['Reservasi', 'Operasional', 'Gaji Karyawan', 'Pemeliharaan', '
             <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / Keuangan</span>
         </div>
         <div style="display:flex; gap:10px;">
-<form method="post" action="handlers/keuangan_handler.php" style="display:inline">
+<form method="post" action="../../app/Http/Controllers/Admin/$1" style="display:inline">
     <input type="hidden" name="action" value="export_csv">
     <?= csrf_field() ?>
     <button type="submit" class="header-logout" style="background:var(--surface-hover); border:1px solid var(--border); color:var(--fg-muted);">
@@ -373,7 +373,7 @@ $kategori_list = ['Reservasi', 'Operasional', 'Gaji Karyawan', 'Pemeliharaan', '
             <h2 id="modal-title" style="font-weight:800; font-size:1.2rem; color:var(--accent); margin:0;">Input Transaksi Baru</h2>
             <button onclick="closeModal()" style="border:0; background:none; cursor:pointer; padding:4px; color:var(--fg);"><i data-lucide="x"></i></button>
         </div>
-        <form action="handlers/keuangan_handler.php" method="post" enctype="multipart/form-data">
+        <form action="../../app/Http/Controllers/Admin/$1" method="post" enctype="multipart/form-data">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="simpan">
             <input type="hidden" name="id" id="f-id" value="0">
@@ -424,7 +424,7 @@ $kategori_list = ['Reservasi', 'Operasional', 'Gaji Karyawan', 'Pemeliharaan', '
 </div>
 
 <!-- Hidden form for deletion -->
-<form id="form-hapus-fin" action="handlers/keuangan_handler.php" method="post" style="display:none;">
+<form id="form-hapus-fin" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="hapus">
     <input type="hidden" name="id" id="h-id">

@@ -232,13 +232,13 @@ $total_pages = ceil($total_rows / $per_page);
 </main>
 
 <!-- Hidden forms -->
-<form id="form-reconcile" action="handlers/reconciliation_handler.php" method="post" style="display:none;">
+<form id="form-reconcile" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="reconcile">
     <input type="hidden" name="id" id="rec-id">
     <input type="hidden" name="notes" id="rec-notes">
 </form>
-<form id="form-unrec" action="handlers/reconciliation_handler.php" method="post" style="display:none;">
+<form id="form-unrec" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="unreconcile">
     <input type="hidden" name="id" id="unrec-id">

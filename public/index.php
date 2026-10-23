@@ -212,7 +212,7 @@ include '../resources/views/layouts/layouts/navbar.php';
             Yuk, absen dulu! Silakan isi data di bawah ini sebagai jejak pertemanan kalau kamu udah pernah seru-seruan bareng di Waterboom Cahaya Abadi.
         </p>
 
-        <form action="admin/handlers/simpan.php" method="post" id="formBukuTamu">
+        <form action="../app/Http/Controllers/Admin/simpan.php" method="post" id="formBukuTamu">
             <?= csrf_field() ?>
             <!-- Honeypot: field tersembunyi anti-bot -->
             <div style="position:absolute;left:-9999px;" aria-hidden="true">
@@ -355,7 +355,7 @@ include '../resources/views/layouts/layouts/navbar.php';
             <!-- FORM TULIS REVIEW -->
             <div class="review-form-card">
                 <h3><i data-lucide="edit-3" style="width:18px;height:18px;"></i> Tulis Ulasan</h3>
-                <form action="admin/handlers/review_handler.php" method="post" id="formReview">
+                <form action="../app/Http/Controllers/Admin/review_handler.php" method="post" id="formReview">
                     <?= csrf_field() ?>
                     <input type="hidden" name="action" value="simpan">
                     <div style="position:absolute;left:-9999px;" aria-hidden="true">

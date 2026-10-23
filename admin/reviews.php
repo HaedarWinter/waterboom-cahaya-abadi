@@ -223,17 +223,17 @@ $avg_rating     = $koneksi->query("SELECT ROUND(AVG(rating), 1) as avg FROM revi
 </main>
 
 <!-- Hidden forms -->
-<form id="form-approve" action="handlers/review_handler.php" method="post" style="display:none;">
+<form id="form-approve" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="approve">
     <input type="hidden" name="id" id="approve-id">
 </form>
-<form id="form-tolak" action="handlers/review_handler.php" method="post" style="display:none;">
+<form id="form-tolak" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="tolak">
     <input type="hidden" name="id" id="tolak-id">
 </form>
-<form id="form-hapus-review" action="handlers/review_handler.php" method="post" style="display:none;">
+<form id="form-hapus-review" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="hapus">
     <input type="hidden" name="id" id="hapus-review-id">

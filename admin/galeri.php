@@ -55,7 +55,7 @@ $result = $koneksi->query("SELECT * FROM galeri ORDER BY urutan ASC, id DESC");
                     <p class="section-sub">Format: JPG, PNG, WEBP — Maks. 2MB</p>
                 </div>
             </div>
-            <form action="handlers/galeri_handler.php" method="post" enctype="multipart/form-data" style="padding:1.5rem;">
+            <form action="../../app/Http/Controllers/Admin/$1" method="post" enctype="multipart/form-data" style="padding:1.5rem;">
                 <?= csrf_field() ?>
                 <input type="hidden" name="action" value="add">
                 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items:end;">
@@ -147,7 +147,7 @@ $result = $koneksi->query("SELECT * FROM galeri ORDER BY urutan ASC, id DESC");
 </main>
 
 <!-- Hidden forms for JS -->
-<form id="form-edit-galeri" action="handlers/galeri_handler.php" method="post" enctype="multipart/form-data" style="display:none;">
+<form id="form-edit-galeri" action="../../app/Http/Controllers/Admin/$1" method="post" enctype="multipart/form-data" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="edit">
     <input type="hidden" name="id" id="edit-id">
@@ -156,7 +156,7 @@ $result = $koneksi->query("SELECT * FROM galeri ORDER BY urutan ASC, id DESC");
     <input type="hidden" name="urutan" id="edit-urutan">
     <input type="hidden" name="aktif" id="edit-aktif">
 </form>
-<form id="form-hapus-galeri" action="handlers/galeri_handler.php" method="post" style="display:none;">
+<form id="form-hapus-galeri" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="delete">
     <input type="hidden" name="id" id="hapus-id">
