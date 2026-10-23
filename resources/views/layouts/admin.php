@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= e($pageTitle ?? 'Admin') ?> — Waterboom Cahaya Abadi</title>
-    <link rel="stylesheet" href="<?= base_url('assets/dist/css/app.min.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/global.css') ?>">
 </head>
 <body>
     <?php if (getenv('APP_ENV') === 'demo'): ?>
@@ -48,6 +48,6 @@
         </main>
     </div>
 
-    <script src="<?= base_url('assets/dist/js/app.min.js') ?>"></script>
+
 </body>
 </html>

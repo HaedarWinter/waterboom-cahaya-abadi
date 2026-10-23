@@ -35,7 +35,7 @@ require '../config/security.php';
             } catch (e) {}
         })();
     </script>
-    <link rel="stylesheet" href="/ujikom1/public/assets/dist/css/app.min.css">
+    <link rel="stylesheet" href="/ujikom1/public/assets/css/global.css">
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
