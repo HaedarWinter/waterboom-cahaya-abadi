@@ -270,7 +270,7 @@ include '../resources/views/layouts/navbar.php';
                         <i data-lucide="clock" style="width:18px;height:18px;"></i>
                         Menunggu verifikasi admin
                     </div>
-                    <img src="../assets/bukti_bayar/<?= htmlspecialchars($booking['bukti_bayar']) ?>" alt="Bukti" style="max-width:100%;max-height:150px;border-radius:8px;border:1px solid var(--border);">
+                    <img src="/ujikom1/assets/bukti_bayar/<?= htmlspecialchars($booking['bukti_bayar']) ?>" alt="Bukti" style="max-width:100%;max-height:150px;border-radius:8px;border:1px solid var(--border);">
                 <?php elseif (BookingStateService::canTransition($booking['status'], BookingStateService::MENUNGGU_VERIFIKASI)): ?>
                     <!-- PEMBAYARAN BELUM UPLOAD / DITOLAK -->
                     <?php if ($booking['status'] === BookingStateService::DITOLAK): ?>
@@ -322,8 +322,8 @@ include '../resources/views/layouts/navbar.php';
 
                     <div id="qris" class="payment-content">
                         <div class="qris-container">
-                            <img src="../assets/qrs_payment.png" alt="QRIS" class="qris-img">
-                            <a href="../assets/qrs_payment.png" download class="btn btn-outline" style="width:100%;font-size:.75rem;padding:8px;">
+                            <img src="/ujikom1/assets/qrs_payment.png" alt="QRIS" class="qris-img">
+                            <a href="/ujikom1/assets/qrs_payment.png" download class="btn btn-outline" style="width:100%;font-size:.75rem;padding:8px;">
                                 <i data-lucide="download" style="width:14px;"></i> Unduh QRIS
                             </a>
                         </div>

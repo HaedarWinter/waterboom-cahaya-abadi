@@ -132,7 +132,7 @@ include '../resources/views/layouts/navbar.php';
                         <span style="color:var(--muted);">Bank</span>
                         <div style="display:flex;align-items:center;gap:8px;">
                             <?php if(strpos(strtoupper($rekening_bank), 'BCA') !== false): ?>
-                                <img src="../assets/bca_logo.png" alt="BCA" style="height:16px;">
+                                <img src="/ujikom1/public/assets/bca_logo.png" alt="BCA" style="height:16px;">
                             <?php endif; ?>
                             <strong><?= htmlspecialchars($rekening_bank) ?></strong>
                         </div>

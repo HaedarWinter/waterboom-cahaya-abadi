@@ -187,7 +187,7 @@ include '../resources/views/layouts/navbar.php';
                     $galeri_result->data_seek(0);
                     while ($foto = $galeri_result->fetch_assoc()): ?>
                     <div class="galeri-item">
-                        <img src="assets/galeri/<?= htmlspecialchars($foto['file_gambar']) ?>" alt="<?= htmlspecialchars($foto['judul']) ?>" onerror="this.src='assets/<?= htmlspecialchars($foto['file_gambar']) ?>'">
+                        <img src="/ujikom1/public/assets/galeri/<?= htmlspecialchars($foto['file_gambar']) ?>" alt="<?= htmlspecialchars($foto['judul']) ?>" onerror="this.src='/ujikom1/public/assets/<?= htmlspecialchars($foto['file_gambar']) ?>'">
                         <div class="galeri-caption"><?= htmlspecialchars($foto['judul']) ?></div>
                     </div>
                     <?php endwhile; ?>
@@ -265,7 +265,7 @@ include '../resources/views/layouts/navbar.php';
             <div class="berita-card">
                 <?php if ($b['gambar']): ?>
                 <div class="berita-img">
-                    <img src="assets/berita/<?= htmlspecialchars($b['gambar']) ?>" alt="<?= htmlspecialchars($b['judul']) ?>">
+                    <img src="/ujikom1/public/assets/berita/<?= htmlspecialchars($b['gambar']) ?>" alt="<?= htmlspecialchars($b['judul']) ?>">
                 </div>
                 <?php else: ?>
                 <div class="berita-img berita-img-placeholder">
