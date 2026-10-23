@@ -31,11 +31,11 @@ $result = $koneksi->query("SELECT * FROM faq ORDER BY urutan ASC, id ASC LIMIT $
     <title>Kelola FAQ — Cahaya Abadi</title>
         <!-- Design System (Atomic CSS) -->
     <link rel="stylesheet" href="../public/assets/dist/css/app.min.css">
+    <link rel="stylesheet" href="../public/assets/css/admin_style.css">
+    <link rel="stylesheet" href="../public/assets/css/style.css">
     
     <!-- Legacy Admin Styles (fallback) -->
-    <link rel="stylesheet" href="../public/assets/css/style.css">
-    <link rel="stylesheet" href="../public/assets/css/admin_style.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="admin-body">

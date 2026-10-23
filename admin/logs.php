@@ -66,11 +66,11 @@ function get_action_badge($action) {
     <title>Log Aktivitas — Cahaya Abadi</title>
         <!-- Design System (Atomic CSS) -->
     <link rel="stylesheet" href="../public/assets/dist/css/app.min.css">
+    <link rel="stylesheet" href="../public/assets/css/admin_style.css">
+    <link rel="stylesheet" href="../public/assets/css/style.css">
     
     <!-- Legacy Admin Styles (fallback) -->
-    <link rel="stylesheet" href="../public/assets/css/style.css">
-    <link rel="stylesheet" href="../public/assets/css/admin_style.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         .log-details { font-size: 0.8rem; color: var(--fg-muted); max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

@@ -35,7 +35,7 @@ require '../config/security.php';
             } catch (e) {}
         })();
     </script>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/dist/css/app.min.css">
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -47,7 +47,7 @@ require '../config/security.php';
         <h2>Login Administrator</h2>
         <p class="sub">Masukkan akun Anda untuk mengakses panel admin</p>
 
-        <form action="admin/handlers/cek_login.php" method="post">
+        <form action="../app/Http/Controllers/Admin/cek_login.php" method="post">
             <?= csrf_field() ?>
             <div class="form-group">
                 <label for="username">Username</label>

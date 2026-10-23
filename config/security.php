@@ -27,7 +27,7 @@ function check_session_timeout() {
 // ─── GUARD WAJIB LOGIN ADMIN ─────────────────────────────────────────
 // Default deny: sesi buatan tamu tidak boleh lewat. Cegah bypass via
 // tamu yang punya session kosong (timeout & status-check tidak berlaku).
-function require_admin($koneksi) {
+function require_admin($koneksi = null) {
     if (!isset($_SESSION['admin_id'])) {
         header("Location: /ujikom1/login.php?error=Silakan login terlebih dahulu.");
         exit;
@@ -38,8 +38,11 @@ function require_admin($koneksi) {
 
 // ─── STATUS CHECK (REAL-TIME) ────────────────────────────────────────
 // Pastikan admin masih aktif (bukan Nonaktif)
-function enforce_active_session($koneksi) {
+function enforce_active_session($koneksi = null) {
     if (isset($_SESSION['admin_id'])) {
+        if (!$koneksi) {
+            $koneksi = \App\Core\Database::getInstance()->getConnection();
+        }
         $id = $_SESSION['admin_id'];
         $stmt = $koneksi->prepare("SELECT status FROM admin WHERE id = ? LIMIT 1");
         $stmt->bind_param("i", $id);

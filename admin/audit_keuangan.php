@@ -135,11 +135,11 @@ $kategori_list = ['Reservasi', 'Operasional', 'Gaji Karyawan', 'Pemeliharaan', '
     <title>Audit Keuangan — Cahaya Abadi</title>
         <!-- Design System (Atomic CSS) -->
     <link rel="stylesheet" href="../public/assets/dist/css/app.min.css">
+    <link rel="stylesheet" href="../public/assets/css/admin_style.css">
+    <link rel="stylesheet" href="../public/assets/css/style.css">
     
     <!-- Legacy Admin Styles (fallback) -->
-    <link rel="stylesheet" href="../public/assets/css/style.css">
-    <link rel="stylesheet" href="../public/assets/css/admin_style.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
