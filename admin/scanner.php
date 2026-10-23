@@ -21,9 +21,9 @@ $page_title = "Scanner Tiket Premium";
     <link rel="stylesheet" href="../public/assets/dist/css/app.min.css">
     
     <!-- Legacy Admin Styles (fallback) -->
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/admin_style.css">
-    <link rel="stylesheet" href="../css/scanner_style.css">
+    <link rel="stylesheet" href="../public/assets/css/style.css">
+    <link rel="stylesheet" href="../public/assets/css/admin_style.css">
+    <link rel="stylesheet" href="../public/assets/css/scanner_style.css">
     <!-- html5-qrcode library -->
     <script src="https://unpkg.com/html5-qrcode"></script>
     <!-- SweetAlert2 -->

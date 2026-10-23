@@ -21,8 +21,8 @@ if (isset($_GET['sukses']) && isset($_GET['kode'])) {
     $booking_info = Reservasi::getByKode($_GET['kode']);
 }
 
-include '../resources/views/layouts/layouts/header.php';
-include '../resources/views/layouts/layouts/navbar.php';
+include '../resources/views/layouts/header.php';
+include '../resources/views/layouts/navbar.php';
 ?>
 
 <div class="main-content" style="grid-template-columns: 1fr; max-width: 700px; margin-top: 6rem;">
@@ -132,7 +132,7 @@ include '../resources/views/layouts/layouts/navbar.php';
                         <span style="color:var(--muted);">Bank</span>
                         <div style="display:flex;align-items:center;gap:8px;">
                             <?php if(strpos(strtoupper($rekening_bank), 'BCA') !== false): ?>
-                                <img src="assets/bca_logo.png" alt="BCA" style="height:16px;">
+                                <img src="../assets/bca_logo.png" alt="BCA" style="height:16px;">
                             <?php endif; ?>
                             <strong><?= htmlspecialchars($rekening_bank) ?></strong>
                         </div>
@@ -322,7 +322,7 @@ if (params.has("error")) {
 }
 </script>
 HTML;
-include '../resources/views/layouts/layouts/footer.php'; 
+include '../resources/views/layouts/footer.php'; 
 ?>
 </body>
 </html>

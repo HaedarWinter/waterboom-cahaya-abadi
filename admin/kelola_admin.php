@@ -247,8 +247,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     <link rel="stylesheet" href="../public/assets/dist/css/app.min.css">
     
     <!-- Legacy Admin Styles (fallback) -->
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/admin_style.css">
+    <link rel="stylesheet" href="../public/assets/css/style.css">
+    <link rel="stylesheet" href="../public/assets/css/admin_style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>

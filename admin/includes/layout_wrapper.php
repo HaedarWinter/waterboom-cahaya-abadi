@@ -15,8 +15,8 @@
     <link rel="stylesheet" href="../public/assets/dist/css/app.min.css">
     
     <!-- Legacy Admin Styles (fallback untuk komponen lama) -->
-    <link rel="stylesheet" href="../css/admin_style.css">
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../public/assets/css/admin_style.css">
+    <link rel="stylesheet" href="../public/assets/css/style.css">
     
     <!-- Libraries -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

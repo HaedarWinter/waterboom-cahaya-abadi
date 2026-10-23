@@ -30,8 +30,8 @@ $kuota_besok = Reservasi::cekKuota($besok);
 
 
 
-include '../resources/views/layouts/layouts/header.php';
-include '../resources/views/layouts/layouts/navbar.php';
+include '../resources/views/layouts/header.php';
+include '../resources/views/layouts/navbar.php';
 ?>
 
 <div class="hero" id="index.php">
