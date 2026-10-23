@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= isset($page_title) ? $page_title . " - " : "" ?>Waterboom Cahaya Abadi</title>
+    <base href="/ujikom1/">
     <script>
         (function() {
             try {
@@ -18,8 +19,8 @@
             } catch (e) {}
         })();
     </script>
-    <link rel="stylesheet" href="assets/dist/css/app.min.css">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="public/assets/dist/css/app.min.css">
+    <link rel="stylesheet" href="public/assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
