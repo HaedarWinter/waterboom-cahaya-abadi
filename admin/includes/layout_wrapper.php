@@ -13,9 +13,8 @@
     
     <base href="/ujikom1/">
     
-    <!-- Design System (Atomic CSS) -->
-    <link rel="stylesheet" href="../public/assets/css/admin_style.css">
-    <link rel="stylesheet" href="../public/assets/css/style.css">
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="../public/assets/css/global.css">
             
     <!-- Libraries -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
