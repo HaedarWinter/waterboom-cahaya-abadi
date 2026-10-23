@@ -47,7 +47,7 @@ require '../config/security.php';
         <h2>Login Administrator</h2>
         <p class="sub">Masukkan akun Anda untuk mengakses panel admin</p>
 
-        <form action="../app/Http/Controllers/Admin/cek_login.php" method="post">
+        <form action="/ujikom1/app/Http/Controllers/Admin/cek_login.php" method="post">
             <?= csrf_field() ?>
             <div class="form-group">
                 <label for="username">Username</label>
@@ -56,7 +56,7 @@ require '../config/security.php';
             <div class="form-group">
                 <label for="password">Password</label>
                 <!-- Untuk password dilarang keras diisi 'old' karena bahaya kalo ke-record browser atau inspecting element -->
-                <input type="password" id="password" name="password" placeholder="Masukkan password" required>
+                <input type="password" id="password" name="password" placeholder="Masukkan password" required autocomplete="current-password">
             </div>
             <button type="submit" class="btn" style="width:100%;">Masuk</button>
         </form>

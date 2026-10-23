@@ -3,7 +3,7 @@
 // display_errors sengaja mati — detail error hanya di log server (DATA-6)
 
 // panggil init.php untuk autoloader, session, dan database
-require_once '../../app/init.php';
+require_once __DIR__ . '/../../../../app/init.php';
 
 use App\Models\Audit;
 
