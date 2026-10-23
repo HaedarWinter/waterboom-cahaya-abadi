@@ -17,9 +17,7 @@
     <link rel="stylesheet" href="/ujikom1/public/assets/dist/css/app.min.css">
     
     <!-- Legacy Admin Styles (fallback untuk komponen lama) -->
-    <link rel="stylesheet" href="/ujikom1/public/assets/css/admin_style.css">
-    <link rel="stylesheet" href="/ujikom1/public/assets/css/style.css">
-    
+            
     <!-- Libraries -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
