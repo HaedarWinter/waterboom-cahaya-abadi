@@ -8,6 +8,9 @@
 # Redirect root to public/ (Phase 8A restructuring)
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    # Serve assets from public/
+    RewriteRule ^assets/(.*)$ public/assets/$1 [L]
+    # Redirect PHP files to public/
     RewriteRule ^$ public/ [L]
     RewriteRule ^index\.php$ public/index.php [L]
     RewriteRule ^login\.php$ public/login.php [L]
