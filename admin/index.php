@@ -94,12 +94,7 @@ $no_start    = $offset + 1;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin — Cahaya Abadi</title>
-        <!-- Design System (Atomic CSS) -->
-    <link rel="stylesheet" href="../public/assets/dist/css/app.min.css">
-    <link rel="stylesheet" href="../public/assets/css/admin_style.css">
-    <link rel="stylesheet" href="../public/assets/css/style.css">
-    
-    <!-- Legacy Admin Styles (fallback) -->
+    <link rel="stylesheet" href="/ujikom1/public/assets/dist/css/app.min.css">
             <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- ApexCharts CDN -->
