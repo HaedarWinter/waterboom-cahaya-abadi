@@ -243,8 +243,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Admin — Cahaya Abadi</title>
-    <link rel="stylesheet" href="/ujikom1/public/assets/dist/css/app.min.css">
-            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>

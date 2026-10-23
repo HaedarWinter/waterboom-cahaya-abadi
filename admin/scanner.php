@@ -17,8 +17,7 @@ $page_title = "Scanner Tiket Premium";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $page_title ?> — Cahaya Abadi</title>
-    <link rel="stylesheet" href="/ujikom1/public/assets/dist/css/app.min.css">
-                <!-- html5-qrcode library -->
+                    <!-- html5-qrcode library -->
     <script src="https://unpkg.com/html5-qrcode"></script>
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

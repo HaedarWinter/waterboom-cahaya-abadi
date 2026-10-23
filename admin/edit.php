@@ -87,8 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Data — Cahaya Abadi Admin</title>
-    <link rel="stylesheet" href="/ujikom1/public/assets/dist/css/app.min.css">
-            <!-- SweetAlert2 CDN -->
+                <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>

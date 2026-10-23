@@ -92,8 +92,7 @@ $categories = ['TIKET', 'KODE_UNIK', 'REFUND', 'BIAYA_OPERASIONAL', 'KOREKSI', '
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buku Kas — Cahaya Abadi</title>
-    <link rel="stylesheet" href="/ujikom1/public/assets/dist/css/app.min.css">
-            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         .badge-in { background: rgba(16, 185, 129, 0.1); color: var(--accent); border: 1px solid rgba(16, 185, 129, 0.2); }

@@ -133,8 +133,7 @@ $kategori_list = ['Reservasi', 'Operasional', 'Gaji Karyawan', 'Pemeliharaan', '
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audit Keuangan — Cahaya Abadi</title>
-    <link rel="stylesheet" href="/ujikom1/public/assets/dist/css/app.min.css">
-            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>

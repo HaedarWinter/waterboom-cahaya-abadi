@@ -64,8 +64,7 @@ function get_action_badge($action) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Log Aktivitas — Cahaya Abadi</title>
-    <link rel="stylesheet" href="/ujikom1/public/assets/dist/css/app.min.css">
-            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         .log-details { font-size: 0.8rem; color: var(--fg-muted); max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
