@@ -37,9 +37,9 @@ include '../resources/views/layouts/navbar.php';
 <div class="hero" id="index.php">
     <div class="hero-inner">
         <div class="hero-content">
-            <span class="hero-tagline">#1 Family Waterpark in Banjaran</span>
+            <span class="hero-tagline">WATERBOOM CAHAYA ABADI · BANJARAN</span>
             <h1>Kesegaran Alam<br>untuk Keluarga</h1>
-            <p>Rasakan sensasi berenang dengan air pegunungan yang jernih di Waterboom Cahaya Abadi. Destinasi wisata air paling seru untuk liburan akhir pekan Anda.</p>
+            <p>Temukan kolam renang dan wahana air untuk mengisi waktu bersama keluarga di Banjaran.</p>
             <div class="hero-links">
                 <a href="reservasi.php" class="hero-link">
                     Reservasi Sekarang <i data-lucide="ticket"></i>
@@ -69,16 +69,16 @@ include '../resources/views/layouts/navbar.php';
     <!-- Stats Corner -->
     <div class="hero-stats-corner">
         <div class="hero-stat-item">
-            <span class="value">4.1</span>
-            <span class="label">Rating rata-rata dari pengunjung</span>
+            <span class="value"><?= (int)$avg_rating['total'] > 0 ? e($avg_rating['avg']) : '—' ?></span>
+            <span class="label">Rating pengunjung</span>
         </div>
         <div class="hero-stat-item">
-            <span class="value">1.3K+</span>
-            <span class="label">Ulasan positif di platform kami</span>
+            <span class="value"><?= number_format((int)$avg_rating['total'], 0, ',', '.') ?></span>
+            <span class="label">Ulasan terverifikasi</span>
         </div>
         <div class="hero-stat-item">
-            <span class="value">10+</span>
-            <span class="label">Wahana air seru untuk anak & dewasa</span>
+            <span class="value"><?= (int)$kuota_hari_ini['sisa'] ?></span>
+            <span class="label">Slot tersedia hari ini</span>
         </div>
     </div>
 
@@ -187,7 +187,21 @@ include '../resources/views/layouts/navbar.php';
                     $galeri_result->data_seek(0);
                     while ($foto = $galeri_result->fetch_assoc()): ?>
                     <div class="galeri-item">
-                        <img src="/ujikom1/public/assets/galeri/<?= htmlspecialchars($foto['file_gambar']) ?>" alt="<?= htmlspecialchars($foto['judul']) ?>" onerror="this.src='/ujikom1/public/assets/<?= htmlspecialchars($foto['file_gambar']) ?>'">
+                        <?php
+                        $galleryFilename = rawurlencode(basename((string)$foto['file_gambar']));
+                        $galleryAssetPath = null;
+                        foreach (['assets/galeri/' . $galleryFilename, 'assets/' . $galleryFilename] as $candidatePath) {
+                            if (is_file(__DIR__ . '/' . $candidatePath) || is_file(dirname(__DIR__) . '/' . $candidatePath)) {
+                                $galleryAssetPath = $candidatePath;
+                                break;
+                            }
+                        }
+                        ?>
+                        <?php if ($galleryAssetPath !== null): ?>
+                        <img src="<?= e(base_url($galleryAssetPath)) ?>" alt="<?= e($foto['judul']) ?>">
+                        <?php else: ?>
+                        <div class="c-image-placeholder" role="img" aria-label="<?= e($foto['judul']) ?>">Gambar tidak tersedia</div>
+                        <?php endif; ?>
                         <div class="galeri-caption"><?= htmlspecialchars($foto['judul']) ?></div>
                     </div>
                     <?php endwhile; ?>
@@ -212,7 +226,7 @@ include '../resources/views/layouts/navbar.php';
             Yuk, absen dulu! Silakan isi data di bawah ini sebagai jejak pertemanan kalau kamu udah pernah seru-seruan bareng di Waterboom Cahaya Abadi.
         </p>
 
-        <form action="../app/Http/Controllers/Admin/simpan.php" method="post" id="formBukuTamu">
+        <form action="<?= e(base_url('guestbook-submit.php')) ?>" method="post" id="formBukuTamu">
             <?= csrf_field() ?>
             <!-- Honeypot: field tersembunyi anti-bot -->
             <div style="position:absolute;left:-9999px;" aria-hidden="true">
@@ -265,7 +279,7 @@ include '../resources/views/layouts/navbar.php';
             <div class="berita-card">
                 <?php if ($b['gambar']): ?>
                 <div class="berita-img">
-                    <img src="/ujikom1/public/assets/berita/<?= htmlspecialchars($b['gambar']) ?>" alt="<?= htmlspecialchars($b['judul']) ?>">
+                    <img src="<?= e(base_url('assets/berita/' . rawurlencode(basename((string)$b['gambar'])))) ?>" alt="<?= e($b['judul']) ?>">
                 </div>
                 <?php else: ?>
                 <div class="berita-img berita-img-placeholder">
@@ -355,7 +369,7 @@ include '../resources/views/layouts/navbar.php';
             <!-- FORM TULIS REVIEW -->
             <div class="review-form-card">
                 <h3><i data-lucide="edit-3" style="width:18px;height:18px;"></i> Tulis Ulasan</h3>
-                <form action="../app/Http/Controllers/Admin/review_handler.php" method="post" id="formReview">
+                <form action="<?= e(base_url('review-submit.php')) ?>" method="post" id="formReview">
                     <?= csrf_field() ?>
                     <input type="hidden" name="action" value="simpan">
                     <div style="position:absolute;left:-9999px;" aria-hidden="true">

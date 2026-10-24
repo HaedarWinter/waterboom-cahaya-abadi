@@ -1,15 +1,21 @@
 <?php
-session_start(); // wajib dinyalakan buat nyimpen data yang udah diketik user (flash data)
+if (session_status() === PHP_SESSION_NONE) {
+    session_start(); // Simpan data form untuk ditampilkan kembali setelah validasi gagal.
+}
 // file ini tugasnya nerima kiriman form buku tamu dari user (halaman depan)
 // kita tangkep datanya pake method POST soalnya kalo pake GET datanya keliatan di url
 
 // panggil dulu koneksinya biar nyambung sama db_ujikom
-require '../../config/koneksi.php';
-require '../../config/security.php';
+require_once dirname(__DIR__, 3) . '/init.php';
+
+if (getenv('APP_ENV') === 'demo') {
+    header('Location: ' . base_url('?demo=read-only'));
+    exit;
+}
 
 // ─── VALIDASI CSRF TOKEN ───
 if (!validate_csrf($_POST['csrf_token'] ?? '')) {
-    header("Location: /ujikom1/?error=Token keamanan tidak valid. Silakan coba lagi.");
+    header('Location: ' . base_url('?error=Token%20keamanan%20tidak%20valid.%20Silakan%20coba%20lagi.'));
     exit;
 }
 regenerate_csrf();
@@ -17,7 +23,7 @@ regenerate_csrf();
 // ─── CEK HONEYPOT (ANTI-BOT) ───
 if (!check_honeypot('website_url')) {
     // Bot detected! Diam-diam redirect tanpa error yang jelas
-    header("Location: /ujikom1/?pesan=Data berhasil disimpan! Terima kasih sudah mengisi buku tamu.");
+    header('Location: ' . base_url('?pesan=Data%20berhasil%20disimpan!%20Terima%20kasih%20sudah%20mengisi%20buku%20tamu.'));
     exit;
 }
 

@@ -8,7 +8,7 @@ require __DIR__ . '/../../layouts/admin.php';
     <div class="l-stack l-stack--lg">
         <h1 class="c-heading c-heading--1">Pendapatan per Jenis Tiket</h1>
 
-        <form method="GET" class="l-flex l-flex--wrap l-gap-sm" style="margin-bottom: 1rem;">
+        <form method="GET" class="l-flex l-flex--wrap l-gap-sm finance-filter">
             <input type="hidden" name="report" value="revenue">
             <div class="c-form-field">
                 <label class="c-label" for="start_date">Dari</label>
@@ -18,10 +18,10 @@ require __DIR__ . '/../../layouts/admin.php';
                 <label class="c-label" for="end_date">Sampai</label>
                 <input type="date" id="end_date" name="end_date" class="c-input" value="<?= e($endDate) ?>">
             </div>
-            <button type="submit" class="c-button c-button--secondary" style="align-self: flex-end;">Filter</button>
+            <button type="submit" class="c-button c-button--secondary">Terapkan Filter</button>
         </form>
 
-        <div class="c-card">
+        <div class="c-card finance-panel">
             <table class="c-table">
                 <thead>
                     <tr>
@@ -56,4 +56,4 @@ require __DIR__ . '/../../layouts/admin.php';
     </div>
 </div>
 
-<?php require __DIR__ . '/../../partials/footer.php'; ?>
+<?php require __DIR__ . '/../../layouts/admin_footer.php'; ?>

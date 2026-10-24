@@ -132,6 +132,8 @@ $kategori_list = ['Reservasi', 'Operasional', 'Gaji Karyawan', 'Pemeliharaan', '
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="<?= e(asset_url('assets/dist/css/app.min.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset_url('assets/css/admin_style.css')) ?>">
     <title>Audit Keuangan — Cahaya Abadi</title>
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -168,8 +170,10 @@ $kategori_list = ['Reservasi', 'Operasional', 'Gaji Karyawan', 'Pemeliharaan', '
             <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / Keuangan</span>
         </div>
         <div style="display:flex; gap:10px;">
-<form method="post" action="../../app/Http/Controllers/Admin/$1" style="display:inline">
+<form method="post" action="<?= e(base_url('admin/handlers/legacy_action.php?handler=keuangan')) ?>" style="display:inline">
     <input type="hidden" name="action" value="export_csv">
+    <input type="hidden" name="bulan" value="<?= e((string)$bulan) ?>">
+    <input type="hidden" name="tahun" value="<?= e((string)$tahun) ?>">
     <?= csrf_field() ?>
     <button type="submit" class="header-logout" style="background:var(--surface-hover); border:1px solid var(--border); color:var(--fg-muted);">
         <i data-lucide="download"></i><span>Export CSV</span>
@@ -248,7 +252,7 @@ $kategori_list = ['Reservasi', 'Operasional', 'Gaji Karyawan', 'Pemeliharaan', '
                 </div>
                 <div style="display:flex; gap:10px;">
                     <?php if ($can_manage): ?>
-                    <button class="btn btn-add" id="btn-tambah-transaksi">
+                    <button type="button" class="btn btn-add" id="btn-tambah-transaksi">
                         <i data-lucide="plus"></i> Tambah Transaksi
                     </button>
                     <?php endif; ?>
@@ -361,64 +365,61 @@ $kategori_list = ['Reservasi', 'Operasional', 'Gaji Karyawan', 'Pemeliharaan', '
 </main>
 
 <!-- MODAL TAMBAH/EDIT -->
-<div id="modalFinance" style="display:none; position:fixed; z-index:100; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
-    <div style="background:var(--surface); width:560px; max-width:95vw; border-radius:20px; padding:2rem 2.5rem; box-shadow: var(--shadow-lg); max-height:90vh; overflow-y:auto;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:2px solid var(--border-subtle); padding-bottom:1rem;">
-            <h2 id="modal-title" style="font-weight:800; font-size:1.2rem; color:var(--accent); margin:0;">Input Transaksi Baru</h2>
-            <button onclick="closeModal()" style="border:0; background:none; cursor:pointer; padding:4px; color:var(--fg);"><i data-lucide="x"></i></button>
-        </div>
-        <form action="../../app/Http/Controllers/Admin/$1" method="post" enctype="multipart/form-data">
+<div id="modalFinance" class="finance-modal" hidden>
+    <section class="finance-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <header class="finance-modal__header">
+            <h2 id="modal-title" class="finance-modal__title">Input Transaksi Baru</h2>
+            <button class="finance-modal__close" type="button" data-close-modal aria-label="Tutup dialog">
+                <i data-lucide="x" aria-hidden="true"></i>
+            </button>
+        </header>
+        <form class="finance-modal__form" action="<?= e(base_url('admin/handlers/legacy_action.php?handler=keuangan')) ?>" method="post" enctype="multipart/form-data">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="simpan">
             <input type="hidden" name="id" id="f-id" value="0">
             <input type="hidden" name="old_lampiran" id="f-old-lampiran">
 
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
-                <div>
-                    <label style="font-size:.8rem; font-weight:700; color:var(--fg); display:block; margin-bottom:6px;">Tipe</label>
-                    <select name="tipe" id="f-tipe" required class="search-input" style="width:100%; font-size:.88rem;">
+            <div class="finance-modal__grid">
+                <div class="finance-field">
+                    <label for="f-tipe" class="finance-field__label">Tipe</label>
+                    <select name="tipe" id="f-tipe" required class="finance-field__control">
                         <option value="Keluar">Pengeluaran (-)</option>
                         <option value="Masuk">Pendapatan Lain (+)</option>
                     </select>
                 </div>
-                <div>
-                    <label style="font-size:.8rem; font-weight:700; color:var(--fg); display:block; margin-bottom:6px;">Kategori</label>
-                    <select name="kategori" id="f-kategori" required class="search-input" style="width:100%;  font-size:.88rem;">
+                <div class="finance-field">
+                    <label for="f-kategori" class="finance-field__label">Kategori</label>
+                    <select name="kategori" id="f-kategori" required class="finance-field__control">
                         <?php foreach($kategori_list as $k): ?>
-                            <option value="<?= $k ?>"><?= $k ?></option>
+                            <option value="<?= e($k) ?>"><?= e($k) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-            </div>
-
-            <div style="margin-bottom:1rem;">
-                <label style="font-size:.8rem; font-weight:700; color:var(--fg); display:block; margin-bottom:6px;">Nominal (Rp)</label>
-                <input type="text" name="nominal" id="f-nominal" required placeholder="0" class="search-input" style="width:100%; font-weight:700; font-size:1.15rem; color:var(--accent); padding:12px; box-sizing:border-box;">
-            </div>
-
-            <div style="margin-bottom:1rem;">
-                <label style="font-size:.8rem; font-weight:700; color:var(--fg); display:block; margin-bottom:6px;">Keterangan</label>
-                <textarea name="keterangan" id="f-keterangan" required class="search-input" style="width:100%; height:80px; resize:none; padding:10px 12px; font-size:.88rem; box-sizing:border-box;" placeholder="Misal: Pembayaran gaji security bulan Jan..."></textarea>
-            </div>
-
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
-                <div>
-                    <label style="font-size:.8rem; font-weight:700; color:var(--fg); display:block; margin-bottom:6px;">Tanggal</label>
-                    <input type="date" name="tanggal" id="f-tanggal" required class="search-input" style="width:100%; padding:10px 12px; font-size:.88rem; box-sizing:border-box;" value="<?= date('Y-m-d') ?>">
+                <div class="finance-field finance-field--wide">
+                    <label for="f-nominal" class="finance-field__label">Nominal (Rp)</label>
+                    <input type="text" name="nominal" id="f-nominal" required placeholder="0" class="finance-field__control finance-field__control--amount">
                 </div>
-                <div>
-                    <label style="font-size:.8rem; font-weight:700; color:var(--fg); display:block; margin-bottom:6px;">Bukti Nota (Opsional)</label>
-                    <input type="file" name="lampiran" accept=".jpg,.jpeg,.png,.pdf" class="search-input" style="width:100%; padding:8px 10px; font-size:.78rem; box-sizing:border-box;">
+                <div class="finance-field finance-field--wide">
+                    <label for="f-keterangan" class="finance-field__label">Keterangan</label>
+                    <textarea name="keterangan" id="f-keterangan" required class="finance-field__control finance-field__control--textarea" placeholder="Tuliskan keterangan transaksi"></textarea>
+                </div>
+                <div class="finance-field">
+                    <label for="f-tanggal" class="finance-field__label">Tanggal</label>
+                    <input type="date" name="tanggal" id="f-tanggal" required class="finance-field__control" value="<?= date('Y-m-d') ?>">
+                </div>
+                <div class="finance-field">
+                    <label for="f-lampiran" class="finance-field__label">Bukti nota <span>(opsional)</span></label>
+                    <input type="file" id="f-lampiran" name="lampiran" accept=".jpg,.jpeg,.png,.pdf" class="finance-field__control finance-field__control--file">
                 </div>
             </div>
 
-            <button type="submit" class="btn" style="width:100%; padding:14px; font-size:.95rem; font-weight:700; letter-spacing:.5px;">SIMPAN TRANSAKSI</button>
+            <button type="submit" class="finance-modal__submit">Simpan Transaksi</button>
         </form>
-    </div>
+    </section>
 </div>
 
 <!-- Hidden form for deletion -->
-<form id="form-hapus-fin" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
+<form id="form-hapus-fin" action="<?= e(base_url('admin/handlers/legacy_action.php?handler=keuangan')) ?>" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="hapus">
     <input type="hidden" name="id" id="h-id">
@@ -426,8 +427,22 @@ $kategori_list = ['Reservasi', 'Operasional', 'Gaji Karyawan', 'Pemeliharaan', '
 
 <script>
     const modal = document.getElementById('modalFinance');
-    function openModal() { modal.style.display = 'flex'; }
-    function closeModal() { modal.style.display = 'none'; }
+    function openModal() {
+        modal.hidden = false;
+        document.body.classList.add('finance-modal-open');
+        modal.querySelector('.finance-modal__close').focus();
+    }
+    function closeModal() {
+        modal.hidden = true;
+        document.body.classList.remove('finance-modal-open');
+    }
+    modal.querySelector('[data-close-modal]')?.addEventListener('click', closeModal);
+    modal.addEventListener('click', event => {
+        if (event.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && !modal.hidden) closeModal();
+    });
 
     document.getElementById('btn-tambah-transaksi')?.addEventListener('click', () => {
         document.getElementById('modal-title').innerText = 'Input Transaksi Baru';

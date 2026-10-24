@@ -63,6 +63,8 @@ function get_action_badge($action) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="<?= e(asset_url('assets/dist/css/app.min.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset_url('assets/css/admin_style.css')) ?>">
     <title>Log Aktivitas — Cahaya Abadi</title>
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/lucide@latest"></script>

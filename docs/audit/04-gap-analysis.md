@@ -454,3 +454,16 @@ Target PRD 6.2 belum ada: tidak ada `public/`, `routes/`, `app/Http/`, `app/Doma
 3. `payments` di-`UPDATE` saat verifikasi tanpa `FOR UPDATE` pada baris booking yang sudah dikunci; dua verifikasi paralel masih bergantung pada guard status `from === to`, belum pada constraint sumber ledger.
 4. Tes state machine menghapus `reservasi`/`kuota_harian`; tes ledger menghapus `ledger_entries`. Ini bertentangan dengan larangan §15 AGENTS.md dan harus dipindah ke DB tes terpisah.
 5. `audit_logs` tidak mencatat verifikasi pembayaran, entri ledger, refund, atau perubahan harga/kuota (AUD-2).
+
+### 12.3 Pembaruan R-17 — 23 Oktober 2026
+
+R-17 sekarang **Sebagian**: sumber CSS atomic tersedia di `public/assets/css/{0-tokens..7-utilities}` dan manifest `app.css`; layout site/admin dan halaman admin legacy memuat bundle `public/assets/dist/css/app.min.css`. Site dan scanner dipecah menjadi file page kecil (masing-masing ≤200 baris). `php scripts/build_assets.php --minify` berhasil setelah urutan layer dibetulkan ke `tokens → base → layout → atoms → molecules → organisms → pages → utilities`, wrapper layer ganda di file sumber dihapus, dan minifier diubah agar mempertahankan spasi aritmetika `calc()`. Builder menolak import yang hilang, tak terbaca, atau masih mendeklarasikan layer sendiri.
+
+Sisa debt: stylesheet legacy `style.css`, `admin_style.css`, dan `scanner_style.css` masih dipakai untuk kompatibilitas; beberapa file CSS juga masih melebihi batas 200 baris (termasuk `site.css` dan `scanner.css`). R-17 belum dapat dinyatakan selesai sampai CSS legacy dipindah/dipecah bertahap dan aturan token/a11y diverifikasi visual.
+
+### 12.4 Perbaikan lanjutan — 23 Oktober 2026
+
+- Query rekening pada view tutup harian, pengeluaran, dan laporan dipindah ke repository/service; query tersebut menggunakan prepared statement.
+- Akses HTTP langsung ke direktori source, konfigurasi, migrasi, dokumentasi, storage, dan tes ditolak lewat `.htaccess`, karena XAMPP lokal masih menggunakan direktori proyek sebagai document root.
+- Jalur request subfolder dinormalisasi sebelum pemeriksaan RBAC; rute admin yang tidak terdaftar ditolak.
+- Build bundle CSS berhasil. Pemeriksaan runtime browser belum dapat dikonfirmasi pada sesi ini; stylesheet legacy, inline JS, dan kepatuhan penuh fase rekonstruksi masih menjadi pekerjaan tersisa.

@@ -3,7 +3,7 @@
 // display_errors sengaja mati — detail error hanya di log server (DATA-6)
 
 // panggil init.php untuk autoloader, session, dan database
-require_once __DIR__ . '/../../../../app/init.php';
+require_once dirname(__DIR__, 3) . '/init.php';
 
 use App\Models\Audit;
 
@@ -37,13 +37,11 @@ if ($attempts >= 5) {
 }
 
 // ─── VALIDASI CSRF TOKEN ───
-// TEMPORARY: Disabled untuk compatibility dengan session storage migration
-// TODO: Re-enable setelah session path stabil
-// if (!validate_csrf($_POST['csrf_token'] ?? '')) {
-//     header("Location: /ujikom1/login.php?error=Token keamanan tidak valid. Silakan coba lagi.");
-//     exit;
-// }
-// regenerate_csrf();
+if (!validate_csrf($_POST['csrf_token'] ?? '')) {
+    header('Location: /ujikom1/login.php?error=Token keamanan tidak valid. Silakan coba lagi.');
+    return;
+}
+regenerate_csrf();
 
 // tangkep data yang ditik di form
 // karna kita pake prepared statement gak usah pake escape string lagi

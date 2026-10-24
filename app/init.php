@@ -1,4 +1,12 @@
 <?php
+require_once __DIR__ . '/Core/Env.php';
+\App\Core\Env::load(dirname(__DIR__) . '/.env');
+if (in_array(getenv('APP_ENV') ?: 'local', ['demo', 'production'], true)) {
+    ini_set('display_errors', '0');
+    ini_set('display_startup_errors', '0');
+    error_reporting(E_ALL);
+}
+
 // Inisialisasi session dengan parameter keamanan
 if (session_status() === PHP_SESSION_NONE) {
     session_set_cookie_params([
@@ -63,8 +71,13 @@ function e($string) {
  * @return string URL Lengkap
  */
 function base_url($path = '') {
+    $configuredUrl = rtrim((string)(getenv('APP_URL') ?: ''), '/');
+    if ($configuredUrl !== '') {
+        return $configuredUrl . '/' . ltrim($path, '/');
+    }
+
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
-    $host = $_SERVER['HTTP_HOST'];
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
     
     // Trik paling aman: Dapatkan root path project dari __DIR__
     // app/init.php -> Naik satu level ke root project
@@ -77,10 +90,29 @@ function base_url($path = '') {
     return $protocol . $host . $relative_folder . '/' . ltrim($path, '/');
 }
 
+function asset_url(string $path): string {
+    $assetPath = ltrim($path, '/');
+    $filePath = dirname(__DIR__) . '/public/' . $assetPath;
+    $url = base_url($assetPath);
+
+    if (is_file($filePath)) {
+        $url .= '?v=' . (string)filemtime($filePath);
+    }
+
+    return $url;
+}
+
+function app_relative_request_path(): string {
+    return \App\Core\RequestPath::relativeToBase(
+        $_SERVER['REQUEST_URI'] ?? '/',
+        (string)parse_url(base_url(), PHP_URL_PATH)
+    );
+}
+
 // Fitur Lazy Cron: Auto-Cancel Reservasi kedaluwarsa secara otomatis
 \App\Models\Reservasi::autoCancelExpired();
 
 // Centralized middleware: enforce RBAC for admin routes
-if (str_starts_with(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/admin/')) {
+if (str_starts_with(app_relative_request_path(), '/admin/')) {
     require_once __DIR__ . '/Http/Middleware/Bootstrap.php';
 }

@@ -38,9 +38,17 @@ class ClosingRepository {
     }
 
     public function findByDateRange(string $startDate, string $endDate): array {
-        $sql = "SELECT * FROM daily_closings WHERE closing_date BETWEEN ? AND ? ORDER BY closing_date DESC, cash_account_id";
+        $sql = "SELECT dc.*, ca.name AS account_name FROM daily_closings dc LEFT JOIN cash_accounts ca ON ca.id = dc.cash_account_id WHERE dc.closing_date BETWEEN ? AND ? ORDER BY dc.closing_date DESC, dc.cash_account_id";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param('ss', $startDate, $endDate);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?: [];
+    }
+
+    public function findActiveAccounts(): array {
+        $stmt = $this->conn->prepare('SELECT id, name FROM cash_accounts WHERE is_active = ? ORDER BY name');
+        $active = 1;
+        $stmt->bind_param('i', $active);
         $stmt->execute();
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?: [];
     }

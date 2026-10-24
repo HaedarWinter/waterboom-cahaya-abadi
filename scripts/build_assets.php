@@ -24,18 +24,28 @@ function readCssFiles(string $dir, string $manifest): array {
     }
 
     $files = [];
-    preg_match_all('/@import\s+"([^"]+)"\s+layer\((\w+)\);/', $content, $matches, PREG_SET_ORDER);
+    preg_match_all('/@import\s+"([^"]+)"(?:\s+layer\((\w+)\))?;/', $content, $matches, PREG_SET_ORDER);
 
     foreach ($matches as $m) {
         $file = $dir . '/' . $m[1];
-        $layer = $m[2];
-        if (is_file($file)) {
-            $files[] = [
-                'path' => $file,
-                'layer' => $layer,
-                'content' => file_get_contents($file),
-            ];
+        $layer = $m[2] ?? '';
+        if (!is_file($file)) {
+            throw new RuntimeException("CSS import not found: {$m[1]}");
         }
+
+        $css = file_get_contents($file);
+        if ($css === false) {
+            throw new RuntimeException("CSS import could not be read: {$m[1]}");
+        }
+        if (preg_match('/@layer\s+/', $css)) {
+            throw new RuntimeException("CSS import must not declare its own layer: {$m[1]}");
+        }
+
+        $files[] = [
+            'path' => $file,
+            'layer' => $layer,
+            'content' => $css,
+        ];
     }
 
     return $files;
@@ -44,7 +54,7 @@ function readCssFiles(string $dir, string $manifest): array {
 function minifyCss(string $css): string {
     $css = preg_replace('!/\*.*?\*/!s', '', $css);
     $css = preg_replace('/\s+/', ' ', $css);
-    $css = preg_replace('/\s*([{}:;,>+~])\s*/', '$1', $css);
+    $css = preg_replace('/\s*([{}:;,>~])\s*/', '$1', $css);
     $css = preg_replace('/;}/', '}', $css);
     return trim($css);
 }
@@ -60,10 +70,13 @@ $bundles = [
     'organisms' => [],
     'pages' => [],
     'utilities' => [],
+    'unlayered' => [],
 ];
 
 foreach ($cssFiles as $f) {
-    if (isset($bundles[$f['layer']])) {
+    if ($f['layer'] === '') {
+        $bundles['unlayered'][] = $f['content'];
+    } elseif (isset($bundles[$f['layer']])) {
         $bundles[$f['layer']][] = $f['content'];
     }
 }
@@ -77,6 +90,10 @@ foreach ($layerOrder as $layer) {
         $output[] = implode("\n", $bundles[$layer]);
         $output[] = "}";
     }
+}
+
+if (!empty($bundles['unlayered'])) {
+    $output[] = implode("\n", $bundles['unlayered']);
 }
 
 $bundled = implode("\n", $output);

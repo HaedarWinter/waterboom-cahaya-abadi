@@ -1,21 +1,26 @@
-# SetEnv APP_ENV test
-# SetEnv DB_HOST 127.0.0.1
-# SetEnv DB_PORT 3307
-# SetEnv DB_DATABASE db_ujikom_test
-# SetEnv DB_USER root
-# SetEnv DB_PASSWORD
-
-# Redirect root to public/ (Phase 8A restructuring)
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    # Serve assets from public/
+    # The local XAMPP document root is the repository folder. Keep application
+    # source, configuration, data, and operational files inaccessible over HTTP.
+    RewriteRule ^(?:app|config|database|docs|scripts|sql|storage|resources|tests|\.git|\.agents)(?:/|$) - [F,L,NC]
+    RewriteRule ^(?:\.env(?:\..*)?|AGENTS\.md|CHANGELOG\.md|PRD\.md)$ - [F,L,NC]
+
+    RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^assets/(.*)$ public/assets/$1 [L]
-    # Redirect PHP files to public/
-    RewriteRule ^$ public/ [L]
-    RewriteRule ^index\.php$ public/index.php [L]
-    RewriteRule ^login\.php$ public/login.php [L]
-    RewriteRule ^reservasi\.php$ public/reservasi.php [L]
-    RewriteRule ^cek_booking\.php$ public/cek_booking.php [L]
-    RewriteRule ^ticket\.php$ public/ticket.php [L]
-    RewriteRule ^upload_bukti\.php$ public/upload_bukti.php [L]
+
+    # Public pages are stored under public/ while local XAMPP serves the project root.
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^(login|reservasi|cek_booking|login-submit|guestbook-submit|review-submit|reservasi-submit|health)\.php$ public/$1.php [L]
+
+    # Serve the public front page when Apache is pointed at the project root.
+    RewriteRule ^$ public/index.php [L]
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ public/index.php [QSA,L]
 </IfModule>
+
+Options -Indexes
+<FilesMatch "^\.env(?:\..*)?$">
+    Require all denied
+</FilesMatch>

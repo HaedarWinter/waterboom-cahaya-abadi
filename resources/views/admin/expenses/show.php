@@ -17,7 +17,7 @@ require __DIR__ . '/../../layouts/admin.php';
                 <?php elseif ($expense['status'] === 'POSTED'): ?>
                     <form method="POST" action="?view=show&id=<?= $expense['id'] ?>">
                         <input type="hidden" name="id" value="<?= $expense['id'] ?>">
-                        <input type="text" name="reason" placeholder="Alasan pembatalan" required class="c-input" style="width: 200px;">
+                        <input type="text" name="reason" placeholder="Alasan pembatalan" required class="c-input finance-reason-input">
                         <button type="submit" name="action" value="void" class="c-button c-button--danger" onclick="return confirm('Batalkan pengeluaran?')">Batalkan</button>
                     </form>
                 <?php endif; ?>
@@ -41,13 +41,7 @@ require __DIR__ . '/../../layouts/admin.php';
                     ?>
                     <span class="c-badge c-badge--<?= $statusClass ?>"><?= e($expense['status']) ?></span>
                 </dd>
-                <dt>Rekening Kas</dt><dd>
-                    <?php
-                    $conn = \App\Core\Database::getInstance()->getConnection();
-                    $acc = $conn->query("SELECT name FROM cash_accounts WHERE id = " . (int)$expense['cash_account_id'])->fetch_assoc();
-                    echo e($acc['name'] ?? '-');
-                    ?>
-                </dd>
+                <dt>Rekening Kas</dt><dd><?= e($accountName) ?></dd>
                 <dt>Dibuat oleh</dt><dd>User #<?= $expense['created_by'] ?></dd>
                 <dt>Dibuat pada</dt><dd><?= e(date('d/m/Y H:i', strtotime($expense['created_at']))) ?></dd>
                 <?php if ($expense['status'] === 'POSTED' && $expense['approved_by']): ?>
@@ -64,4 +58,4 @@ require __DIR__ . '/../../layouts/admin.php';
     </div>
 </div>
 
-<?php require __DIR__ . '/../../partials/footer.php'; ?>
+<?php require __DIR__ . '/../../layouts/admin_footer.php'; ?>

@@ -33,6 +33,12 @@ if (!validate_csrf($_POST['csrf_token'] ?? '')) {
 }
 regenerate_csrf();
 
+if (getenv('APP_ENV') === 'demo') {
+    http_response_code(403);
+    header('Location: /ujikom1/admin/pengaturan.php?error=Pengaturan dinonaktifkan pada mode demo.');
+    exit;
+}
+
 // Daftar key yang valid untuk mencegah manipulasi
 $valid_keys = [
     'harga_weekday', 'harga_weekend',

@@ -91,6 +91,8 @@ $categories = ['TIKET', 'KODE_UNIK', 'REFUND', 'BIAYA_OPERASIONAL', 'KOREKSI', '
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="<?= e(asset_url('assets/dist/css/app.min.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset_url('assets/css/admin_style.css')) ?>">
     <title>Buku Kas — Cahaya Abadi</title>
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -111,7 +113,7 @@ $categories = ['TIKET', 'KODE_UNIK', 'REFUND', 'BIAYA_OPERASIONAL', 'KOREKSI', '
             <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / <a href="audit_keuangan.php">Keuangan</a> / Buku Kas</span>
         </div>
         <div style="display:flex; gap:10px;">
-<form method="post" action="../../app/Http/Controllers/Admin/$1" style="display:inline">
+<form method="post" action="<?= e(base_url("admin/handlers/legacy_action.php?handler=buku_kas")) ?>" style="display:inline">
     <input type="hidden" name="action" value="export_csv">
     <input type="hidden" name="bulan" value="<?= e($bulan) ?>">
     <input type="hidden" name="tahun" value="<?= e($tahun) ?>">

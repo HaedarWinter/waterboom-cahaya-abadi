@@ -14,7 +14,8 @@
     <base href="/ujikom1/">
     
     <!-- Global CSS -->
-    <link rel="stylesheet" href="../public/assets/css/global.css">
+    <link rel="stylesheet" href="<?= e(asset_url('assets/dist/css/app.min.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset_url('assets/css/admin_style.css')) ?>">
             
     <!-- Libraries -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,3 +28,4 @@
     <?php if (isset($extra_head)) echo $extra_head; ?>
 </head>
 <body class="admin-body">
+<?php require dirname(__DIR__, 2) . '/resources/views/components/demo-banner.php'; ?>

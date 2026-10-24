@@ -1,0 +1,10 @@
+/* Dark mode overrides */
+.dark-theme .btn-switch {
+    background: #2c2c2e;
+    color: #e5e7eb;
+    border-color: #3a3a3c;
+}
+
+.dark-theme .camera-wrapper {
+    border-color: #2c2c2e;
+}

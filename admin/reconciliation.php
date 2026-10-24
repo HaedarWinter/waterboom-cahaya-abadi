@@ -83,6 +83,8 @@ $total_pages = ceil($total_rows / $per_page);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="<?= e(asset_url('assets/dist/css/app.min.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset_url('assets/css/admin_style.css')) ?>">
     <title>Rekonsiliasi Pembayaran — Cahaya Abadi</title>
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -226,13 +228,13 @@ $total_pages = ceil($total_rows / $per_page);
 </main>
 
 <!-- Hidden forms -->
-<form id="form-reconcile" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
+<form id="form-reconcile" action="<?= e(base_url("admin/handlers/legacy_action.php?handler=reconciliation")) ?>" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="reconcile">
     <input type="hidden" name="id" id="rec-id">
     <input type="hidden" name="notes" id="rec-notes">
 </form>
-<form id="form-unrec" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
+<form id="form-unrec" action="<?= e(base_url("admin/handlers/legacy_action.php?handler=reconciliation")) ?>" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="unreconcile">
     <input type="hidden" name="id" id="unrec-id">

@@ -8,6 +8,12 @@ require __DIR__ . '/../../layouts/admin.php';
     <div class="l-stack l-stack--lg">
         <h1 class="c-heading c-heading--1">Template Pesan WhatsApp</h1>
 
+        <?php if (!$schemaReady): ?>
+        <div class="c-alert c-alert--warning" role="alert">
+            Tabel template belum tersedia. Jalankan migrasi database V4_006_notifications.sql setelah membuat backup.
+        </div>
+        <?php endif; ?>
+
         <div class="c-card">
             <table class="c-table">
                 <thead>
@@ -22,7 +28,7 @@ require __DIR__ . '/../../layouts/admin.php';
                 <tbody>
                     <?php foreach ($templates as $tpl): ?>
                     <tr>
-                        <td><code style="background: #f5f5f5; padding: 2px 4px; border-radius: 3px;"><?= e($tpl['key']) ?></code></td>
+                        <td><code class="finance-template-key"><?= e($tpl['key']) ?></code></td>
                         <td><?= e($tpl['name']) ?></td>
                         <td>
                             <span class="c-badge <?= $tpl['is_active'] ? 'c-badge--success' : 'c-badge--muted' ?>">
@@ -31,7 +37,7 @@ require __DIR__ . '/../../layouts/admin.php';
                         </td>
                         <td>
                             <?php if ($tpl['variables']): ?>
-                                <small style="color: #666;">
+                                <small class="finance-template-vars">
                                     <?php 
                                     $vars = json_decode($tpl['variables'], true);
                                     echo implode(', ', array_map(fn($v) => '{' . $v . '}', $vars));
@@ -50,4 +56,4 @@ require __DIR__ . '/../../layouts/admin.php';
     </div>
 </div>
 
-<?php require __DIR__ . '/../../partials/footer.php'; ?>
+<?php require __DIR__ . '/../../layouts/admin_footer.php'; ?>

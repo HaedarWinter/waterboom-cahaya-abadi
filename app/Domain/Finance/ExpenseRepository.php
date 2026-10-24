@@ -28,6 +28,30 @@ class ExpenseRepository {
         return $stmt->get_result()->fetch_assoc() ?: null;
     }
 
+    public function assertSchemaAvailable(): void {
+        $stmt = $this->conn->prepare('SELECT id FROM expenses LIMIT 0');
+        if (!$stmt) {
+            throw new \RuntimeException('Expenses schema unavailable: ' . $this->conn->error);
+        }
+        $stmt->close();
+    }
+
+    public function findAccountName(int $accountId): string {
+        $stmt = $this->conn->prepare('SELECT name FROM cash_accounts WHERE id = ?');
+        $stmt->bind_param('i', $accountId);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        return (string)($row['name'] ?? '-');
+    }
+
+    public function findActiveAccounts(): array {
+        $stmt = $this->conn->prepare('SELECT id, name FROM cash_accounts WHERE is_active = ? ORDER BY name');
+        $active = 1;
+        $stmt->bind_param('i', $active);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?: [];
+    }
+
     public function findByDateRange(string $startDate, string $endDate, int $accountId = 0): array {
         $sql = "SELECT * FROM expenses WHERE expense_date BETWEEN ? AND ?";
         $params = [$startDate, $endDate];
@@ -41,6 +65,9 @@ class ExpenseRepository {
 
         $sql .= " ORDER BY expense_date DESC, id DESC";
         $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            throw new \RuntimeException('Expense listing query prepare failed: ' . $this->conn->error);
+        }
         $stmt->bind_param($types, ...$params);
         $stmt->execute();
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?: [];

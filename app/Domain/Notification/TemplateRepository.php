@@ -5,6 +5,7 @@ namespace App\Domain\Notification;
 
 class TemplateRepository {
     private $conn;
+    private bool $available = true;
 
     public function __construct($connection) {
         $this->conn = $connection;
@@ -12,12 +13,25 @@ class TemplateRepository {
 
     public function findAll(): array {
         $sql = "SELECT * FROM wa_templates ORDER BY is_active DESC, `key`";
-        return $this->conn->query($sql)->fetch_all(MYSQLI_ASSOC) ?: [];
+        $result = $this->conn->query($sql);
+        if (!$result) {
+            $this->available = false;
+            return [];
+        }
+        return $result->fetch_all(MYSQLI_ASSOC) ?: [];
+    }
+
+    public function isAvailable(): bool {
+        return $this->available;
     }
 
     public function findByKey(string $key): ?array {
         $sql = "SELECT * FROM wa_templates WHERE `key` = ?";
         $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            $this->available = false;
+            return null;
+        }
         $stmt->bind_param('s', $key);
         $stmt->execute();
         return $stmt->get_result()->fetch_assoc() ?: null;

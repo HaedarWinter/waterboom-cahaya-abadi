@@ -59,6 +59,8 @@ $avg_rating     = $koneksi->query("SELECT ROUND(AVG(rating), 1) as avg FROM revi
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="<?= e(asset_url('assets/dist/css/app.min.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset_url('assets/css/admin_style.css')) ?>">
     <title>Kelola Review — Cahaya Abadi</title>
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -217,17 +219,17 @@ $avg_rating     = $koneksi->query("SELECT ROUND(AVG(rating), 1) as avg FROM revi
 </main>
 
 <!-- Hidden forms -->
-<form id="form-approve" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
+<form id="form-approve" action="<?= e(base_url("admin/handlers/legacy_action.php?handler=reviews")) ?>" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="approve">
     <input type="hidden" name="id" id="approve-id">
 </form>
-<form id="form-tolak" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
+<form id="form-tolak" action="<?= e(base_url("admin/handlers/legacy_action.php?handler=reviews")) ?>" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="tolak">
     <input type="hidden" name="id" id="tolak-id">
 </form>
-<form id="form-hapus-review" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
+<form id="form-hapus-review" action="<?= e(base_url("admin/handlers/legacy_action.php?handler=reviews")) ?>" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="hapus">
     <input type="hidden" name="id" id="hapus-review-id">

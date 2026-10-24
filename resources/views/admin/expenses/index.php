@@ -6,6 +6,9 @@ require __DIR__ . '/../../layouts/admin.php';
 
 <div class="l-container">
     <div class="l-stack l-stack--lg">
+        <?php if (!empty($loadError)): ?>
+        <div class="c-alert c-alert--warning" role="alert"><?= e($loadError) ?></div>
+        <?php endif; ?>
         <div class="l-flex l-flex--between l-flex--wrap">
             <h1 class="c-heading c-heading--1">Pengeluaran</h1>
             <a href="?view=create" class="c-button c-button--primary">
@@ -14,8 +17,8 @@ require __DIR__ . '/../../layouts/admin.php';
             </a>
         </div>
 
-        <div class="c-card">
-            <form method="GET" class="l-flex l-flex--wrap l-gap-sm" style="margin-bottom: 1rem;">
+        <div class="c-card finance-panel">
+            <form method="GET" class="l-flex l-flex--wrap l-gap-sm finance-filter">
                 <input type="hidden" name="view" value="index">
                 <div class="c-form-field">
                     <label class="c-label" for="start_date">Dari</label>
@@ -25,7 +28,7 @@ require __DIR__ . '/../../layouts/admin.php';
                     <label class="c-label" for="end_date">Sampai</label>
                     <input type="date" id="end_date" name="end_date" class="c-input" value="<?= e($endDate) ?>">
                 </div>
-                <button type="submit" class="c-button c-button--secondary" style="align-self: flex-end;">Filter</button>
+                <button type="submit" class="c-button c-button--secondary">Terapkan Filter</button>
             </form>
 
             <table class="c-table">
@@ -61,7 +64,7 @@ require __DIR__ . '/../../layouts/admin.php';
                         </td>
                     </tr>
                     <?php endforeach; ?>
-                    <?php if (empty($expenses)): ?>
+                    <?php if (empty($expenses) && empty($loadError)): ?>
                     <tr><td colspan="6" class="c-table__empty">Belum ada pengeluaran.</td></tr>
                     <?php endif; ?>
                 </tbody>
@@ -70,4 +73,4 @@ require __DIR__ . '/../../layouts/admin.php';
     </div>
 </div>
 
-<?php require __DIR__ . '/../../partials/footer.php'; ?>
+<?php require __DIR__ . '/../../layouts/admin_footer.php'; ?>

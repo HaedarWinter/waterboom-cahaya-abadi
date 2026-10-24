@@ -38,6 +38,8 @@ if (isset($_GET['edit'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="<?= e(asset_url('assets/dist/css/app.min.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset_url('assets/css/admin_style.css')) ?>">
     <title>Kelola Berita — Cahaya Abadi</title>
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -68,7 +70,7 @@ if (isset($_GET['edit'])) {
                 </div>
             </div>
             <div style="padding: 1.5rem;">
-                <form action="../../app/Http/Controllers/Admin/$1" method="post" enctype="multipart/form-data">
+                <form action="<?= e(base_url("admin/handlers/legacy_action.php?handler=berita")) ?>" method="post" enctype="multipart/form-data">
                     <?= csrf_field() ?>
                     <input type="hidden" name="action" value="<?= $edit_data ? 'update' : 'simpan' ?>">
                     <?php if ($edit_data): ?>
@@ -197,12 +199,12 @@ if (isset($_GET['edit'])) {
 </main>
 
 <!-- Hidden forms -->
-<form id="form-toggle-berita" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
+<form id="form-toggle-berita" action="<?= e(base_url("admin/handlers/legacy_action.php?handler=berita")) ?>" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="toggle_aktif">
     <input type="hidden" name="id" id="toggle-berita-id">
 </form>
-<form id="form-hapus-berita" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
+<form id="form-hapus-berita" action="<?= e(base_url("admin/handlers/legacy_action.php?handler=berita")) ?>" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="hapus">
     <input type="hidden" name="id" id="hapus-berita-id">

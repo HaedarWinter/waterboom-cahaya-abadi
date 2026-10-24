@@ -65,6 +65,8 @@ $stats_revenue = $koneksi->query("SELECT SUM(total_harga) as s FROM reservasi WH
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="<?= e(asset_url('assets/dist/css/app.min.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset_url('assets/css/admin_style.css')) ?>">
     <title>Kelola Reservasi — Cahaya Abadi</title>
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -267,18 +269,18 @@ $stats_revenue = $koneksi->query("SELECT SUM(total_harga) as s FROM reservasi WH
 </main>
 
 <!-- Hidden forms -->
-<form id="form-hapus" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
+<form id="form-hapus" action="<?= e(base_url("admin/handlers/legacy_action.php?handler=reservasi")) ?>" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="update_status">
     <input type="hidden" name="status" value="DIBATALKAN">
     <input type="hidden" name="id" id="hapus-id">
 </form>
-<form id="form-verifikasi" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
+<form id="form-verifikasi" action="<?= e(base_url("admin/handlers/legacy_action.php?handler=reservasi")) ?>" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="verifikasi_bayar">
     <input type="hidden" name="id" id="verifikasi-id">
 </form>
-<form id="form-tolak" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
+<form id="form-tolak" action="<?= e(base_url("admin/handlers/legacy_action.php?handler=reservasi")) ?>" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="tolak_bayar">
     <input type="hidden" name="id" id="tolak-id">
@@ -286,14 +288,14 @@ $stats_revenue = $koneksi->query("SELECT SUM(total_harga) as s FROM reservasi WH
 </form>
 
 <!-- Refund forms -->
-<form id="form-refund-ajukan" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
+<form id="form-refund-ajukan" action="<?= e(base_url("admin/handlers/legacy_action.php?handler=reservasi")) ?>" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="update_status">
     <input type="hidden" name="status" value="REFUND_DIAJUKAN">
     <input type="hidden" name="id" id="refund-ajukan-id">
     <input type="hidden" name="alasan" id="refund-ajukan-alasan">
 </form>
-<form id="form-refund-proses" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
+<form id="form-refund-proses" action="<?= e(base_url("admin/handlers/legacy_action.php?handler=reservasi")) ?>" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="update_status">
     <input type="hidden" name="status" value="DIREFUND">

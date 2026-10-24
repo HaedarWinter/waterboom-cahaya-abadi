@@ -22,6 +22,10 @@ class TemplateService {
         return $this->repo->findAll();
     }
 
+    public function isAvailable(): bool {
+        return $this->repo->isAvailable();
+    }
+
     public function get(string $key): ?array {
         return $this->repo->findByKey($key);
     }

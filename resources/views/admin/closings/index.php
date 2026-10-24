@@ -14,7 +14,7 @@ require __DIR__ . '/../../layouts/admin.php';
             </a>
         </div>
 
-        <form method="GET" class="l-flex l-flex--wrap l-gap-sm" style="margin-bottom: 1rem;">
+        <form method="GET" class="l-flex l-flex--wrap l-gap-sm finance-filter">
             <input type="hidden" name="view" value="index">
             <div class="c-form-field">
                 <label class="c-label" for="start_date">Dari</label>
@@ -24,10 +24,10 @@ require __DIR__ . '/../../layouts/admin.php';
                 <label class="c-label" for="end_date">Sampai</label>
                 <input type="date" id="end_date" name="end_date" class="c-input" value="<?= e($endDate) ?>">
             </div>
-            <button type="submit" class="c-button c-button--secondary" style="align-self: flex-end;">Filter</button>
+            <button type="submit" class="c-button c-button--secondary">Terapkan Filter</button>
         </form>
 
-        <div class="c-card">
+        <div class="c-card finance-panel">
             <table class="c-table">
                 <thead>
                     <tr>
@@ -47,13 +47,7 @@ require __DIR__ . '/../../layouts/admin.php';
                     <?php foreach ($closings as $cl): ?>
                     <tr>
                         <td><?= e(date('d/m/Y', strtotime($cl['closing_date']))) ?></td>
-                        <td>
-                            <?php
-                            $conn = \App\Core\Database::getInstance()->getConnection();
-                            $acc = $conn->query("SELECT name FROM cash_accounts WHERE id = " . (int)$cl['cash_account_id'])->fetch_assoc();
-                            echo e($acc['name'] ?? '-');
-                            ?>
-                        </td>
+                        <td><?= e($cl['account_name'] ?? '-') ?></td>
                         <td class="c-table__numeric">Rp <?= number_format($cl['opening_balance'], 0, ',', '.') ?></td>
                         <td class="c-table__numeric">Rp <?= number_format($cl['total_in'], 0, ',', '.') ?></td>
                         <td class="c-table__numeric">Rp <?= number_format($cl['total_out'], 0, ',', '.') ?></td>
@@ -76,9 +70,9 @@ require __DIR__ . '/../../layouts/admin.php';
                         </td>
                         <td>
                             <?php if ($cl['status'] === 'CLOSED'): ?>
-                                <form method="POST" style="display:inline">
+                                <form method="POST" class="finance-inline-form">
                                     <input type="hidden" name="id" value="<?= $cl['id'] ?>">
-                                    <input type="text" name="reason" placeholder="Alasan buka" required class="c-input c-input--sm" style="width: 150px;">
+                                    <input type="text" name="reason" placeholder="Alasan buka" required class="c-input c-input--sm">
                                     <button type="submit" name="action" value="reopen" class="c-button c-button--ghost c-button--sm" onclick="return confirm('Buka periode?')">Buka</button>
                                 </form>
                             <?php endif; ?>
@@ -94,4 +88,4 @@ require __DIR__ . '/../../layouts/admin.php';
     </div>
 </div>
 
-<?php require __DIR__ . '/../../partials/footer.php'; ?>
+<?php require __DIR__ . '/../../layouts/admin_footer.php'; ?>

@@ -34,7 +34,7 @@ class ClosingController {
         $endDate = $_GET['end_date'] ?? date('Y-m-t');
         $closings = $this->repo->findByDateRange($startDate, $endDate);
 
-        require __DIR__ . '/../../../resources/views/admin/closings/index.php';
+        require dirname(__DIR__, 4) . '/resources/views/admin/closings/index.php';
     }
 
     public function perform(): void {
@@ -60,7 +60,8 @@ class ClosingController {
             return;
         }
 
-        require __DIR__ . '/../../../resources/views/admin/closings/form.php';
+        $accounts = $this->repo->findActiveAccounts();
+        require dirname(__DIR__, 4) . '/resources/views/admin/closings/form.php';
     }
 
     public function reopen(): void {

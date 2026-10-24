@@ -3,7 +3,7 @@
  * admin/handlers/keuangan_handler.php
  * Backend handler for Financial Audit (Keuangan)
  */
-require_once '../../app/init.php';
+require_once dirname(__DIR__, 3) . '/init.php';
 
 enforce_active_session(\App\Core\Database::getInstance()->getConnection());
 
@@ -117,8 +117,8 @@ if ($action === 'hapus') {
 
 // ─── ACTION: EXPORT CSV ───
 if ($action === 'export_csv') {
-    $bulan = $_GET['bulan'] ?? date('m');
-    $tahun = $_GET['tahun'] ?? date('Y');
+    $bulan = max(1, min(12, (int)($_POST['bulan'] ?? date('m'))));
+    $tahun = max(2000, min(2100, (int)($_POST['tahun'] ?? date('Y'))));
     
     header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename=Laporan_Keuangan_'.$tahun.'_'.$bulan.'.csv');

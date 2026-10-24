@@ -28,6 +28,8 @@ $result = $koneksi->query("SELECT * FROM faq ORDER BY urutan ASC, id ASC LIMIT $
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="<?= e(asset_url('assets/dist/css/app.min.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset_url('assets/css/admin_style.css')) ?>">
     <title>Kelola FAQ — Cahaya Abadi</title>
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -146,7 +148,7 @@ $result = $koneksi->query("SELECT * FROM faq ORDER BY urutan ASC, id ASC LIMIT $
 </main>
 
 <!-- Hidden forms -->
-<form id="form-simpan-faq" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
+<form id="form-simpan-faq" action="<?= e(base_url("admin/handlers/legacy_action.php?handler=faq")) ?>" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" id="faq-action" value="simpan">
     <input type="hidden" name="id" id="faq-id">
@@ -154,12 +156,12 @@ $result = $koneksi->query("SELECT * FROM faq ORDER BY urutan ASC, id ASC LIMIT $
     <input type="hidden" name="jawaban" id="faq-jawaban">
     <input type="hidden" name="urutan" id="faq-urutan">
 </form>
-<form id="form-toggle-faq" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
+<form id="form-toggle-faq" action="<?= e(base_url("admin/handlers/legacy_action.php?handler=faq")) ?>" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="toggle_aktif">
     <input type="hidden" name="id" id="toggle-faq-id">
 </form>
-<form id="form-hapus-faq" action="../../app/Http/Controllers/Admin/$1" method="post" style="display:none;">
+<form id="form-hapus-faq" action="<?= e(base_url("admin/handlers/legacy_action.php?handler=faq")) ?>" method="post" style="display:none;">
     <?= csrf_field() ?>
     <input type="hidden" name="action" value="hapus">
     <input type="hidden" name="id" id="hapus-faq-id">

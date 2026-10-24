@@ -8,7 +8,7 @@ require __DIR__ . '/../../layouts/admin.php';
     <div class="l-stack l-stack--lg">
         <h1 class="c-heading c-heading--1">Arus Kas Harian</h1>
 
-        <form method="GET" class="l-flex l-flex--wrap l-gap-sm" style="margin-bottom: 1rem;">
+        <form method="GET" class="l-flex l-flex--wrap l-gap-sm finance-filter">
             <input type="hidden" name="report" value="cash_flow">
             <div class="c-form-field">
                 <label class="c-label" for="start_date">Dari</label>
@@ -22,15 +22,15 @@ require __DIR__ . '/../../layouts/admin.php';
                 <label class="c-label" for="account_id">Rekening</label>
                 <select id="account_id" name="account_id" class="c-select">
                     <option value="0">Semua</option>
-                    <?php foreach ($conn->query("SELECT id, name FROM cash_accounts WHERE is_active = 1")->fetch_all(MYSQLI_ASSOC) as $acc): ?>
+                    <?php foreach ($accounts as $acc): ?>
                         <option value="<?= $acc['id'] ?>"<?= $accountId == $acc['id'] ? ' selected' : '' ?>><?= e($acc['name']) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
-            <button type="submit" class="c-button c-button--secondary" style="align-self: flex-end;">Filter</button>
+            <button type="submit" class="c-button c-button--secondary">Terapkan Filter</button>
         </form>
 
-        <div class="c-card">
+        <div class="c-card finance-panel">
             <table class="c-table">
                 <thead>
                     <tr>
@@ -60,4 +60,4 @@ require __DIR__ . '/../../layouts/admin.php';
     </div>
 </div>
 
-<?php require __DIR__ . '/../../partials/footer.php'; ?>
+<?php require __DIR__ . '/../../layouts/admin_footer.php'; ?>

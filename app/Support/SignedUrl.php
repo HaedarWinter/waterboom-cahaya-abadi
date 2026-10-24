@@ -5,7 +5,12 @@ namespace App\Support;
 
 class SignedUrl {
     private static function secret(): string {
-        return getenv('SIGNED_URL_SECRET') ?: hash_hmac('sha256', 'waterboom-signed-url', 'default-secret-change-in-production');
+        $secret = getenv('SIGNED_URL_SECRET') ?: '';
+        if (in_array(getenv('APP_ENV') ?: 'local', ['demo', 'production'], true) && strlen($secret) < 32) {
+            throw new \RuntimeException('SIGNED_URL_SECRET must be configured outside local development.');
+        }
+
+        return $secret !== '' ? $secret : hash_hmac('sha256', 'waterboom-signed-url', 'local-only-secret');
     }
 
     public static function sign(array $payload, string $expiry = '+1 hour'): string {

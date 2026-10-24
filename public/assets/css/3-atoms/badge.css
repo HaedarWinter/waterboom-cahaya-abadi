@@ -1,0 +1,83 @@
+  .c-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: var(--font-bold);
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+    white-space: nowrap;
+  }
+
+  .c-badge__icon {
+    width: 1em;
+    height: 1em;
+  }
+
+  /* Status variants - synced with config/states.php */
+  .c-badge--pending {
+    background: var(--color-warning-light);
+    color: #92400e;
+  }
+
+  .c-badge--verified,
+  .c-badge--paid,
+  .c-badge--completed {
+    background: var(--color-success-light);
+    color: #065f46;
+  }
+
+  .c-badge--cancelled,
+  .c-badge--expired,
+  .c-badge--rejected {
+    background: var(--color-danger-light);
+    color: #991b1b;
+  }
+
+  .c-badge--info {
+    background: var(--color-info-light);
+    color: #1e40af;
+  }
+
+  .c-badge--neutral {
+    background: var(--color-surface-hover);
+    color: var(--color-fg-muted);
+    border: 1px solid var(--color-border);
+  }
+
+  .c-badge--brand {
+    background: var(--color-brand-light);
+    color: var(--color-brand);
+  }
+
+  /* Size variants */
+  .c-badge--sm {
+    padding: var(--space-0) var(--space-1);
+    font-size: 0.625rem; /* 10px */
+  }
+
+  .c-badge--lg {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm);
+  }
+
+  /* Dot indicator variant */
+  .c-badge--dot {
+    position: relative;
+    padding-left: var(--space-3);
+  }
+
+  .c-badge--dot::before {
+    content: '';
+    position: absolute;
+    left: var(--space-1);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: currentColor;
+  }

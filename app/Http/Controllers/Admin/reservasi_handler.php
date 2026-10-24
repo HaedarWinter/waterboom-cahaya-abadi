@@ -3,7 +3,7 @@
  * Handler: Reservasi (simpan, update status, hapus)
  * Refactored: Menggunakan Layer Models (MVC-lite)
  */
-require_once __DIR__ . '/../../app/init.php';
+require_once dirname(__DIR__, 3) . '/init.php';
 
 use App\Models\Reservasi;
 use App\Models\Setting;
@@ -28,6 +28,11 @@ if ($action === 'cek_kuota') {
 
 // ── SIMPAN RESERVASI BARU ──
 if ($action === 'simpan') {
+    if (getenv('APP_ENV') === 'demo') {
+        header('Location: /ujikom1/reservasi.php?demo=read-only');
+        exit;
+    }
+
     if (!validate_csrf($_POST['csrf_token'] ?? '')) {
         header("Location: /ujikom1/reservasi.php?error=Token keamanan tidak valid.");
         exit;

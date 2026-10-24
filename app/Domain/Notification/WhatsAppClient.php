@@ -10,7 +10,8 @@ class WhatsAppClient {
     private $log = [];
 
     public function __construct() {
-        $this->driver = getenv('WA_DRIVER') ?: 'log';
+        $environment = getenv('APP_ENV') ?: 'local';
+        $this->driver = $environment === 'demo' ? 'log' : (getenv('WA_DRIVER') ?: 'log');
         
         if ($this->driver === 'fonnte') {
             $this->apiUrl = getenv('FONNTE_API_URL') ?: 'https://api.fonnte.com/send';

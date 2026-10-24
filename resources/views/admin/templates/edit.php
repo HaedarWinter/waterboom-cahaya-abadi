@@ -7,10 +7,10 @@ require __DIR__ . '/../../layouts/admin.php';
 <div class="l-container">
     <div class="l-stack l-stack--lg">
         <h1 class="c-heading c-heading--1">Edit Template: <?= e($template['name']) ?></h1>
-        <p style="color: #666; margin-bottom: 1.5rem;">Kunci: <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;"><?= e($template['key']) ?></code></p>
+        <p class="finance-template-hint">Kunci: <code class="finance-template-key"><?= e($template['key']) ?></code></p>
 
-        <div class="c-card">
-            <form method="POST" class="l-stack l-stack--md">
+        <div class="c-card finance-form-card">
+            <form method="POST" class="l-stack l-stack--md finance-form">
                 <div class="c-form-field">
                     <label class="c-label" for="name">Nama Template <span class="u-text-danger">*</span></label>
                     <input type="text" id="name" name="name" class="c-input" value="<?= e($template['name']) ?>" required>
@@ -48,9 +48,9 @@ require __DIR__ . '/../../layouts/admin.php';
             </form>
         </div>
 
-        <div class="c-card" style="margin-top: 1rem;">
-            <h3 style="margin-bottom: 0.5rem;">Preview (dengan data dummy)</h3>
-            <div style="padding: 1rem; background: #fafafa; border-radius: 5px; white-space: pre-wrap; font-family: monospace; font-size: 0.9rem;">
+        <div class="c-card finance-preview-card">
+            <h2 class="finance-preview-title">Preview (dengan data dummy)</h2>
+            <div class="finance-preview-body">
 <?php
 $demoVars = [
     'nama' => 'Budi Santoso',
@@ -73,4 +73,4 @@ echo e($preview);
     </div>
 </div>
 
-<?php require __DIR__ . '/../../partials/footer.php'; ?>
+<?php require __DIR__ . '/../../layouts/admin_footer.php'; ?>

@@ -1,0 +1,155 @@
+  .c-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .c-form-field__label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--color-fg);
+  }
+
+  .c-form-field__required::after {
+    content: '*';
+    color: var(--color-danger);
+    margin-left: var(--space-1);
+  }
+
+  .c-form-field__input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .c-form-field__icon {
+    position: absolute;
+    left: var(--space-3);
+    width: 20px;
+    height: 20px;
+    color: var(--color-fg-muted);
+    pointer-events: none;
+  }
+
+  .c-form-field__input-wrapper .c-input {
+    padding-left: var(--space-10);
+  }
+
+  .c-form-field__icon--right {
+    left: auto;
+    right: var(--space-3);
+  }
+
+  .c-form-field__input-wrapper .c-input--icon-right {
+    padding-right: var(--space-10);
+    padding-left: var(--space-4);
+  }
+
+  .c-form-field__help {
+    font-size: var(--text-xs);
+    color: var(--color-fg-muted);
+  }
+
+  .c-form-field__error {
+    font-size: var(--text-xs);
+    color: var(--color-danger);
+  }
+
+  .c-form-field.is-error .c-input {
+    border-color: var(--color-danger);
+  }
+
+  .c-form-field.is-error .c-input:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+  }
+
+  .c-form-field.is-error .c-form-field__icon {
+    color: var(--color-danger);
+  }
+
+  /* Checkbox / Radio */
+  .c-form-field--check {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .c-form-field--check .c-form-field__input-wrapper {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .c-checkbox,
+  .c-radio {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    appearance: none;
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-default);
+    position: relative;
+  }
+
+  .c-radio {
+    border-radius: var(--radius-full);
+  }
+
+  .c-checkbox:checked,
+  .c-radio:checked {
+    background: var(--color-brand);
+    border-color: var(--color-brand);
+  }
+
+  .c-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 6px;
+    width: 5px;
+    height: 10px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .c-radio:checked::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: #fff;
+  }
+
+  .c-checkbox:disabled,
+  .c-radio:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .c-form-field__check-label {
+    font-size: var(--text-sm);
+    color: var(--color-fg);
+    cursor: pointer;
+    line-height: var(--leading-normal);
+  }
+
+  .c-form-field--inline {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .c-form-field--inline .c-form-field__label {
+    width: 140px;
+    flex-shrink: 0;
+    text-align: right;
+  }
+
+  .c-form-field--inline .c-form-field__input-wrapper {
+    flex: 1;
+  }

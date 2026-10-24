@@ -5,6 +5,7 @@ namespace App\Domain\Notification;
 
 class OutboxRepository {
     private $conn;
+    private bool $available = true;
 
     public function __construct($connection) {
         $this->conn = $connection;
@@ -59,9 +60,17 @@ class OutboxRepository {
         $sql = "SELECT status, COUNT(*) as count FROM notification_outbox GROUP BY status";
         $result = $this->conn->query($sql);
         $stats = ['PENDING' => 0, 'SENT' => 0, 'FAILED' => 0, 'DEAD' => 0];
+        if (!$result) {
+            $this->available = false;
+            return $stats;
+        }
         while ($row = $result->fetch_assoc()) {
             $stats[$row['status']] = (int)$row['count'];
         }
         return $stats;
+    }
+
+    public function isAvailable(): bool {
+        return $this->available;
     }
 }

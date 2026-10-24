@@ -26,7 +26,8 @@ class ReportController {
 
         $data = $this->service->getCashFlow($startDate, $endDate, $accountId);
 
-        require __DIR__ . '/../../../resources/views/admin/reports/cash_flow.php';
+        $accounts = $this->service->getActiveAccounts();
+        require dirname(__DIR__, 4) . '/resources/views/admin/reports/cash_flow.php';
     }
 
     public function revenue(): void {
@@ -41,7 +42,7 @@ class ReportController {
 
         $data = $this->service->getRevenueByTicketType($startDate, $endDate);
 
-        require __DIR__ . '/../../../resources/views/admin/reports/revenue.php';
+        require dirname(__DIR__, 4) . '/resources/views/admin/reports/revenue.php';
     }
 
     public function expenses(): void {
@@ -56,7 +57,7 @@ class ReportController {
 
         $data = $this->service->getExpensesByCategory($startDate, $endDate);
 
-        require __DIR__ . '/../../../resources/views/admin/reports/expenses.php';
+        require dirname(__DIR__, 4) . '/resources/views/admin/reports/expenses.php';
     }
 
     public function balance(): void {
@@ -71,6 +72,6 @@ class ReportController {
 
         $data = $this->service->getBalanceSummary($accountId, $endDate);
 
-        require __DIR__ . '/../../../resources/views/admin/reports/balance.php';
+        require dirname(__DIR__, 4) . '/resources/views/admin/reports/balance.php';
     }
 }

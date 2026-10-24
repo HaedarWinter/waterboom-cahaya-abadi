@@ -33,7 +33,7 @@ if (!validate_csrf($_POST['csrf_token'] ?? '')) {
 regenerate_csrf();
 
 $action = $_POST['action'] ?? '';
-$upload_dir = '../../assets/galeri/';
+$upload_dir = dirname(__DIR__, 4) . '/public/assets/galeri/';
 
 // ── TAMBAH GAMBAR ──
 if ($action === 'add') {
@@ -69,6 +69,11 @@ if ($action === 'add') {
     // Generate nama file unik
     $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
     $filename = 'galeri_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
+
+    if (!is_dir($upload_dir) && !mkdir($upload_dir, 0755, true) && !is_dir($upload_dir)) {
+        header("Location: /ujikom1/admin/galeri.php?error=Gagal menyiapkan folder gambar.");
+        exit;
+    }
 
     if (!move_uploaded_file($file['tmp_name'], $upload_dir . $filename)) {
         header("Location: /ujikom1/admin/galeri.php?error=Gagal menyimpan file gambar.");
@@ -123,7 +128,14 @@ if ($action === 'edit') {
 
         $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
         $filename = 'galeri_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
-        move_uploaded_file($file['tmp_name'], $upload_dir . $filename);
+        if (!is_dir($upload_dir) && !mkdir($upload_dir, 0755, true) && !is_dir($upload_dir)) {
+            header("Location: /ujikom1/admin/galeri.php?error=Gagal menyiapkan folder gambar.");
+            exit;
+        }
+        if (!move_uploaded_file($file['tmp_name'], $upload_dir . $filename)) {
+            header("Location: /ujikom1/admin/galeri.php?error=Gagal menyimpan file gambar.");
+            exit;
+        }
 
         $stmt = \App\Core\Database::getInstance()->getConnection()->prepare("UPDATE galeri SET judul = ?, deskripsi = ?, file_gambar = ?, urutan = ?, aktif = ? WHERE id = ?");
         $stmt->bind_param("sssisi", $judul, $deskripsi, $filename, $urutan, $aktif, $id);

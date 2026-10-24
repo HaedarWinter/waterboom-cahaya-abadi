@@ -8,8 +8,8 @@ require __DIR__ . '/../../layouts/admin.php';
     <div class="l-stack l-stack--lg">
         <h1 class="c-heading c-heading--1">Tutup Harian</h1>
 
-        <div class="c-card">
-            <form method="POST" class="l-stack l-stack--md">
+        <div class="c-card finance-form-card">
+            <form method="POST" class="l-stack l-stack--md finance-form">
                 <div class="c-form-field">
                     <label class="c-label" for="closing_date">Tanggal <span class="u-text-danger">*</span></label>
                     <input type="date" id="closing_date" name="closing_date" class="c-input" value="<?= e(date('Y-m-d')) ?>" required>
@@ -18,10 +18,7 @@ require __DIR__ . '/../../layouts/admin.php';
                 <div class="c-form-field">
                     <label class="c-label" for="cash_account_id">Rekening Kas <span class="u-text-danger">*</span></label>
                     <select id="cash_account_id" name="cash_account_id" class="c-select" required>
-                        <?php
-                        $conn = \App\Core\Database::getInstance()->getConnection();
-                        $accounts = $conn->query("SELECT id, name FROM cash_accounts WHERE is_active = 1")->fetch_all(MYSQLI_ASSOC);
-                        foreach ($accounts as $acc): ?>
+                        <?php foreach ($accounts as $acc): ?>
                             <option value="<?= $acc['id'] ?>"><?= e($acc['name']) ?></option>
                         <?php endforeach; ?>
                     </select>
@@ -47,4 +44,4 @@ require __DIR__ . '/../../layouts/admin.php';
     </div>
 </div>
 
-<?php require __DIR__ . '/../../partials/footer.php'; ?>
+<?php require __DIR__ . '/../../layouts/admin_footer.php'; ?>

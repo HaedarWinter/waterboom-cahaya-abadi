@@ -1,0 +1,20 @@
+/* Reusable status message for forms and admin pages. */
+.c-alert {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-fg);
+  background: var(--color-surface);
+}
+
+.c-alert--warning {
+  border-color: var(--color-warning);
+  color: var(--color-fg);
+  background: var(--color-warning-light);
+}
+
+.c-alert--error {
+  border-color: var(--color-danger);
+  color: var(--color-fg);
+  background: var(--color-danger-light);
+}

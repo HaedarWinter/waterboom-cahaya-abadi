@@ -1,6 +1,5 @@
 <?php
-// mulai session buat ngecek dia udah punya 'karcis' login belom
-session_start();
+require_once __DIR__ . '/../app/init.php';
 // kalo misal ternyata dia udah login sblumnya (session loginnya = true)
 // yaudah langsung diculik bawa aja ke halaman admin.php gausah suruh login lagi cape
 if (isset($_SESSION['login'])) {
@@ -13,7 +12,6 @@ $old = isset($_SESSION['login_data']) ? $_SESSION['login_data'] : [];
 // Bersihin sessionnya
 unset($_SESSION['login_data']);
 
-require '../config/security.php';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -35,11 +33,12 @@ require '../config/security.php';
             } catch (e) {}
         })();
     </script>
-    <link rel="stylesheet" href="/ujikom1/public/assets/css/global.css">
+    <link rel="stylesheet" href="<?= e(asset_url('assets/css/style.css')) ?>">
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
+<?php require dirname(__DIR__) . '/resources/views/components/demo-banner.php'; ?>
 
 <div class="login-wrapper">
     <div class="login-box">
@@ -47,7 +46,7 @@ require '../config/security.php';
         <h2>Login Administrator</h2>
         <p class="sub">Masukkan akun Anda untuk mengakses panel admin</p>
 
-        <form action="/ujikom1/app/Http/Controllers/Admin/cek_login.php" method="post">
+        <form action="<?= e(base_url('login-submit.php')) ?>" method="post">
             <?= csrf_field() ?>
             <div class="form-group">
                 <label for="username">Username</label>

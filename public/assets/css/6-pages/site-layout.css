@@ -1,0 +1,23 @@
+/* Public site layout */
+  .p-site {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .p-site__main {
+    flex: 1;
+  }
+
+  .p-site__container {
+    width: 100%;
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 0 var(--container-padding);
+  }
+
+  @media (min-width: 640px) {
+    .p-site__container {
+      padding: 0 var(--container-padding-lg);
+    }
+  }

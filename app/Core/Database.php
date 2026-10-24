@@ -9,40 +9,37 @@ class Database {
     private function __construct() {
         mysqli_report(MYSQLI_REPORT_OFF);
 
-        if (getenv('APP_ENV') === 'test') {
-            // Mode tes: satu konfigurasi eksplisit saja (env). Tanpa fallback,
-            // supaya tes tidak bisa jatuh ke server DB dev (lihat docs/audit/test-setup.md).
-            $dbName = getenv('DB_DATABASE') ?: '';
-            $host = getenv('DB_HOST') ?: '';
-            $port = (int)(getenv('DB_PORT') ?: 0);
-            $user = getenv('DB_USER') ?: '';
-            $pass = getenv('DB_PASSWORD') ?: '';
+        $environment = getenv('APP_ENV') ?: 'local';
+        $host = getenv('DB_HOST') ?: '';
+        $database = getenv('DB_DATABASE') ?: '';
+        $user = getenv('DB_USER') ?: '';
+        $password = getenv('DB_PASSWORD') ?: '';
+        $configuredPort = getenv('DB_PORT');
+        $port = (int)($configuredPort !== false && $configuredPort !== '' ? $configuredPort : 3306);
 
-            if ($dbName === '' || $host === '' || $port === 0) {
-                error_log("Database test: DB_HOST/DB_PORT/DB_DATABASE wajib diisi untuk mode test.");
-                die("Konfigurasi database test tidak lengkap.");
-            }
-
-            $this->koneksi = mysqli_connect($host, $user, $pass, $dbName, $port);
-
-            if (!$this->koneksi) {
-                error_log("Database test connect gagal: " . mysqli_connect_error());
-                die("Koneksi database test gagal.");
-            }
-            return;
+        if ($environment === 'test' && ($configuredPort === false || $configuredPort === '')) {
+            error_log('Database test: DB_PORT wajib diisi untuk mode test.');
+            die('Konfigurasi database test tidak lengkap.');
         }
 
-        // Mode web/dev: koneksi standar dengan socket XAMPP macOS
-        $this->koneksi = mysqli_connect("localhost", "root", "", 'db_ujikom', 3306, "/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock");
-
-        if (!$this->koneksi) {
-            $this->koneksi = mysqli_connect("localhost", "root", "", 'db_ujikom');
+        if ($host === '' || $database === '' || $user === '' || $port < 1 || $port > 65535) {
+            error_log('Database configuration is incomplete.');
+            die('Konfigurasi database belum lengkap.');
+        }
+        if (in_array($environment, ['demo', 'production'], true) && $password === '') {
+            error_log('Database password is required outside local/test environments.');
+            die('Konfigurasi database belum lengkap.');
         }
 
+        $this->koneksi = mysqli_connect($host, $user, $password, $database, $port);
         if (!$this->koneksi) {
-            // Detail internal cukup di log server; pesan ke user generik (DATA-6)
-            error_log("Database connect gagal: " . mysqli_connect_error());
-            die("Koneksi database gagal. Silakan coba lagi atau hubungi administrator.");
+            error_log('Database connection failed: ' . mysqli_connect_error());
+            die('Koneksi database gagal. Silakan coba lagi atau hubungi administrator.');
+        }
+        $charset = getenv('DB_CHARSET') ?: 'utf8mb4';
+        if (!in_array($charset, ['utf8mb4', 'utf8'], true) || !$this->koneksi->set_charset($charset)) {
+            error_log('Database charset configuration failed.');
+            die('Konfigurasi database tidak valid.');
         }
     }
 

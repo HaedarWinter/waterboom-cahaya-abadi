@@ -2,12 +2,17 @@
 /**
  * Handler: Review & Rating (simpan publik, approve/tolak/hapus admin)
  */
-require_once __DIR__ . '/../../app/init.php';
+require_once dirname(__DIR__, 3) . '/init.php';
 
 $action = $_POST['action'] ?? '';
 
 // ── SIMPAN REVIEW BARU (dari halaman publik) ──
 if ($action === 'simpan') {
+    if (getenv('APP_ENV') === 'demo') {
+        header('Location: /ujikom1/?demo=read-only#testimoni');
+        exit;
+    }
+
 if (!validate_csrf($_POST['csrf_token'] ?? '')) {
         header("Location: /ujikom1/index.php?error_review=Token keamanan tidak valid.#testimoni");
         exit;

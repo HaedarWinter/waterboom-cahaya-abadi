@@ -21,7 +21,7 @@ class OutboxService {
         $this->audit = $audit;
     }
 
-    public function sendWhatsApp(string $recipient, string $body, string $templateKey = null, string $subject = null, string $idempotencyKey = null): int {
+    public function sendWhatsApp(string $recipient, string $body, ?string $templateKey = null, ?string $subject = null, ?string $idempotencyKey = null): int {
         $id = $this->repo->enqueue([
             'channel' => 'WHATSAPP',
             'recipient' => $recipient,
@@ -38,7 +38,7 @@ class OutboxService {
         return $id;
     }
 
-    public function sendFromTemplate(string $templateKey, string $recipient, array $variables, string $idempotencyKey = null): int {
+    public function sendFromTemplate(string $templateKey, string $recipient, array $variables, ?string $idempotencyKey = null): int {
         $template = $this->getTemplate($templateKey);
         if (!$template) throw new \DomainException("Template '$templateKey' not found");
 

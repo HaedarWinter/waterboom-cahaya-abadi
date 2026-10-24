@@ -29,21 +29,7 @@ SET @idx_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABL
 SET @sql = IF(@idx_exists = 0, 'ALTER TABLE `reservasi` ADD INDEX `idx_reservasi_visit_date` (`visit_date`)', 'SELECT 1');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
--- 3. Tabel booking_items (snapshot harga)
-CREATE TABLE IF NOT EXISTS `booking_items` (
-    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `booking_id` INT NOT NULL,
-    `ticket_type_id` BIGINT UNSIGNED NOT NULL,
-    `qty` INT UNSIGNED NOT NULL,
-    `unit_price` BIGINT UNSIGNED NOT NULL,
-    `subtotal` BIGINT UNSIGNED NOT NULL,
-    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
-    CONSTRAINT `fk_booking_items_booking` FOREIGN KEY (`booking_id`) REFERENCES `reservasi`(`id`) ON DELETE CASCADE,
-    INDEX `idx_booking_items_booking` (`booking_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 4. Tabel ticket_types (referensi)
+-- 3. Tabel referensi tiket harus dibuat sebelum tabel yang memiliki foreign key.
 CREATE TABLE IF NOT EXISTS `ticket_types` (
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `code` VARCHAR(20) NOT NULL,
@@ -55,6 +41,20 @@ CREATE TABLE IF NOT EXISTS `ticket_types` (
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_ticket_types_code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 4. Tabel booking_items (snapshot harga)
+CREATE TABLE IF NOT EXISTS `booking_items` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `booking_id` INT NOT NULL,
+    `ticket_type_id` BIGINT UNSIGNED NOT NULL,
+    `qty` INT UNSIGNED NOT NULL,
+    `unit_price` BIGINT UNSIGNED NOT NULL,
+    `subtotal` BIGINT UNSIGNED NOT NULL,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    CONSTRAINT `fk_booking_items_booking` FOREIGN KEY (`booking_id`) REFERENCES `reservasi`(`id`) ON DELETE CASCADE,
+    INDEX `idx_booking_items_booking` (`booking_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 5. Tabel ticket_prices (harga efektif per tanggal)

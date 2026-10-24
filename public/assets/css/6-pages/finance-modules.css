@@ -1,0 +1,159 @@
+/* Shared presentation for finance, reporting, and messaging admin modules. */
+.finance-filter {
+  align-items: flex-end;
+  margin: 0 0 var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  box-shadow: var(--color-shadow);
+}
+
+.finance-filter .c-form-field { flex: 1 1 12rem; }
+.finance-filter .c-button { flex: 0 0 auto; }
+
+.finance-form-card { max-width: 52rem; }
+.finance-form { padding: var(--space-6); }
+
+.finance-panel {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+}
+
+.finance-panel .c-table { min-width: 42rem; }
+
+.finance-panel .c-table th {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.finance-panel .c-table td { vertical-align: middle; }
+
+.finance-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: var(--space-4);
+}
+
+.finance-stat-card { padding: var(--space-5); text-align: center; }
+.finance-stat-label { color: var(--color-fg-muted); font-size: var(--text-sm); }
+.finance-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-bottom: var(--space-5); }
+.finance-actions form { display: inline-flex; }
+.finance-inline-form { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.finance-inline-form .c-input,
+.finance-reason-input { width: min(100%, 14rem); }
+.finance-driver-notice {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-hover);
+  color: var(--color-fg-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+}
+
+.finance-stat-value {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  line-height: var(--leading-tight);
+}
+
+.finance-stat-value--pending { color: var(--color-warning); }
+.finance-stat-value--sent { color: var(--color-success); }
+.finance-stat-value--failed { color: var(--color-danger); }
+.finance-stat-value--dead { color: var(--color-fg-muted); }
+
+.finance-template-key {
+  display: inline-block;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-hover);
+  color: var(--color-fg);
+}
+
+.finance-template-vars { color: var(--color-fg-muted); }
+.finance-template-hint { margin: 0; color: var(--color-fg-muted); }
+.finance-preview-card { display: grid; gap: var(--space-3); padding: var(--space-5); }
+.finance-preview-title { margin: 0; color: var(--color-fg); font-size: var(--text-lg); }
+.finance-preview-body {
+  overflow-wrap: anywhere;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-hover);
+  color: var(--color-fg);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  white-space: pre-wrap;
+}
+
+.finance-balance p {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin: 0;
+  padding-block: var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.finance-balance p:last-child { border-bottom: 0; }
+
+.admin-main .notification-page { max-width: 72rem; }
+.notification-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.notification-stats .finance-stat-card { padding: var(--space-4); }
+.notification-stats .finance-stat-value { font-size: var(--text-2xl); }
+.notification-console { display: grid; gap: var(--space-5); padding: var(--space-5); }
+.notification-console__intro { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
+.notification-console__title { margin: 0; color: var(--color-fg); font-size: var(--text-lg); }
+.notification-console__description { margin: var(--space-1) 0 0; color: var(--color-fg-muted); font-size: var(--text-sm); }
+.notification-driver {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-hover);
+  color: var(--color-fg-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  white-space: nowrap;
+}
+.notification-console .finance-actions { margin: 0; }
+.notification-console .finance-driver-notice { margin: 0; }
+.notification-setup {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: 54rem;
+  padding: var(--space-5);
+  border-color: var(--color-warning);
+}
+.notification-setup__icon {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border-radius: var(--radius-md);
+  background: var(--color-warning-light);
+  color: var(--color-warning);
+}
+.notification-setup__icon .lucide { width: 1.25rem; height: 1.25rem; }
+.notification-setup__eyebrow { margin: 0 0 var(--space-1); color: var(--color-warning); font-size: var(--text-xs); font-weight: var(--font-bold); text-transform: uppercase; }
+.notification-setup__title { margin: 0; color: var(--color-fg); font-size: var(--text-lg); }
+.notification-setup__description { margin: var(--space-1) 0 0; color: var(--color-fg-muted); font-size: var(--text-sm); line-height: var(--leading-relaxed); }
+.notification-setup__description code { color: var(--color-fg); font-family: var(--font-mono); }
+
+@media (max-width: 48rem) {
+  .finance-filter { align-items: stretch; padding: var(--space-3); }
+  .finance-filter .c-button { width: 100%; }
+  .finance-form { padding: var(--space-4); }
+  .finance-panel .c-table { min-width: 38rem; }
+  .finance-balance p { align-items: flex-start; flex-direction: column; gap: var(--space-1); }
+  .admin-main .notification-page { max-width: none; }
+  .notification-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .notification-console__intro { align-items: flex-start; flex-direction: column; }
+  .notification-setup { grid-template-columns: auto minmax(0, 1fr); align-items: start; }
+  .notification-setup > .c-button { grid-column: 1 / -1; }
+}

@@ -31,11 +31,13 @@ class NotificationController {
         }
 
         $stats = $this->repo->getStats();
+        $schemaReady = $this->repo->isAvailable();
 
-        require __DIR__ . '/../../../resources/views/admin/notifications/index.php';
+        require dirname(__DIR__, 4) . '/resources/views/admin/notifications/index.php';
     }
 
     public function retry(): void {
+        if (!$this->requireWriteRequest()) return;
         if (!has_canonical_permission('settings.manage')) {
             http_response_code(403);
             return;
@@ -43,10 +45,11 @@ class NotificationController {
 
         $count = $this->repo->retryFailed();
         $_SESSION['flash'] = "$count notifikasi gagal direset ke PENDING.";
-        header("Location: /ujikom1/admin/notifications.php");
+        header('Location: ' . base_url('admin/notifications.php'));
     }
 
     public function processQueue(): void {
+        if (!$this->requireWriteRequest()) return;
         if (!has_canonical_permission('settings.manage')) {
             http_response_code(403);
             return;
@@ -54,6 +57,21 @@ class NotificationController {
 
         $results = $this->service->processQueue(50);
         $_SESSION['flash'] = "Sent: {$results['sent']}, Failed: {$results['failed']}";
-        header("Location: /ujikom1/admin/notifications.php");
+        header('Location: ' . base_url('admin/notifications.php'));
+    }
+
+    private function requireWriteRequest(): bool {
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            http_response_code(405);
+            header('Allow: POST');
+            return false;
+        }
+
+        if (!validate_csrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            return false;
+        }
+
+        return true;
     }
 }

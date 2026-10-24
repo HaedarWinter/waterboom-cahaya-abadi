@@ -1,0 +1,86 @@
+/* Responsive hero */
+  @media (max-width: 1100px) {
+    .p-hero {
+      margin: var(--space-4) var(--space-4) 0;
+      border-radius: var(--radius-3xl);
+      min-height: auto;
+      padding-top: 60px;
+      padding-bottom: 0;
+      flex-direction: column;
+    }
+
+    .p-hero__inner {
+      flex-direction: column;
+      text-align: center;
+      gap: var(--space-12);
+      width: 100%;
+      padding: var(--space-12) var(--space-6);
+    }
+
+    .p-hero__description {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .p-hero__actions {
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: var(--space-6);
+    }
+
+    .p-hero__visual {
+      flex-basis: auto;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .p-hero__stats {
+      position: relative;
+      bottom: 0;
+      right: auto;
+      width: calc(100% - var(--space-8));
+      margin: var(--space-8) auto;
+      border-radius: var(--radius-xl);
+      justify-content: center;
+      padding: var(--space-8) var(--space-6);
+      gap: var(--space-8);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .p-kuota-widget {
+      position: relative;
+      bottom: 0;
+      left: auto;
+      width: calc(100% - var(--space-8));
+      margin: 0 auto var(--space-8);
+      align-items: center;
+      animation: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .p-hero__title {
+      font-size: 2.8rem;
+    }
+
+    .p-hero__stats {
+      flex-wrap: wrap;
+      gap: var(--space-6) var(--space-8);
+      padding: var(--space-8) var(--space-6);
+      justify-content: center;
+    }
+
+    .p-hero__stat-item {
+      flex: 1 1 120px;
+      align-items: center;
+    }
+
+    .p-hero__stat-value {
+      font-size: var(--text-4xl);
+    }
+
+    .p-hero__stat-label {
+      text-align: center;
+      font-size: 0.65rem;
+    }
+  }

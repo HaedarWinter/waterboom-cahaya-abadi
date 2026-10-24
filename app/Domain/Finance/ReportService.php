@@ -10,6 +10,14 @@ class ReportService {
         $this->conn = $connection ?? \App\Core\Database::getInstance()->getConnection();
     }
 
+    public function getActiveAccounts(): array {
+        $stmt = $this->conn->prepare('SELECT id, name FROM cash_accounts WHERE is_active = ? ORDER BY name');
+        $active = 1;
+        $stmt->bind_param('i', $active);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?: [];
+    }
+
     public function getCashFlow(string $startDate, string $endDate, int $accountId = 0): array {
         $sql = "SELECT 
                     entry_date,

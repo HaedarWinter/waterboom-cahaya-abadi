@@ -1,73 +1,81 @@
 <?php
-$pageTitle = 'Notifikasi & Antrian Kirim';
+$pageTitle = 'Notifikasi';
 $activeMenu = 'notifications';
 require __DIR__ . '/../../layouts/admin.php';
 ?>
 
-<div class="l-container">
+<div class="l-container notification-page">
     <div class="l-stack l-stack--lg">
-        <h1 class="c-heading c-heading--1">Notifikasi & Antrian Pesan</h1>
-
-        <div class="l-grid l-grid--4 l-gap-md" style="margin-bottom: 2rem;">
-            <div class="c-card">
-                <div class="l-stack l-stack--sm" style="text-align: center;">
-                    <div style="font-size: 2rem; font-weight: bold; color: #f97316;">
-                        <?= number_format($stats['PENDING'] ?? 0) ?>
-                    </div>
-                    <div style="font-size: 0.9rem; color: #666;">Pending</div>
-                </div>
+        <?php if (!$schemaReady): ?>
+        <section class="c-card notification-setup" role="status">
+            <span class="notification-setup__icon" aria-hidden="true">
+                <i data-lucide="database"></i>
+            </span>
+            <div class="notification-setup__content">
+                <p class="notification-setup__eyebrow">Perlu penyiapan database</p>
+                <h2 class="notification-setup__title">Antrean notifikasi belum aktif</h2>
+                <p class="notification-setup__description">
+                    Tabel notifikasi belum tersedia. Terapkan migrasi
+                    <code>V4_006_notifications.sql</code>, lalu muat ulang halaman ini.
+                </p>
             </div>
-            <div class="c-card">
-                <div class="l-stack l-stack--sm" style="text-align: center;">
-                    <div style="font-size: 2rem; font-weight: bold; color: #1f9d55;">
-                        <?= number_format($stats['SENT'] ?? 0) ?>
-                    </div>
-                    <div style="font-size: 0.9rem; color: #666;">Terkirim</div>
-                </div>
+            <a href="?action=index" class="c-button c-button--secondary">Muat Ulang</a>
+        </section>
+        <?php else: ?>
+        <div class="finance-stats notification-stats">
+            <div class="c-card finance-stat-card">
+                <div class="finance-stat-value finance-stat-value--pending"><?= number_format($stats['PENDING'] ?? 0) ?></div>
+                <div class="finance-stat-label">Menunggu</div>
             </div>
-            <div class="c-card">
-                <div class="l-stack l-stack--sm" style="text-align: center;">
-                    <div style="font-size: 2rem; font-weight: bold; color: #ef4444;">
-                        <?= number_format($stats['FAILED'] ?? 0) ?>
-                    </div>
-                    <div style="font-size: 0.9rem; color: #666;">Gagal</div>
-                </div>
+            <div class="c-card finance-stat-card">
+                <div class="finance-stat-value finance-stat-value--sent"><?= number_format($stats['SENT'] ?? 0) ?></div>
+                <div class="finance-stat-label">Terkirim</div>
             </div>
-            <div class="c-card">
-                <div class="l-stack l-stack--sm" style="text-align: center;">
-                    <div style="font-size: 2rem; font-weight: bold; color: #666;">
-                        <?= number_format($stats['DEAD'] ?? 0) ?>
-                    </div>
-                    <div style="font-size: 0.9rem; color: #666;">Dead Letter</div>
-                </div>
+            <div class="c-card finance-stat-card">
+                <div class="finance-stat-value finance-stat-value--failed"><?= number_format($stats['FAILED'] ?? 0) ?></div>
+                <div class="finance-stat-label">Gagal</div>
+            </div>
+            <div class="c-card finance-stat-card">
+                <div class="finance-stat-value finance-stat-value--dead"><?= number_format($stats['DEAD'] ?? 0) ?></div>
+                <div class="finance-stat-label">Gagal permanen</div>
             </div>
         </div>
 
-        <div class="c-card">
-            <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem;">
-                <form method="GET" style="display: inline;">
+        <section class="c-card notification-console">
+            <div class="notification-console__intro">
+                <div>
+                    <h2 class="notification-console__title">Pengiriman pesan</h2>
+                    <p class="notification-console__description">Kelola antrean pesan WhatsApp secara manual.</p>
+                </div>
+                <span class="notification-driver">
+                    <?= getenv('WA_DRIVER') === 'fonnte' ? 'Fonnte API' : 'Mode demo · Log' ?>
+                </span>
+            </div>
+            <div class="finance-actions">
+                <form method="POST">
+                    <?= csrf_field() ?>
                     <input type="hidden" name="action" value="process">
                     <button type="submit" class="c-button c-button--primary" onclick="return confirm('Proses antrian sekarang?')">
                         <svg class="c-button__icon" aria-hidden="true"><use xlink:href="#icon-send"></use></svg>
                         Proses Antrian
                     </button>
                 </form>
-                <form method="GET" style="display: inline;">
+                <form method="POST">
+                    <?= csrf_field() ?>
                     <input type="hidden" name="action" value="retry">
                     <button type="submit" class="c-button c-button--secondary" onclick="return confirm('Reset pesan gagal ke PENDING?')">
                         <svg class="c-button__icon" aria-hidden="true"><use xlink:href="#icon-refresh"></use></svg>
                         Retry Gagal
                     </button>
                 </form>
-                <a href="?action=index" class="c-button c-button--ghost">Refresh</a>
+                <a href="?action=index" class="c-button c-button--ghost">Muat Ulang</a>
             </div>
-
-            <div style="padding: 1rem; background: #f5f5f5; border-radius: 5px; font-size: 0.9rem; color: #666;">
-                <strong>Driver Mode:</strong> <?= getenv('WA_DRIVER') === 'fonnte' ? '🔌 Fonnte API' : '📝 Log (Demo)' ?><br>
-                Notifikasi diproses melalui antrian. Driver log (demo) menampilkan pesan di error log, tidak mengirim WA asli.
-            </div>
-        </div>
+            <p class="finance-driver-notice">
+                Mode log hanya mencatat pesan di log aplikasi dan tidak mengirim WhatsApp sungguhan.
+            </p>
+        </section>
+        <?php endif; ?>
     </div>
 </div>
 
-<?php require __DIR__ . '/../../partials/footer.php'; ?>
+<?php require __DIR__ . '/../../layouts/admin_footer.php'; ?>

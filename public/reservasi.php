@@ -60,6 +60,12 @@ include '../resources/views/layouts/navbar.php';
         </div>
     </div>
 
+    <?php elseif (getenv('APP_ENV') === 'demo'): ?>
+    <div class="card" role="status">
+        <div class="card-header"><i data-lucide="eye" class="card-icon"></i><h2>Reservasi Simulasi</h2></div>
+        <p class="deskripsi">Form reservasi dinonaktifkan pada demo publik agar data pengunjung tidak tersimpan. Anda tetap dapat melihat tampilan alurnya tanpa mengirim informasi pribadi.</p>
+    </div>
+
     <?php else: ?>
     <!-- FORM RESERVASI -->
     <div class="card">
@@ -71,7 +77,7 @@ include '../resources/views/layouts/navbar.php';
             Pesan tiket Anda sekarang untuk menghindari antrean! Isi formulir berikut dan dapatkan kode booking.
         </p>
 
-        <form action="../app/Http/Controllers/Admin/reservasi_handler.php" method="post" id="formReservasi">
+        <form action="<?= e(base_url('reservasi-submit.php')) ?>" method="post" id="formReservasi">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="simpan">
             <div style="position:absolute;left:-9999px;" aria-hidden="true">
@@ -132,7 +138,7 @@ include '../resources/views/layouts/navbar.php';
                         <span style="color:var(--muted);">Bank</span>
                         <div style="display:flex;align-items:center;gap:8px;">
                             <?php if(strpos(strtoupper($rekening_bank), 'BCA') !== false): ?>
-                                <img src="/ujikom1/public/assets/bca_logo.png" alt="BCA" style="height:16px;">
+                                <img src="<?= e(base_url('assets/bca_logo.png')) ?>" alt="BCA" style="height:16px;">
                             <?php endif; ?>
                             <strong><?= htmlspecialchars($rekening_bank) ?></strong>
                         </div>
@@ -209,7 +215,7 @@ if (metodeSelect) {
 
 window.sisaKuota = null;
 function cekKuota(tanggal) {
-    fetch("../app/Http/Controllers/Admin/reservasi_handler.php", {
+    fetch("<?= e(base_url('reservasi-submit.php')) ?>", {
         method: "POST",
         headers: {"Content-Type": "application/x-www-form-urlencoded"},
         body: "action=cek_kuota&tanggal=" + tanggal

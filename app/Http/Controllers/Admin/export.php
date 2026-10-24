@@ -22,6 +22,11 @@ if (!validate_csrf($_GET['token'] ?? '')) {
     die('Token keamanan tidak valid. Muat ulang halaman lalu coba lagi.');
 }
 
+if (getenv('APP_ENV') === 'demo') {
+    http_response_code(403);
+    exit('Ekspor data dinonaktifkan pada mode demo.');
+}
+
 // ─── PROTEKSI PERMISSION ───
 if (!has_canonical_permission('guestbook.moderate')) {
     header("Location: /ujikom1/admin/?error=Anda tidak memiliki izin untuk mengekspor data.");

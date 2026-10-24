@@ -1,0 +1,96 @@
+/* Reservation form steps */
+  .p-reservation-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-8);
+    position: relative;
+  }
+
+  .p-reservation-stepper::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--color-border);
+    z-index: 0;
+    transform: translateY(-50%);
+  }
+
+  .p-reservation-stepper__step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    position: relative;
+    z-index: 1;
+    flex: 1;
+  }
+
+  .p-reservation-stepper__circle {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: var(--color-surface);
+    border: 2px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: var(--font-bold);
+    font-size: var(--text-sm);
+    color: var(--color-fg-muted);
+    transition: all var(--duration-base) var(--ease-default);
+  }
+
+  .p-reservation-stepper__step.is-active .p-reservation-stepper__circle {
+    background: var(--color-brand);
+    border-color: var(--color-brand);
+    color: #fff;
+    box-shadow: 0 0 0 4px var(--color-brand-light);
+  }
+
+  .p-reservation-stepper__step.is-completed .p-reservation-stepper__circle {
+    background: var(--color-success);
+    border-color: var(--color-success);
+    color: #fff;
+  }
+
+  .p-reservation-stepper__label {
+    font-size: var(--text-xs);
+    font-weight: var(--font-semibold);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-fg-muted);
+    text-align: center;
+  }
+
+  .p-reservation-stepper__step.is-active .p-reservation-stepper__label {
+    color: var(--color-brand);
+  }
+
+  .p-reservation-stepper__step.is-completed .p-reservation-stepper__label {
+    color: var(--color-success);
+  }
+
+  /* Mobile stepper */
+  @media (max-width: 768px) {
+    .p-reservation-stepper::before {
+      display: none;
+    }
+
+    .p-reservation-stepper {
+      gap: var(--space-2);
+    }
+
+    .p-reservation-stepper__label {
+      display: none;
+    }
+
+    .p-reservation-stepper__circle {
+      width: 36px;
+      height: 36px;
+      font-size: var(--text-xs);
+    }
+  }

@@ -20,6 +20,7 @@ if (!has_canonical_permission('content.news.manage')) {
 }
 
 $action = $_POST['action'] ?? '';
+$upload_dir = dirname(__DIR__, 4) . '/public/assets/berita/';
 
 if (!validate_csrf($_POST['csrf_token'] ?? '')) {
     header("Location: /ujikom1/admin/berita.php?error=Token tidak valid.");
@@ -55,8 +56,14 @@ if ($action === 'simpan') {
 
         $ext = pathinfo($_FILES['gambar']['name'], PATHINFO_EXTENSION);
         $gambar_name = 'berita_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
-        $target = '../../assets/berita/' . $gambar_name;
-        move_uploaded_file($_FILES['gambar']['tmp_name'], $target);
+        if (!is_dir($upload_dir) && !mkdir($upload_dir, 0755, true) && !is_dir($upload_dir)) {
+            header("Location: /ujikom1/admin/berita.php?error=Gagal menyiapkan folder gambar.");
+            exit;
+        }
+        if (!move_uploaded_file($_FILES['gambar']['tmp_name'], $upload_dir . $gambar_name)) {
+            header("Location: /ujikom1/admin/berita.php?error=Gagal menyimpan gambar.");
+            exit;
+        }
     }
 
     $stmt = \App\Core\Database::getInstance()->getConnection()->prepare("INSERT INTO berita (judul, isi, gambar) VALUES (?, ?, ?)");
@@ -101,14 +108,20 @@ if ($action === 'update') {
 
         // Hapus gambar lama
         $old = \App\Core\Database::getInstance()->getConnection()->query("SELECT gambar FROM berita WHERE id = $id")->fetch_assoc();
-        if ($old && $old['gambar'] && file_exists('../../assets/berita/' . $old['gambar'])) {
-            unlink('../../assets/berita/' . $old['gambar']);
+        if ($old && $old['gambar'] && file_exists($upload_dir . basename($old['gambar']))) {
+            unlink($upload_dir . basename($old['gambar']));
         }
 
         $ext = pathinfo($_FILES['gambar']['name'], PATHINFO_EXTENSION);
         $gambar_name = 'berita_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
-        $target = '../../assets/berita/' . $gambar_name;
-        move_uploaded_file($_FILES['gambar']['tmp_name'], $target);
+        if (!is_dir($upload_dir) && !mkdir($upload_dir, 0755, true) && !is_dir($upload_dir)) {
+            header("Location: /ujikom1/admin/berita.php?error=Gagal menyiapkan folder gambar.");
+            exit;
+        }
+        if (!move_uploaded_file($_FILES['gambar']['tmp_name'], $upload_dir . $gambar_name)) {
+            header("Location: /ujikom1/admin/berita.php?error=Gagal menyimpan gambar.");
+            exit;
+        }
 
         $stmt = \App\Core\Database::getInstance()->getConnection()->prepare("UPDATE berita SET judul = ?, isi = ?, gambar = ? WHERE id = ?");
         $stmt->bind_param("sssi", $judul, $isi, $gambar_name, $id);
@@ -145,8 +158,8 @@ if ($action === 'hapus') {
     $id = (int)($_POST['id'] ?? 0);
     // Hapus gambar
     $old = \App\Core\Database::getInstance()->getConnection()->query("SELECT gambar FROM berita WHERE id = $id")->fetch_assoc();
-    if ($old && $old['gambar'] && file_exists('../../assets/berita/' . $old['gambar'])) {
-        unlink('../../assets/berita/' . $old['gambar']);
+    if ($old && $old['gambar'] && file_exists($upload_dir . basename($old['gambar']))) {
+        unlink($upload_dir . basename($old['gambar']));
     }
 
     $stmt = \App\Core\Database::getInstance()->getConnection()->prepare("DELETE FROM berita WHERE id = ?");

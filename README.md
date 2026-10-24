@@ -133,46 +133,38 @@ Admin  (dashboard, CRUD, scanner)  ─────┼─→ handlers (POST + CSR
 
 ```bash
 # 1. Clone
-git clone https://github.com/HaedarWinter/waterboom-cahaya-abadi.git ujikom
-cd ujikom
+git clone https://github.com/HaedarWinter/waterboom-cahaya-abadi.git ujikom1
+cd ujikom1
 
 # 2. Start XAMPP: Apache + MySQL
 
-# 3. Import database
-mysql -u root < sql/db.sql
-# + WAJIB: tabel rate limit login
-mysql -u root < db/migration_v3_security.sql
-# + WAJIB: fondasi keuangan (idempotent)
-mysql -u root < sql/migration_v3_foundation.sql
-# + WAJIB: state machine booking (idempotent)
-mysql -u root < sql/migration_v3_state_machine.sql
-# Catatan: sql/db.sql sudah memuat perubahan migration_v2.
-# Jalankan sql/migration_v2.sql hanya saat upgrade dari skema lama.
+# 3. Copy .env.example menjadi .env, lalu atur APP_ENV=local dan koneksi MySQL XAMPP.
+#    Buat database db_ujikom, lalu import database/schema/demo.sql.
+#    Jalankan seeder: roles_permissions, demo_accounts, demo_cash_account.
 
-# 4. Akses
-#   Public: http://localhost/ujikom/
-#   Admin:  http://localhost/ujikom/login.php
+# 4. Build CSS bundle
+php scripts/build_assets.php --minify
+
+# 5. Akses
+#   Public: http://localhost/ujikom1/
+#   Admin:  http://localhost/ujikom1/login.php
 ```
 
 **Prasyarat / Requirements:** PHP ≥ 8, MySQL/MariaDB, XAMPP (atau LAMP); ekstensi `fileinfo` + `curl`; internet untuk QR API & WhatsApp.
-Akun seed: lihat `sql/db.sql` — **segera ganti password default.**
-Path socket XAMPP macOS sudah jadi fallback otomatis di `App\Core\Database` — deploy ke Linux tanpa ubah konfigurasi.
+Seed menyediakan akun demo berpassword `demo123`; gunakan hanya pada database lokal/demo. `.env` lokal tidak boleh masuk Git. Langkah deploy ada di [docs/Deploy.md](docs/Deploy.md).
 
 **Struktur / Structure:**
 
 ```
-ujikom/
-├── index.php           # landing + buku tamu + review
-├── reservasi.php       # form reservasi (kuota real-time)
-├── cek_booking.php     # status booking + upload bukti + tiket QR
-├── login.php           # login admin
-├── admin/              # dashboard, CRUD, scanner, kelola admin, logs
-│   └── handlers/       # POST handler (CSRF + permission guard)
-├── app/                # autoloader, Database singleton, Models, Services (booking state, tiket)
-├── config/             # koneksi (delegasi Database) + security helpers
-├── sql/                # db.sql, migration_v2.sql, migration_v3_* (foundation + state machine) + rollback
-├── tests/              # verify_hardening.php, verify_state_machine.php (CLI assertion)
-└── docs/audit/         # laporan audit & hasil verifikasi
+ujikom1/
+├── public/             # halaman publik, endpoint, assets
+├── admin/              # dashboard dan modul admin
+├── app/                # database, domain, controller, middleware
+├── config/             # konfigurasi dan izin
+├── database/           # schema demo, migrasi, rollback, seeder
+├── resources/views/    # layout dan komponen tampilan
+├── storage/            # sesi dan file internal; tidak di Git
+└── docs/               # PRD, deploy, dan audit
 ```
 
 ---

@@ -27,8 +27,9 @@ class TemplateController {
         }
 
         $templates = $this->service->getAll();
+        $schemaReady = $this->service->isAvailable();
 
-        require __DIR__ . '/../../../resources/views/admin/templates/index.php';
+        require dirname(__DIR__, 4) . '/resources/views/admin/templates/index.php';
     }
 
     public function edit(): void {
@@ -51,7 +52,7 @@ class TemplateController {
             return;
         }
 
-        require __DIR__ . '/../../../resources/views/admin/templates/edit.php';
+        require dirname(__DIR__, 4) . '/resources/views/admin/templates/edit.php';
     }
 
     private function update(int $id): void {

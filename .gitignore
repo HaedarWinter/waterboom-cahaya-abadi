@@ -5,5 +5,11 @@ assets/bukti_bayar/*
 assets/tickets/*
 assets/berita/*
 assets/galeri/*
+public/assets/berita/*
+!public/assets/berita/.htaccess
+public/assets/galeri/*
+!public/assets/galeri/.htaccess
 .env.test
+.env
+!.env.example
 storage/

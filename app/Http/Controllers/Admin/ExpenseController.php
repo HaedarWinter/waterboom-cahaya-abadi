@@ -32,9 +32,17 @@ class ExpenseController {
 
         $startDate = $_GET['start_date'] ?? date('Y-m-01');
         $endDate = $_GET['end_date'] ?? date('Y-m-t');
-        $expenses = $this->repo->findByDateRange($startDate, $endDate);
+        $loadError = null;
+        try {
+            $this->repo->assertSchemaAvailable();
+            $expenses = $this->repo->findByDateRange($startDate, $endDate);
+        } catch (\Throwable $error) {
+            error_log('Expense listing unavailable: ' . $error->getMessage());
+            $expenses = [];
+            $loadError = 'Fitur pengeluaran belum siap. Terapkan migrasi database V4_004_expenses setelah backup dan uji salinan database.';
+        }
 
-        require __DIR__ . '/../../../resources/views/admin/expenses/index.php';
+        require dirname(__DIR__, 4) . '/resources/views/admin/expenses/index.php';
     }
 
     public function create(): void {
@@ -43,12 +51,18 @@ class ExpenseController {
             return;
         }
 
+        if (!$this->schemaReady()) {
+            header('Location: /ujikom1/admin/expenses.php');
+            return;
+        }
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->store();
             return;
         }
 
-        require __DIR__ . '/../../../resources/views/admin/expenses/create.php';
+        $accounts = $this->repo->findActiveAccounts();
+        require dirname(__DIR__, 4) . '/resources/views/admin/expenses/create.php';
     }
 
     public function store(): void {
@@ -77,6 +91,11 @@ class ExpenseController {
             return;
         }
 
+        if (!$this->schemaReady()) {
+            header('Location: /ujikom1/admin/expenses.php');
+            return;
+        }
+
         $id = (int)($_GET['id'] ?? 0);
         $expense = $this->repo->findById($id);
         if (!$expense) {
@@ -85,12 +104,18 @@ class ExpenseController {
             return;
         }
 
-        require __DIR__ . '/../../../resources/views/admin/expenses/show.php';
+        $accountName = $this->repo->findAccountName((int)$expense['cash_account_id']);
+        require dirname(__DIR__, 4) . '/resources/views/admin/expenses/show.php';
     }
 
     public function post(): void {
         if (!has_canonical_permission('ledger.entry_manual')) {
             http_response_code(403);
+            return;
+        }
+
+        if (!$this->schemaReady()) {
+            header('Location: /ujikom1/admin/expenses.php');
             return;
         }
 
@@ -111,6 +136,11 @@ class ExpenseController {
             return;
         }
 
+        if (!$this->schemaReady()) {
+            header('Location: /ujikom1/admin/expenses.php');
+            return;
+        }
+
         $id = (int)($_POST['id'] ?? 0);
         $reason = $_POST['reason'] ?? '';
         try {
@@ -121,5 +151,16 @@ class ExpenseController {
         }
 
         header("Location: /ujikom1/admin/expenses.php?view=show&id=$id");
+    }
+
+    private function schemaReady(): bool {
+        try {
+            $this->repo->assertSchemaAvailable();
+            return true;
+        } catch (\Throwable $error) {
+            error_log('Expense schema unavailable: ' . $error->getMessage());
+            $_SESSION['error'] = 'Fitur pengeluaran belum siap. Terapkan migrasi database V4_004_expenses setelah backup dan uji salinan database.';
+            return false;
+        }
     }
 }

@@ -1,0 +1,134 @@
+/* Dashboard: documentary density with the existing waterpark teal identity. */
+.admin-body .stats-grid {
+  gap: var(--space-3);
+}
+
+.admin-body .stat-card {
+  min-width: 0;
+  min-height: 150px;
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: none;
+  transition: border-color var(--duration-fast) var(--ease-default);
+}
+
+.admin-body .stat-card:hover {
+  transform: none;
+  border-color: var(--color-brand);
+  box-shadow: none;
+}
+
+.admin-body .stat-card.revenue {
+  background: var(--color-surface);
+  color: var(--color-fg);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-brand);
+}
+
+.admin-body .stat-card.revenue .stat-value {
+  color: var(--color-fg);
+}
+
+.admin-body .stat-card.revenue .stat-label {
+  color: var(--color-fg-muted);
+}
+
+.admin-body .stat-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  background: var(--color-brand-light);
+  border: 0;
+  color: var(--color-brand);
+}
+
+.admin-body .stat-card:hover .stat-icon {
+  transform: none;
+  background: var(--color-brand-light);
+  border-color: transparent;
+}
+
+.admin-body .stat-card.revenue .stat-icon {
+  background: var(--color-brand-light);
+  color: var(--color-brand);
+  border: 0;
+}
+
+.admin-body .stat-card.revenue .stat-badge.up {
+  background: var(--color-success-light);
+  color: var(--color-success);
+}
+
+.admin-body .dashboard-mid-grid,
+.admin-body .dashboard-bottom-flex {
+  gap: var(--space-4);
+}
+
+.admin-body .section-card {
+  border-radius: var(--radius-md);
+  box-shadow: var(--color-shadow);
+}
+
+.admin-body .section-header {
+  padding: var(--space-4) var(--space-5);
+}
+
+.admin-body .section-title {
+  font-size: var(--text-base);
+  letter-spacing: 0;
+}
+
+.admin-body .section-sub {
+  line-height: var(--leading-snug);
+}
+
+.admin-body .hub-card {
+  min-height: 100px;
+  border-radius: var(--radius-sm);
+  transition: border-color var(--duration-fast) var(--ease-default), background-color var(--duration-fast) var(--ease-default);
+}
+
+.admin-body .hub-card:hover {
+  transform: none;
+  background: var(--color-brand-light);
+  box-shadow: none;
+}
+
+.admin-body .hub-card:focus-visible,
+.admin-body .stat-link-new:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+  .admin-body .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-body .stat-card {
+    min-height: 132px;
+    padding: var(--space-3);
+  }
+
+  .admin-body .stat-value {
+    font-size: var(--text-xl);
+    overflow-wrap: anywhere;
+  }
+
+  .admin-body .stat-label {
+    font-size: var(--text-xs);
+  }
+
+  .admin-body .action-hub {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-body .stat-card,
+  .admin-body .hub-card {
+    transition: none;
+  }
+}

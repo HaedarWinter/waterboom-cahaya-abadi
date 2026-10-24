@@ -35,6 +35,8 @@ $kategori_labels = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="<?= e(asset_url('assets/dist/css/app.min.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset_url('assets/css/admin_style.css')) ?>">
     <title>Pengaturan Website — Cahaya Abadi</title>
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -57,7 +59,7 @@ $kategori_labels = [
     </header>
 
     <div class="admin-content">
-        <form action="../../app/Http/Controllers/Admin/$1" method="post">
+        <form action="<?= e(base_url("admin/handlers/legacy_action.php?handler=settings")) ?>" method="post">
             <?= csrf_field() ?>
 
             <?php foreach ($kategori_labels as $kat_key => $kat_info): ?>

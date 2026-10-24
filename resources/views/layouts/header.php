@@ -18,7 +18,8 @@
             } catch (e) {}
         })();
     </script>
-<link rel="stylesheet" href="public/assets/css/global.css">
+<link rel="stylesheet" href="<?= e(asset_url('assets/css/style.css')) ?>">
+<link rel="stylesheet" href="<?= e(asset_url('assets/dist/css/app.min.css')) ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -28,3 +29,4 @@
 <?php $force_theme = ($_GET['theme'] ?? '') === 'dark' ? 'dark-theme' : ''; ?>
 <body class="<?= $force_theme ?>">
 <?php if ($force_theme): ?><script>document.documentElement.style.colorScheme='dark';</script><?php endif; ?>
+<?php require dirname(__DIR__) . '/components/demo-banner.php'; ?>

@@ -5,6 +5,7 @@ namespace App\Domain\Finance;
 
 use App\Core\Database;
 use App\Core\Clock;
+use App\Domain\Audit\ActivityLogger;
 
 class ClosingService {
     private ClosingRepository $repo;
