@@ -14,3 +14,4 @@ public/assets/galeri/*
 !.env.example
 storage/
 /waterboom-upload.zip
+/waterboom-upload/
