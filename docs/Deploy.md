@@ -23,11 +23,12 @@ Jangan jalankan `demo_data_seeder.sql`: isinya merujuk ID booking lokal dan buka
 
 ## 2. Unggah aplikasi
 
-1. Ekstrak repository ke `htdocs/ujikom1/` sehingga `.htaccess` dan `public/` berada langsung di folder tersebut.
-2. Buat `.env` di folder `ujikom1` dari `.env.example`. Isi `APP_URL` dengan URL HTTPS situs yang berakhir `/ujikom1`, lalu masukkan credential database dari panel hosting.
-3. Buat direktori yang diperlukan aplikasi: `storage/sessions`, `public/assets/berita`, `public/assets/galeri`, `assets/bukti_bayar`, `assets/bukti_keuangan`, dan `assets/tickets`. Gunakan izin standar hosting, biasanya folder `755`; jangan gunakan `777`.
-4. Pastikan `.env` tidak ikut terunggah melalui arsip Git. Buat file itu langsung di File Manager, jangan mengubah `.env.example` menjadi tempat secret.
-5. Aktifkan SSL/HTTPS dari panel hosting.
+1. Jangan unggah folder repository mentah dari Finder/VS Code: folder `.git` saja berisi lebih dari seribu file internal yang tidak diperlukan server. Jalankan `sh scripts/build_upload_package.sh` dari root proyek untuk membuat `waterboom-upload.zip`. Arsip ini hanya memuat file runtime yang dilacak Git, tidak memuat `.git`, `.env` lokal, dump data, tes, atau dokumentasi.
+2. Unggah `waterboom-upload.zip` ke `htdocs/ujikom1/`, lalu ekstrak di sana. Pastikan `.htaccess` dan folder `public/` berada langsung di `htdocs/ujikom1/`, bukan di subfolder tambahan. Jika ukuran arsip melebihi batas uploader, gunakan FTP dan unggah isi proyek tanpa `.git`.
+3. Buat `.env` di folder `ujikom1` dari `.env.example`. Isi `APP_URL` dengan URL HTTPS situs yang berakhir `/ujikom1`, lalu masukkan credential database dari panel hosting.
+4. Buat direktori yang diperlukan aplikasi: `storage/sessions`, `public/assets/berita`, `public/assets/galeri`, `assets/bukti_bayar`, `assets/bukti_keuangan`, dan `assets/tickets`. Gunakan izin standar hosting, biasanya folder `755`; jangan gunakan `777`.
+5. Pastikan `.env` tidak ikut terunggah melalui arsip Git. Buat file itu langsung di File Manager, jangan mengubah `.env.example` menjadi tempat secret.
+6. Aktifkan SSL/HTTPS dari panel hosting.
 
 Contoh konfigurasi (gunakan nilai dari panel hosting; jangan salin contoh literal):
 

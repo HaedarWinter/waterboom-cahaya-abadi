@@ -324,8 +324,8 @@ include '../resources/views/layouts/navbar.php';
 
                     <div id="qris" class="payment-content">
                         <div class="qris-container">
-                            <img src="<?= e(base_url('assets/qrs_payment.png')) ?>" alt="QRIS" class="qris-img">
-                            <a href="<?= e(base_url('assets/qrs_payment.png')) ?>" download class="btn btn-outline" style="width:100%;font-size:.75rem;padding:8px;">
+                            <img src="<?= e(base_url('assets/qrs_payment-compressed.webp')) ?>" alt="QRIS" class="qris-img">
+                            <a href="<?= e(base_url('assets/qrs_payment-compressed.webp')) ?>" download class="btn btn-outline" style="width:100%;font-size:.75rem;padding:8px;">
                                 <i data-lucide="download" style="width:14px;"></i> Unduh QRIS
                             </a>
                         </div>
