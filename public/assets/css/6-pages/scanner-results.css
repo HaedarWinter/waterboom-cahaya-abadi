@@ -16,7 +16,7 @@
 
 .visitor-card.hidden { display: none; }
 
-.card-header {
+.visitor-card .card-header {
     background: linear-gradient(135deg, #0e7c6b, #14b8a6);
     padding: 2rem 1.5rem;
     color: #fff;
@@ -24,7 +24,7 @@
     position: relative;
 }
 
-.status-badge {
+.visitor-card .status-badge {
     position: absolute;
     top: 20px;
     right: 20px;
@@ -35,22 +35,22 @@
     text-transform: uppercase;
 }
 
-.card-body { padding: 2rem; }
+.visitor-card .card-body { padding: 2rem; }
 
-.info-grid {
+.visitor-card .info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
 }
 
-.info-item {
+.visitor-card .info-item {
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--border-subtle);
 }
 
-.info-item.full { grid-column: 1 / -1; }
+.visitor-card .info-item.full { grid-column: 1 / -1; }
 
-.info-item .label {
+.visitor-card .info-item .label {
     display: block;
     font-size: 0.75rem;
     color: var(--fg-muted);
@@ -59,14 +59,14 @@
     margin-bottom: 4px;
 }
 
-.info-item .value {
+.visitor-card .info-item .value {
     display: block;
     font-size: 1.1rem;
     font-weight: 800;
     color: var(--fg);
 }
 
-.card-footer {
+.visitor-card .card-footer {
     padding: 2rem;
     background: var(--bg-subtle);
 }

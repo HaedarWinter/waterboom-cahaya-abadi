@@ -1,8 +1,10 @@
 <?php
 require_once '../app/init.php';
-require_admin($koneksi);
+global $koneksi;
+require_once __DIR__ . '/../resources/views/components/pagination.php';
+require_admin();
 if (!has_canonical_permission('dashboard.view')) {
-    header('Location: /ujikom1/login.php?error=Akses ditolak.');
+    header('Location: ' . base_url('login.php') . '?error=Akses ditolak.');
     exit;
 }
 
@@ -311,15 +313,7 @@ $no_start    = $offset + 1;
                     </table>
                 </div>
                 
-                <?php if ($total_pages > 1): ?>
-                <div class="pagination">
-                    <div class="pagination-btns">
-                        <a href="<?= $page > 1 ? '?page='.($page-1).($search ? '&q='.urlencode($search) : '') : '#' ?>" class="page-btn <?= $page <= 1 ? 'disabled' : '' ?>" aria-label="Sebelumnya"><i data-lucide="chevron-left" style="width:16px;height:16px;"></i></a>
-                        <?= \App\PaginationHelper::renderPages($page, $total_pages, ['q' => $search ?: null]) ?>
-                        <a href="<?= $page < $total_pages ? '?page='.($page+1).($search ? '&q='.urlencode($search) : '') : '#' ?>" class="page-btn <?= $page >= $total_pages ? 'disabled' : '' ?>" aria-label="Berikutnya"><i data-lucide="chevron-right" style="width:16px;height:16px;"></i></a>
-                    </div>
-                </div>
-                <?php endif; ?>
+                <?= render_pagination($page, $total_pages, ['q' => $search ?: null]) ?>
             </div>
 
             <!-- Activity Feed -->
@@ -570,7 +564,7 @@ document.querySelectorAll('.btn-delete-visitor').forEach(el => {
                 fd.append('csrf_token', '<?= $_SESSION['csrf_token'] ?>');
                 fd.append('id', el.dataset.id);
                 fetch('handlers/hapus.php', { method: 'POST', body: fd })
-                    .then(() => location.href = '/ujikom1/admin/?pesan=Log pengunjung dihapus');
+                    .then(() => location.href = '<?= base_url("admin/?pesan=Log pengunjung dihapus") ?>');
             }
         });
     });
@@ -615,7 +609,7 @@ document.querySelectorAll('.btn-tambah-pengunjung').forEach(el => {
                 const fd = new FormData();
                 fd.append('csrf_token', '<?= $_SESSION['csrf_token'] ?>');
                 fd.append('nama', r.value.n); fd.append('no_hp', r.value.h); fd.append('email', r.value.e); fd.append('tanggal', r.value.t); fd.append('website_url', '');
-                fetch('handlers/simpan.php', { method:'POST', body:fd }).then(() => location.href='/ujikom1/admin/?pesan=Data ditambahkan');
+                fetch('handlers/simpan.php', { method:'POST', body:fd }).then(() => location.href='<?= base_url("admin/?pesan=Data ditambahkan") ?>');
             }
         });
     });

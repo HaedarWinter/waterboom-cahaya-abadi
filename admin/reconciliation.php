@@ -4,12 +4,14 @@
  * Rekonsiliasi: Cocokkan Ledger dengan Bank/Bukti Fisik
  */
 require_once __DIR__ . '/../app/init.php';
-enforce_active_session($koneksi);
+global $koneksi;
+require_once __DIR__ . '/../resources/views/components/pagination.php';
+enforce_active_session();
 
 if (!has_canonical_permission('reconciliation.manage')) {
-    header("Location: /ujikom1/admin/?error=Akses ditolak! Hanya Finance Manager yang dapat melakukan rekonsiliasi.");
-    exit;
-}
+     header("Location: " . base_url('admin/?error=Akses ditolak! Hanya Finance Manager yang dapat melakukan rekonsiliasi.'));
+     exit;
+ }
 
 $bulan = $_GET['bulan'] ?? date('m');
 $tahun = $_GET['tahun'] ?? date('Y');
@@ -98,7 +100,7 @@ $total_pages = ceil($total_rows / $per_page);
         <button class="sidebar-toggle">&#9776;</button>
         <div class="header-title">
             <h1 class="page-heading">Rekonsiliasi Pembayaran</h1>
-            <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / <a href="audit_keuangan.php">Keuangan</a> / Rekonsiliasi</span>
+            <span class="breadcrumb"><a href="<?= base_url('admin/') ?>">Dashboard</a> / <a href="audit_keuangan.php">Keuangan</a> / Rekonsiliasi</span>
         </div>
     </header>
 
@@ -213,16 +215,7 @@ $total_pages = ceil($total_rows / $per_page);
                 </table>
             </div>
 
-            <?php if ($total_pages > 1): ?>
-            <div class="pagination">
-                <span class="pagination-info"><?= $offset+1 ?>–<?= min($offset+$per_page, $total_rows) ?> dari <?= $total_rows ?> entri</span>
-                <div class="pagination-btns">
-                    <a href="?page=<?= $page-1 ?>&bulan=<?= $bulan ?>&tahun=<?= $tahun ?>&status=<?= urlencode($status_filter) ?>" class="page-btn <?= $page <= 1 ? 'disabled' : '' ?>">&larr; Sblmny</a>
-                    <span class="page-current"><?= $page ?> / <?= $total_pages ?></span>
-                    <a href="?page=<?= $page+1 ?>&bulan=<?= $bulan ?>&tahun=<?= $tahun ?>&status=<?= urlencode($status_filter) ?>" class="page-btn <?= $page >= $total_pages ? 'disabled' : '' ?>">Brktny &rarr;</a>
-                </div>
-            </div>
-            <?php endif; ?>
+            <?= render_pagination($page, $total_pages, ['bulan' => $bulan, 'tahun' => $tahun, 'status' => $status_filter ?: null]) ?>
         </div>
     </div>
 </main>

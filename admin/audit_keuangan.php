@@ -4,15 +4,17 @@
  * Halaman Audit Keuangan Profesional (Akuntan Pro)
  */
 require_once '../app/init.php';
-enforce_active_session($koneksi);
+global $koneksi;
+require_once __DIR__ . '/../resources/views/components/pagination.php';
+enforce_active_session();
 
 // Skema laporan_keuangan dikelola oleh sql/migration_v3_foundation.sql.
 
 // Cek hak akses: report.finance.view
 if (!has_canonical_permission('report.finance.view')) {
-    header("Location: /ujikom1/admin/?error=Akses ditolak! Anda tidak memiliki izin untuk melihat laporan keuangan.");
-    exit;
-}
+     header("Location: " . base_url('admin/?error=Akses ditolak! Anda tidak memiliki izin untuk melihat laporan keuangan.'));
+     exit;
+ }
 
 $can_manage = has_canonical_permission('ledger.entry_manual');
 
@@ -167,7 +169,7 @@ $kategori_list = ['Reservasi', 'Operasional', 'Gaji Karyawan', 'Pemeliharaan', '
         <button class="sidebar-toggle">&#9776;</button>
         <div class="header-title">
             <h1 class="page-heading">Audit Keuangan</h1>
-            <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / Keuangan</span>
+            <span class="breadcrumb"><a href="<?= base_url('admin/') ?>">Dashboard</a> / Keuangan</span>
         </div>
         <div style="display:flex; gap:10px;">
 <form method="post" action="<?= e(base_url('admin/handlers/legacy_action.php?handler=keuangan')) ?>" style="display:inline">
@@ -350,16 +352,7 @@ $kategori_list = ['Reservasi', 'Operasional', 'Gaji Karyawan', 'Pemeliharaan', '
                 </table>
             </div>
 
-            <?php if ($total_pages > 1): ?>
-            <div class="pagination">
-                <span class="pagination-info"><?= $offset+1 ?>–<?= min($offset+$per_page, $total_rows) ?> dari <?= $total_rows ?> data</span>
-                <div class="pagination-btns">
-                    <a href="?page=<?= $page-1 ?>&bulan=<?= $bulan ?>&tahun=<?= $tahun ?>&q=<?= urlencode($search) ?>&kategori=<?= urlencode($kategori) ?>" class="page-btn <?= $page <= 1 ? 'disabled' : '' ?>">&larr; Sblmny</a>
-                    <span class="page-current"><?= $page ?> / <?= $total_pages ?></span>
-                    <a href="?page=<?= $page+1 ?>&bulan=<?= $bulan ?>&tahun=<?= $tahun ?>&q=<?= urlencode($search) ?>&kategori=<?= urlencode($kategori) ?>" class="page-btn <?= $page >= $total_pages ? 'disabled' : '' ?>">Brktnya &rarr;</a>
-                </div>
-            </div>
-            <?php endif; ?>
+            <?= render_pagination($page, $total_pages, ['bulan' => $bulan, 'tahun' => $tahun, 'q' => $search ?: null, 'kategori' => $kategori ?: null]) ?>
         </div>
     </div>
 </main>

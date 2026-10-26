@@ -5,7 +5,7 @@ Panduan ini menyiapkan demo portfolio di hosting PHP + MySQL gratis. Paket dibua
 ## Status dan target
 
 - Target awal: InfinityFree, mengikuti panduan proyek. Layanan ini menyediakan PHP, MySQL, dan SSL pada paket gratis; cek kembali syarat/fitur di [situs resmi](https://www.infinityfree.com/) saat membuat akun.
-- Deploy harus berada di subfolder `ujikom1` pada `htdocs` (URL berakhir `/ujikom1`). Banyak handler lama masih memakai awalan URL ini.
+- Deploy production berada di root `htdocs` dengan domain langsung ke folder itu (contoh: `https://waterboom.great-site.net/`). `APP_URL` harus berisi origin tanpa subfolder. Subfolder lokal seperti `/ujikom1` tetap didukung oleh `base_url()`.
 - PHP 8.x dengan ekstensi `mysqli` dan `fileinfo`; MySQL/MariaDB.
 - Belum ada akun hosting atau domain demo yang dibuat. Pembuatan akun, database, dan pengisian credential memerlukan pemilik.
 
@@ -24,9 +24,9 @@ Jangan jalankan `demo_data_seeder.sql`: isinya merujuk ID booking lokal dan buka
 ## 2. Unggah aplikasi
 
 1. Jangan unggah folder repository mentah dari Finder/VS Code: folder `.git` saja berisi lebih dari seribu file internal yang tidak diperlukan server. Jalankan `sh scripts/build_upload_package.sh` dari root proyek untuk membuat `waterboom-upload.zip`. Arsip ini hanya memuat file runtime yang dilacak Git, tidak memuat `.git`, `.env` lokal, dump data, tes, atau dokumentasi.
-2. Ekstrak ZIP di komputer sendiri. Gunakan klien FTP desktop seperti FileZilla untuk mengirim isi folder hasil ekstrak ke `htdocs/ujikom1/`. File Manager InfinityFree kurang andal untuk ekstraksi paket dengan banyak file. Ikuti panduan [FTP InfinityFree](https://forum.infinityfree.com/t/how-to-upload-files-with-ftp/49306) dan ambil host, username, serta password FTP dari bagian FTP Details pada panel.
-3. Kirim isi folder paket, bukan folder pembungkusnya. Pastikan `.htaccess` dan folder `public/` berada langsung di `htdocs/ujikom1/`, bukan di subfolder tambahan. Aktifkan tampilan hidden files di klien FTP agar `.htaccess` ikut terkirim.
-4. Buat `.env` di folder `ujikom1` dari `.env.example`. Isi `APP_URL` dengan URL HTTPS situs yang berakhir `/ujikom1`, lalu masukkan credential database dari panel hosting.
+2. Ekstrak ZIP di komputer sendiri. Gunakan klien FTP desktop seperti FileZilla untuk mengirim isi folder hasil ekstrak ke `htdocs/`. File Manager InfinityFree kurang andal untuk ekstraksi paket dengan banyak file. Ikuti panduan [FTP InfinityFree](https://forum.infinityfree.com/t/how-to-upload-files-with-ftp/49306) dan ambil host, username, serta password FTP dari bagian FTP Details pada panel.
+3. Kirim isi folder paket, bukan folder pembungkusnya. Pastikan `.htaccess` dan folder `public/` berada langsung di `htdocs/`, bukan di subfolder tambahan. Aktifkan tampilan hidden files di klien FTP agar `.htaccess` ikut terkirim.
+4. Buat `.env` di folder `htdocs/` dari `.env.example`. Isi `APP_URL` dengan origin HTTPS situs tanpa subfolder, lalu masukkan credential database dari panel hosting.
 5. Buat direktori yang diperlukan aplikasi: `storage/sessions`, `public/assets/berita`, `public/assets/galeri`, `assets/bukti_bayar`, `assets/bukti_keuangan`, dan `assets/tickets`. Gunakan izin standar hosting, biasanya folder `755`; jangan gunakan `777`.
 6. Pastikan `.env` tidak ikut terunggah. Buat file itu langsung di File Manager atau FTP setelah paket aplikasi terkirim; jangan mengubah `.env.example` menjadi tempat secret.
 7. Aktifkan SSL/HTTPS dari panel hosting.
@@ -35,7 +35,7 @@ Contoh konfigurasi (gunakan nilai dari panel hosting; jangan salin contoh litera
 
 ```dotenv
 APP_ENV=demo
-APP_URL=https://nama-situs.example/ujikom1
+APP_URL=https://nama-situs.example
 APP_DEBUG=0
 SIGNED_URL_SECRET=<acak minimal 32 karakter>
 WA_DRIVER=log
@@ -65,14 +65,14 @@ Tidak ada akun super admin publik. Sesi admin demo bersifat baca saja; POST admi
 
 ## 4. Pemeriksaan setelah unggah
 
-- Buka `https://nama-situs.example/ujikom1/health.php`; respons sehat berbentuk `{"status":"ok"}`.
-- Buka `/ujikom1/.env` dan `/ujikom1/app/init.php`; keduanya harus ditolak (403/404), tidak boleh menampilkan isi file.
+- Buka `https://nama-situs.example/health.php`; respons sehat berbentuk `{"status":"ok"}`.
+- Buka `/.env` dan `/app/init.php`; keduanya harus ditolak (403/404), tidak boleh menampilkan isi file.
 - Coba buka halaman utama, reservasi, login, dashboard dan modul keuangan.
 - Pastikan banner Mode Demo tampil. Reservasi, buku tamu, ulasan, unggah bukti, dan semua perubahan admin tidak boleh menyimpan data.
 - Pastikan berkas galeri/aset tidak menghasilkan 404; database baru tidak memiliki foto unggahan lokal, jadi galeri akan menampilkan state kosong sampai aset contoh yang memang boleh dipublikasikan disiapkan.
 
 ## 5. Menambahkan tautan portfolio
 
-Setelah uji pasca-deploy berhasil, gunakan URL HTTPS `/ujikom1/` sebagai tombol **Coba Demo** di card portfolio. Tambahkan keterangan “Mode demo baca saja; WhatsApp disimulasikan.” Jangan menanam melalui iframe.
+Setelah uji pasca-deploy berhasil, gunakan URL HTTPS root domain sebagai tombol **Coba Demo** di card portfolio. Tambahkan keterangan “Mode demo baca saja; WhatsApp disimulasikan.” Jangan menanam melalui iframe.
 
 Situs resmi InfinityFree menyediakan PHP, MySQL, dan SSL gratis, tetapi kuota/fiturnya dapat berubah; periksa kembali sebelum membuat akun. Database free hosting hanya diakses dari skrip PHP di hosting atau phpMyAdmin, bukan dari XAMPP lokal ([panduan koneksi resmi komunitas](https://forum.infinityfree.com/t/unable-to-connect-to-mysql-host-sql305-infinityfree-com-or-sql305-epizy-com/101808)).

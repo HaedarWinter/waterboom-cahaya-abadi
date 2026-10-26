@@ -1,13 +1,13 @@
 <?php
 require_once '../app/init.php';
 check_session_timeout();
-enforce_active_session($koneksi);
+enforce_active_session();
 
 // Pastikan user punya akses mengelola reservasi
 if (!has_canonical_permission('checkin.scan')) {
-    header("Location: /ujikom1/admin/index.php?error=Anda tidak memiliki akses ke fitur ini.");
-    exit;
-}
+     header("Location: " . base_url('admin/index.php?error=Anda tidak memiliki akses ke fitur ini.'));
+     exit;
+ }
 
 $page_title = "Scanner Tiket Premium";
 ?>

@@ -29,18 +29,18 @@ if ($action === 'cek_kuota') {
 // ── SIMPAN RESERVASI BARU ──
 if ($action === 'simpan') {
     if (getenv('APP_ENV') === 'demo') {
-        header('Location: /ujikom1/reservasi.php?demo=read-only');
+        header('Location: ' . base_url('reservasi.php?demo=read-only'));
         exit;
     }
 
     if (!validate_csrf($_POST['csrf_token'] ?? '')) {
-        header("Location: /ujikom1/reservasi.php?error=Token keamanan tidak valid.");
+        header("Location: " . base_url("reservasi.php?error=Token keamanan tidak valid."));
         exit;
     }
     regenerate_csrf();
 
     if (!check_honeypot('website_url') || !check_rate_limit('reservasi')) {
-        header("Location: /ujikom1/reservasi.php?error=Deteksi spam atau terlalu banyak percobaan.");
+        header("Location: " . base_url("reservasi.php?error=Deteksi spam atau terlalu banyak percobaan."));
         exit;
     }
 
@@ -68,7 +68,7 @@ if ($action === 'simpan') {
     $kuota = Reservasi::cekKuota($data['tanggal']);
     if (($data['dewasa'] + $data['anak']) > $kuota['sisa']) {
         $_SESSION['form_reservasi'] = $_POST;
-        header("Location: /ujikom1/reservasi.php?error=Kuota penuh!");
+        header("Location: " . base_url("reservasi.php?error=Kuota penuh!"));
         exit;
     }
 
@@ -80,22 +80,22 @@ if ($action === 'simpan') {
         $msg = "Halo *{$data['nama']}*,\n\nReservasi Anda berhasil diterima! \nKode Booking: *{$kode}*\n\nSilakan lakukan pembayaran sebesar *Rp " . format_harga($data['total_harga']) . "* melalui metode {$data['metode']}.\n\nCek status pesanan Anda di sini:\n" . base_url("cek_booking.php?kode={$kode}");
         WhatsApp::send($data['no_hp'], $msg);
 
-        header("Location: /ujikom1/reservasi.php?sukses=1&kode=$kode");
+        header("Location: " . base_url("reservasi.php?sukses=1&kode=$kode"));
     } elseif ($kode === null) {
         // nil = kuota penuh saat commit (atomic check di model)
         $_SESSION['form_reservasi'] = $_POST;
-        header("Location: /ujikom1/reservasi.php?error=Kuota penuh!");
+        header("Location: " . base_url("reservasi.php?error=Kuota penuh!"));
     } else {
-        header("Location: /ujikom1/reservasi.php?error=Gagal menyimpan reservasi.");
+        header("Location: " . base_url("reservasi.php?error=Gagal menyimpan reservasi."));
     }
     exit;
 }
 
 // Handler Admin lainnya (Update Status, Verifikasi, Tolak, Hapus) menggunakan model yang sama
 if (in_array($action, ['update_status', 'verifikasi_bayar', 'tolak_bayar', 'hapus'])) {
-    if (!isset($_SESSION['login'])) exit(header("Location: /ujikom1/login.php"));
+    if (!isset($_SESSION['login'])) exit(header("Location: " . base_url("login.php")));
     check_session_timeout();
-    if (!validate_csrf($_POST['csrf_token'] ?? '')) exit(header("Location: /ujikom1/admin/reservasi.php?error=Token tidak valid."));
+    if (!validate_csrf($_POST['csrf_token'] ?? '')) exit(header("Location: " . base_url("admin/reservasi.php?error=Token tidak valid.")));
     regenerate_csrf();
 
     $id = (int)($_POST['id'] ?? 0);
@@ -109,17 +109,17 @@ if (in_array($action, ['update_status', 'verifikasi_bayar', 'tolak_bayar', 'hapu
             BookingStateService::DIREFUND,
         ];
         if (!in_array($status, $allowed, true)) {
-            exit(header("Location: /ujikom1/admin/reservasi.php?error=Status tujuan tidak diizinkan."));
+            exit(header("Location: " . base_url("admin/reservasi.php?error=Status tujuan tidak diizinkan.")));
         }
 
         if ($status === BookingStateService::DIBATALKAN && !has_canonical_permission('reservation.cancel')) {
-            exit(header("Location: /ujikom1/admin/reservasi.php?error=Akses ditolak: tidak ada izin pembatalan."));
+            exit(header("Location: " . base_url("admin/reservasi.php?error=Akses ditolak: tidak ada izin pembatalan.")));
         }
         if ($status === BookingStateService::REFUND_DIAJUKAN && !has_canonical_permission('refund.request')) {
-            exit(header("Location: /ujikom1/admin/reservasi.php?error=Akses ditolak: tidak ada izin pengajuan refund."));
+            exit(header("Location: " . base_url("admin/reservasi.php?error=Akses ditolak: tidak ada izin pengajuan refund.")));
         }
         if ($status === BookingStateService::DIREFUND && !has_canonical_permission('refund.approve')) {
-            exit(header("Location: /ujikom1/admin/reservasi.php?error=Akses ditolak: tidak ada izin persetujuan refund."));
+            exit(header("Location: " . base_url("admin/reservasi.php?error=Akses ditolak: tidak ada izin persetujuan refund.")));
         }
 
         $reason = trim($_POST['alasan'] ?? '') ?: null;
@@ -130,17 +130,17 @@ if (in_array($action, ['update_status', 'verifikasi_bayar', 'tolak_bayar', 'hapu
             $_SESSION['role'] ?? null,
             $reason
         );
-        if (!$out['success']) exit(header("Location: /ujikom1/admin/reservasi.php?error=" . urlencode($out['message'])));
+        if (!$out['success']) exit(header("Location: " . base_url("admin/reservasi.php?error=" . urlencode($out['message']))));
 
         Audit::log('UPDATE_STATUS', 'reservasi', $id, "Status diubah ke {$status}. " . ($reason ?? ''));
-        header("Location: /ujikom1/admin/reservasi.php?pesan=Status reservasi diperbarui.");
+        header("Location: " . base_url("admin/reservasi.php?pesan=Status reservasi diperbarui."));
     } elseif ($action === 'verifikasi_bayar') {
         if (!has_canonical_permission('payment.verify')) {
-            exit(header("Location: /ujikom1/admin/reservasi.php?error=Akses ditolak: tidak ada izin verifikasi pembayaran."));
+            exit(header("Location: " . base_url("admin/reservasi.php?error=Akses ditolak: tidak ada izin verifikasi pembayaran.")));
         }
         $rawToken = bin2hex(random_bytes(16));
         $out = BookingStateService::transition($id, BookingStateService::LUNAS, (int)$_SESSION['admin_id'], $_SESSION['role'] ?? null, 'Pembayaran diverifikasi.', $rawToken);
-        if (!$out['success']) exit(header("Location: /ujikom1/admin/reservasi.php?error=" . urlencode($out['message'])));
+        if (!$out['success']) exit(header("Location: " . base_url("admin/reservasi.php?error=" . urlencode($out['message']))));
         Audit::log('VERIFY_PAYMENT', 'reservasi', $id, 'Pembayaran berhasil diverifikasi.');
 
         // ── GENERATE & SEND PDF TICKET ──
@@ -168,14 +168,14 @@ if (in_array($action, ['update_status', 'verifikasi_bayar', 'tolak_bayar', 'hapu
             }
         }
 
-        header("Location: /ujikom1/admin/reservasi.php?pesan=Pembayaran terverifikasi & Tiket telah dikirim!");
+        header("Location: " . base_url("admin/reservasi.php?pesan=Pembayaran terverifikasi & Tiket telah dikirim!"));
     } elseif ($action === 'tolak_bayar') {
         if (!has_canonical_permission('payment.reject')) {
-            exit(header("Location: /ujikom1/admin/reservasi.php?error=Akses ditolak: tidak ada izin penolakan pembayaran."));
+            exit(header("Location: " . base_url("admin/reservasi.php?error=Akses ditolak: tidak ada izin penolakan pembayaran.")));
         }
         $alasan = trim($_POST['alasan'] ?? 'Bukti tidak jelas');
         $out = BookingStateService::transition($id, BookingStateService::DITOLAK, (int)$_SESSION['admin_id'], $_SESSION['role'] ?? null, $alasan);
-        if (!$out['success']) exit(header("Location: /ujikom1/admin/reservasi.php?error=" . urlencode($out['message'])));
+        if (!$out['success']) exit(header("Location: " . base_url("admin/reservasi.php?error=" . urlencode($out['message']))));
         Audit::log('REJECT_PAYMENT', 'reservasi', $id, "Pembayaran ditolak. Alasan: $alasan");
 
         // WhatsApp Notification: Rejected
@@ -185,12 +185,12 @@ if (in_array($action, ['update_status', 'verifikasi_bayar', 'tolak_bayar', 'hapu
             WhatsApp::send($booking['no_hp'], $msg);
         }
 
-        header("Location: /ujikom1/admin/reservasi.php?pesan=Pembayaran ditolak.");
+        header("Location: " . base_url("admin/reservasi.php?pesan=Pembayaran ditolak."));
     } elseif ($action === 'hapus') {
-        exit(header("Location: /ujikom1/admin/reservasi.php?error=Reservasi tidak boleh dihapus. Gunakan pembatalan agar riwayat tetap utuh."));
+        exit(header("Location: " . base_url("admin/reservasi.php?error=Reservasi tidak boleh dihapus. Gunakan pembatalan agar riwayat tetap utuh.")));
     }
     exit;
 }
 
-header("Location: /ujikom1/");
+header("Location: " . base_url(""));
 exit;

@@ -3,13 +3,15 @@
  * Halaman Admin: Kelola Reservasi
  */
 require_once '../app/init.php';
+global $koneksi;
+require_once __DIR__ . '/../resources/views/components/pagination.php';
 use App\Services\BookingStateService;
 check_session_timeout();
-enforce_active_session($koneksi);
+enforce_active_session();
 
 // Cek hak akses: reservation.view
 if (!has_canonical_permission('reservation.view')) {
-    header("Location: /ujikom1/admin/?error=Anda tidak memiliki hak akses untuk melihat data reservasi.");
+    header("Location: " . base_url('admin/?error=Anda tidak memiliki hak akses untuk melihat data reservasi.'));
     exit;
 }
 
@@ -243,26 +245,7 @@ $stats_revenue = $koneksi->query("SELECT SUM(total_harga) as s FROM reservasi WH
                 </table>
             </div>
 
-            <?php if ($total_pages > 1): ?>
-            <div class="pagination">
-                <span class="pagination-info">
-                    <?= $offset + 1 ?>–<?= min($offset + $per_page, $total) ?> dari <?= $total ?> data
-                </span>
-                <div class="pagination-btns">
-                    <a href="<?= $page > 1 ? '?page=' . ($page - 1) . '&status=' . $filter_status . '&q=' . urlencode($search) : '#' ?>" 
-                       class="page-btn <?= $page <= 1 ? 'disabled' : '' ?>"
-                       <?= $page <= 1 ? 'onclick="return false;"' : '' ?>>
-                        &larr; Sebelumnya
-                    </a>
-                    <span class="page-current"><?= $page ?> / <?= $total_pages ?></span>
-                    <a href="<?= $page < $total_pages ? '?page=' . ($page + 1) . '&status=' . $filter_status . '&q=' . urlencode($search) : '#' ?>" 
-                       class="page-btn <?= $page >= $total_pages ? 'disabled' : '' ?>"
-                       <?= $page >= $total_pages ? 'onclick="return false;"' : '' ?>>
-                        Berikutnya &rarr;
-                    </a>
-                </div>
-            </div>
-            <?php endif; ?>
+            <?= render_pagination($page, $total_pages, ['status' => $filter_status ?: null, 'q' => $search ?: null]) ?>
         </div>
 
     </div>

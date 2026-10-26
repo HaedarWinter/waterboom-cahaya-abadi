@@ -16,7 +16,7 @@ function check_session_timeout() {
             session_unset();
             session_destroy();
             session_start(); // start baru buat flash message
-            header("Location: /ujikom1/login.php?error=Sesi Anda telah berakhir karena tidak aktif selama 30 menit. Silakan login kembali.");
+            header("Location: " . base_url('login.php') . "?error=Sesi Anda telah berakhir karena tidak aktif selama 30 menit. Silakan login kembali.");
             exit;
         }
     }
@@ -29,7 +29,7 @@ function check_session_timeout() {
 // tamu yang punya session kosong (timeout & status-check tidak berlaku).
 function require_admin($koneksi = null) {
     if (!isset($_SESSION['admin_id'])) {
-        header("Location: /ujikom1/login.php?error=Silakan login terlebih dahulu.");
+        header("Location: " . base_url('login.php') . "?error=Silakan login terlebih dahulu.");
         exit;
     }
     check_session_timeout();
@@ -52,7 +52,7 @@ function enforce_active_session($koneksi = null) {
         if (!$res || $res['status'] === 'Nonaktif') {
             session_unset();
             session_destroy();
-            header("Location: /ujikom1/login.php?error=Akun Anda telah dinonaktifkan atau tidak ditemukan.");
+            header("Location: " . base_url('login.php') . "?error=Akun Anda telah dinonaktifkan atau tidak ditemukan.");
             exit;
         }
     }
@@ -140,12 +140,11 @@ function check_rate_limit($form_name = 'default') {
 function has_canonical_permission(string $permission): bool {
     if (!isset($_SESSION['admin_id'])) return false;
 
-    // Fallback: Super Admin legacy gets all permissions
     if (isset($_SESSION['role']) && $_SESSION['role'] === 'Super Admin') {
         return true;
     }
 
-    global $koneksi;
+    $koneksi = \App\Core\Database::getInstance()->getConnection();
     $stmt = $koneksi->prepare(
         'SELECT 1 FROM admin a
          JOIN role_permissions rp ON rp.role_id = a.role_id

@@ -4,12 +4,14 @@
  * Laporan Buku Kas (Ledger Entries) berbasis Single Source of Truth
  */
 require_once '../app/init.php';
-enforce_active_session($koneksi);
+global $koneksi;
+require_once __DIR__ . '/../resources/views/components/pagination.php';
+enforce_active_session();
 
 if (!has_canonical_permission('ledger.view')) {
-    header("Location: /ujikom1/admin/?error=Akses ditolak! Anda tidak memiliki izin untuk melihat buku kas.");
-    exit;
-}
+     header("Location: " . base_url('admin/?error=Akses ditolak! Anda tidak memiliki izin untuk melihat buku kas.'));
+     exit;
+ }
 
 $bulan = $_GET['bulan'] ?? date('m');
 $tahun = $_GET['tahun'] ?? date('Y');
@@ -110,7 +112,7 @@ $categories = ['TIKET', 'KODE_UNIK', 'REFUND', 'BIAYA_OPERASIONAL', 'KOREKSI', '
         <button class="sidebar-toggle">&#9776;</button>
         <div class="header-title">
             <h1 class="page-heading">Buku Kas (Ledger)</h1>
-            <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / <a href="audit_keuangan.php">Keuangan</a> / Buku Kas</span>
+            <span class="breadcrumb"><a href="<?= base_url('admin/') ?>">Dashboard</a> / <a href="audit_keuangan.php">Keuangan</a> / Buku Kas</span>
         </div>
         <div style="display:flex; gap:10px;">
 <form method="post" action="<?= e(base_url("admin/handlers/legacy_action.php?handler=buku_kas")) ?>" style="display:inline">
@@ -249,16 +251,7 @@ $categories = ['TIKET', 'KODE_UNIK', 'REFUND', 'BIAYA_OPERASIONAL', 'KOREKSI', '
                 </table>
             </div>
 
-            <?php if ($total_pages > 1): ?>
-            <div class="pagination">
-                <span class="pagination-info"><?= $offset+1 ?>–<?= min($offset+$per_page, $total_rows) ?> dari <?= $total_rows ?> entri</span>
-                <div class="pagination-btns">
-                    <a href="?page=<?= $page-1 ?>&bulan=<?= $bulan ?>&tahun=<?= $tahun ?>&kategori=<?= urlencode($kategori) ?>&direction=<?= urlencode($direction) ?>&q=<?= urlencode($search) ?>" class="page-btn <?= $page <= 1 ? 'disabled' : '' ?>">&larr; Sblmny</a>
-                    <span class="page-current"><?= $page ?> / <?= $total_pages ?></span>
-                    <a href="?page=<?= $page+1 ?>&bulan=<?= $bulan ?>&tahun=<?= $tahun ?>&kategori=<?= urlencode($kategori) ?>&direction=<?= urlencode($direction) ?>&q=<?= urlencode($search) ?>" class="page-btn <?= $page >= $total_pages ? 'disabled' : '' ?>">Brktnya &rarr;</a>
-                </div>
-            </div>
-            <?php endif; ?>
+            <?= render_pagination($page, $total_pages, ['bulan' => $bulan, 'tahun' => $tahun, 'kategori' => $kategori ?: null, 'direction' => $direction ?: null, 'q' => $search ?: null]) ?>
         </div>
     </div>
 </main>

@@ -23,5 +23,5 @@ Audit::log('LOGOUT', 'admin', $_SESSION['admin_id'] ?? null, 'Admin telah logout
 session_destroy();
 
 // abis kehapus, usernya dilempar balik ke halaman paling depan (index.php)
-header("Location: ../?pesan=Berhasil logout. Sampai jumpa!");
+header("Location: " . base_url('?pesan=Berhasil logout. Sampai jumpa!'));
 exit;

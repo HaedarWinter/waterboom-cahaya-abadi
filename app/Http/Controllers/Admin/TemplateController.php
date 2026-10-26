@@ -65,6 +65,6 @@ class TemplateController {
         ]);
 
         $_SESSION['flash'] = 'Template berhasil diperbarui.';
-        header("Location: /ujikom1/admin/templates.php");
+        header("Location: " . base_url('admin/templates.php'));
     }
 }

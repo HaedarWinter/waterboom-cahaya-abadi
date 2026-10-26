@@ -3,25 +3,44 @@
  * Halaman Admin: Kelola Berita & Event
  */
 require_once '../app/init.php';
+global $koneksi;
+require_once __DIR__ . '/../resources/views/components/pagination.php';
 check_session_timeout();
-enforce_active_session($koneksi);
+enforce_active_session();
 
 if (!has_canonical_permission('content.news.manage')) {
-    header("Location: /ujikom1/admin/?error=Akses ditolak! Anda tidak memiliki izin untuk mengelola Berita.");
+    header("Location: " . base_url('admin/?error=Akses ditolak! Anda tidak memiliki izin untuk mengelola Berita.'));
     exit;
 }
 
-// Pagination
+// Search & Pagination
+$search   = trim($_GET['q'] ?? '');
 $per_page = 5;
-$page = max(1, (int)($_GET['page'] ?? 1));
-$offset = ($page - 1) * $per_page;
+$page     = max(1, (int)($_GET['page'] ?? 1));
+$offset   = ($page - 1) * $per_page;
 
-$total_res = $koneksi->query("SELECT COUNT(*) as total FROM berita");
-$total = $total_res->fetch_assoc()['total'];
+if ($search !== '') {
+    $like = '%' . $search . '%';
+    $cnt_stmt = $koneksi->prepare("SELECT COUNT(*) as total FROM berita WHERE judul LIKE ?");
+    $cnt_stmt->bind_param("s", $like);
+    $cnt_stmt->execute();
+    $total = $cnt_stmt->get_result()->fetch_assoc()['total'];
+} else {
+    $total_res = $koneksi->query("SELECT COUNT(*) as total FROM berita");
+    $total = $total_res->fetch_assoc()['total'];
+}
 $total_pages = max(1, ceil($total / $per_page));
 
 // Data
-$result = $koneksi->query("SELECT * FROM berita ORDER BY created_at DESC LIMIT $per_page OFFSET $offset");
+if ($search !== '') {
+    $like = '%' . $search . '%';
+    $stmt = $koneksi->prepare("SELECT * FROM berita WHERE judul LIKE ? ORDER BY created_at DESC LIMIT ? OFFSET ?");
+    $stmt->bind_param("sii", $like, $per_page, $offset);
+    $stmt->execute();
+    $result = $stmt->get_result();
+} else {
+    $result = $koneksi->query("SELECT * FROM berita ORDER BY created_at DESC LIMIT $per_page OFFSET $offset");
+}
 
 // Edit mode
 $edit_data = null;
@@ -54,7 +73,7 @@ if (isset($_GET['edit'])) {
         <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
         <div class="header-title">
             <h1 class="page-heading">Kelola Berita & Event</h1>
-            <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / Berita</span>
+            <span class="breadcrumb"><a href="<?= base_url('admin/') ?>">Dashboard</a> / Berita</span>
         </div>
         <a href="logout.php?token=<?= e(csrf_token()) ?>" class="header-logout swal-logout"><i data-lucide="log-out"></i><span>Keluar</span></a>
     </header>
@@ -177,22 +196,7 @@ if (isset($_GET['edit'])) {
                 </table>
             </div>
 
-            <?php if ($total_pages > 1): ?>
-            <div class="pagination">
-                <span class="pagination-info">
-                    <?= $offset + 1 ?>–<?= min($offset + $per_page, $total) ?> dari <?= $total ?> data
-                </span>
-                <div class="pagination-btns">
-                    <a href="<?= $page > 1 ? '?page='.($page-1).($search ? '&q='.urlencode($search) : '') : '#' ?>" 
-                       class="page-btn <?= $page <= 1 ? 'disabled' : '' ?>"
-                       <?= $page <= 1 ? 'onclick="return false;"' : '' ?>>&larr; Sebelumnya</a>
-                    <span class="page-current"><?= $page ?> / <?= $total_pages ?></span>
-                    <a href="<?= $page < $total_pages ? '?page='.($page+1).($search ? '&q='.urlencode($search) : '') : '#' ?>" 
-                       class="page-btn <?= $page >= $total_pages ? 'disabled' : '' ?>"
-                       <?= $page >= $total_pages ? 'onclick="return false;"' : '' ?>>Berikutnya &rarr;</a>
-                </div>
-            </div>
-            <?php endif; ?>
+            <?= render_pagination($page, $total_pages, ['q' => $search ?: null]) ?>
         </div>
 
     </div>

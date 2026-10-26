@@ -3,13 +3,14 @@
  * Halaman Kelola Galeri — Upload, Edit, Hapus Foto
  */
 require_once '../app/init.php';
-enforce_active_session($koneksi);
+global $koneksi;
+enforce_active_session();
 
 // Cek hak akses: gallery.view
 if (!has_canonical_permission('content.gallery.manage')) {
-    header("Location: /ujikom1/admin/?error=Anda tidak memiliki hak akses untuk melihat galeri.");
-    exit;
-}
+     header("Location: " . base_url('admin/?error=Anda tidak memiliki hak akses untuk melihat galeri.'));
+     exit;
+ }
 
 // Ambil semua data galeri
 $result = $koneksi->query("SELECT * FROM galeri ORDER BY urutan ASC, id DESC");
@@ -33,7 +34,7 @@ $result = $koneksi->query("SELECT * FROM galeri ORDER BY urutan ASC, id DESC");
         <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
         <div class="header-title">
             <h1 class="page-heading">Kelola Galeri</h1>
-            <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / Kelola Galeri</span>
+            <span class="breadcrumb"><a href="<?= base_url('admin/') ?>">Dashboard</a> / Kelola Galeri</span>
         </div>
         <a href="logout.php?token=<?= e(csrf_token()) ?>" class="header-logout swal-logout">
             <i data-lucide="log-out"></i>

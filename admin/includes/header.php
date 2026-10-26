@@ -17,7 +17,7 @@ $recent_notifs = $db->query("SELECT id, kode_booking, nama, created_at FROM rese
     <div class="header-title">
         <h1 class="page-heading"><?= $page_title ?? 'Dashboard' ?></h1>
         <div class="breadcrumb">
-            <a href="/ujikom1/admin/">Dashboard</a> 
+            <a href="<?= base_url('admin/') ?>">Dashboard</a> 
             <?= isset($breadcrumb) ? ' / ' . $breadcrumb : '' ?>
         </div>
     </div>
@@ -47,7 +47,7 @@ $recent_notifs = $db->query("SELECT id, kode_booking, nama, created_at FROM rese
                         </div>
                     <?php else: ?>
                         <?php foreach($recent_notifs as $n): ?>
-                            <a href="/ujikom1/admin/reservasi.php?q=<?= $n['kode_booking'] ?>" class="notif-item">
+                            <a href="<?= base_url('admin/reservasi.php?q=' . $n['kode_booking']) ?>" class="notif-item">
                                 <div class="notif-item-icon"><i data-lucide="calendar-plus"></i></div>
                                 <div class="notif-item-body">
                                     <div class="notif-item-title">Booking Baru: <strong><?= e($n['kode_booking']) ?></strong></div>
@@ -56,7 +56,7 @@ $recent_notifs = $db->query("SELECT id, kode_booking, nama, created_at FROM rese
                                 </div>
                             </a>
                         <?php endforeach; ?>
-                        <a href="/ujikom1/admin/reservasi.php?status=MENUNGGU_VERIFIKASI" class="notif-view-all">Lihat Semua Reservasi Menunggu Verifikasi</a>
+                        <a href="<?= base_url('admin/reservasi.php?status=MENUNGGU_VERIFIKASI') ?>" class="notif-view-all">Lihat Semua Reservasi Menunggu Verifikasi</a>
                     <?php endif; ?>
                 </div>
             </div>

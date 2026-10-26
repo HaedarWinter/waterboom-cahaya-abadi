@@ -1,0 +1,18 @@
+<?php
+/**
+ * Database Configuration Fallback
+ * 
+ * Copy this file to config/database.php and fill in your production credentials.
+ * This file is gitignored and will NOT be committed.
+ * 
+ * Used as fallback when environment variables are not set (e.g., shared hosting).
+ */
+
+return [
+    'host' => 'your-database-host',
+    'port' => 3306,
+    'database' => 'your-database-name',
+    'user' => 'your-database-user',
+    'password' => 'your-database-password',
+    'charset' => 'utf8mb4',
+];

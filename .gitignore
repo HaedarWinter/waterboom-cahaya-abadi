@@ -12,6 +12,7 @@ public/assets/galeri/*
 .env.test
 .env
 !.env.example
+config/database.php
 storage/
 /waterboom-upload.zip
 /waterboom-upload/

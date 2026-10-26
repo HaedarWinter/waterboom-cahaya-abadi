@@ -7,7 +7,7 @@ session_start();
 
 // Proteksi: hanya admin yang bisa export
 if (!isset($_SESSION['login'])) {
-    header("Location: /ujikom1/login.php?error=Silakan login terlebih dahulu!");
+    header("Location: " . base_url("login.php?error=Silakan login terlebih dahulu!"));
     exit;
 }
 
@@ -29,7 +29,7 @@ if (getenv('APP_ENV') === 'demo') {
 
 // ─── PROTEKSI PERMISSION ───
 if (!has_canonical_permission('guestbook.moderate')) {
-    header("Location: /ujikom1/admin/?error=Anda tidak memiliki izin untuk mengekspor data.");
+    header("Location: " . base_url("admin/?error=Anda tidak memiliki izin untuk mengekspor data."));
     exit;
 }
 
@@ -168,6 +168,6 @@ if ($type === 'pdf') {
 }
 
 // Fallback: type tidak dikenali
-header("Location: /ujikom1/admin/?error=Format export tidak valid.");
+header("Location: " . base_url("admin/?error=Format export tidak valid."));
 exit;
 ?>

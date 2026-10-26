@@ -9,7 +9,7 @@ use App\Models\Audit;
 
 // penjaga gawang: kalo misalnya ga dikirim lewat method POST dari form (misal orang iseng nembak url), diusir balik ke halaman login
 if (!isset($_POST['username']) || !isset($_POST['password'])) {
-    header("Location: /ujikom1/login.php");
+    header("Location: " . base_url('login.php'));
     exit; // usir
 }
 
@@ -32,13 +32,13 @@ $attempts = $res ? $res->fetch_assoc()['attempts'] : 0;
 
 if ($attempts >= 5) {
     Audit::log('LOGIN_BLOCKED', null, null, "Percobaan login diblokir karena terlalu banyak kegagalan untuk: $login_username");
-    header("Location: /ujikom1/login.php?error=Terlalu banyak percobaan gagal. Silakan coba lagi dalam 15 menit.");
+    header("Location: " . base_url('login.php?error=Terlalu banyak percobaan gagal. Silakan coba lagi dalam 15 menit.'));
     exit;
 }
 
 // ─── VALIDASI CSRF TOKEN ───
 if (!validate_csrf($_POST['csrf_token'] ?? '')) {
-    header('Location: /ujikom1/login.php?error=Token keamanan tidak valid. Silakan coba lagi.');
+    header('Location: ' . base_url('login.php?error=Token keamanan tidak valid. Silakan coba lagi.'));
     return;
 }
 regenerate_csrf();
@@ -71,7 +71,7 @@ $result = $stmt->get_result();
         if (password_verify($password, $db_pass)) {
         // Cek status aktif
         if ($row['status'] === 'Nonaktif') {
-            header("Location: /ujikom1/login.php?error=Akun Anda telah dinonaktifkan. Silakan hubungi Super Admin.");
+            header("Location: " . base_url('login.php?error=Akun Anda telah dinonaktifkan. Silakan hubungi Super Admin.'));
             exit;
         }
         // BERHASIL: Bersihkan percobaan login yang gagal
@@ -93,7 +93,7 @@ $result = $stmt->get_result();
 
         Audit::log('LOGIN', 'admin', $row['id'], 'Admin berhasil login.');
 
-        header("Location: /ujikom1/admin/?pesan=Login berhasil! Selamat datang, " . htmlspecialchars($username) . ".");
+        header("Location: " . base_url('admin/?pesan=Login berhasil! Selamat datang, ' . htmlspecialchars($username) . '.'));
         exit;
     }
 }
@@ -109,6 +109,6 @@ $stmt_fail->bind_param("ss", $ip, $login_username);
 $stmt_fail->execute();
 
 Audit::log('LOGIN_FAIL', null, null, "Percobaan login gagal untuk username: $login_username");
-header("Location: /ujikom1/login.php?error=Username atau password salah!");
+header("Location: " . base_url('login.php?error=Username atau password salah!'));
 exit;
 ?>

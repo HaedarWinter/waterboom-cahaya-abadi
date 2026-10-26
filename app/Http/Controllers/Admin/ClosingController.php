@@ -52,10 +52,10 @@ class ClosingController {
             try {
                 $result = $this->service->performClosing($date, $accountId, $_SESSION['user_id'] ?? 0, $physicalCash, $note);
                 $_SESSION['flash'] = 'Tutup harian berhasil. Periode dikunci.';
-                header("Location: /ujikom1/admin/closings.php");
+                header("Location: " . base_url("admin/closings.php"));
             } catch (\Throwable $e) {
                 $_SESSION['error'] = $e->getMessage();
-                header("Location: /ujikom1/admin/closings.php?view=form");
+                header("Location: " . base_url("admin/closings.php?view=form"));
             }
             return;
         }
@@ -80,6 +80,6 @@ class ClosingController {
             $_SESSION['error'] = $e->getMessage();
         }
 
-        header("Location: /ujikom1/admin/closings.php");
+        header("Location: " . base_url("admin/closings.php"));
     }
 }

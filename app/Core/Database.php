@@ -22,6 +22,19 @@ class Database {
             die('Konfigurasi database test tidak lengkap.');
         }
 
+        if ($host === '' || $database === '' || $user === '') {
+            $fallback = $this->loadFromFile();
+            if ($fallback) {
+                $host = $fallback['host'] ?? $host;
+                $database = $fallback['database'] ?? $database;
+                $user = $fallback['user'] ?? $user;
+                $password = $fallback['password'] ?? $password;
+                if (isset($fallback['port'])) {
+                    $port = (int)$fallback['port'];
+                }
+            }
+        }
+
         if ($host === '' || $database === '' || $user === '' || $port < 1 || $port > 65535) {
             error_log('Database configuration is incomplete.');
             die('Konfigurasi database belum lengkap.');
@@ -52,6 +65,14 @@ class Database {
 
     public function getConnection() {
         return $this->koneksi;
+    }
+
+    private function loadFromFile(): ?array {
+        $filePath = dirname(__DIR__, 2) . '/config/database.php';
+        if (!is_readable($filePath)) {
+            return null;
+        }
+        return include $filePath;
     }
 
     public function begin() {

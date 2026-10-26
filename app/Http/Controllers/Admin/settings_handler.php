@@ -5,7 +5,7 @@
  */
 session_start();
 if (!isset($_SESSION['login'])) {
-    header("Location: /ujikom1/login.php?error=Silakan login terlebih dahulu!");
+    header("Location: " . base_url("login.php?error=Silakan login terlebih dahulu!"));
     exit;
 }
 
@@ -16,26 +16,26 @@ enforce_active_session(\App\Core\Database::getInstance()->getConnection());
 
 // Cek hak akses: settings.manage
 if (!has_canonical_permission('settings.manage')) {
-    header("Location: /ujikom1/admin/pengaturan.php?error=Akses ditolak! Anda tidak memiliki izin untuk mengubah pengaturan.");
+    header("Location: " . base_url("admin/pengaturan.php?error=Akses ditolak! Anda tidak memiliki izin untuk mengubah pengaturan."));
     exit;
 }
 
 // Validasi method POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: /ujikom1/admin/pengaturan.php");
+    header("Location: " . base_url("admin/pengaturan.php"));
     exit;
 }
 
 // Validasi CSRF
 if (!validate_csrf($_POST['csrf_token'] ?? '')) {
-    header("Location: /ujikom1/admin/pengaturan.php?error=Token keamanan tidak valid.");
+    header("Location: " . base_url("admin/pengaturan.php?error=Token keamanan tidak valid."));
     exit;
 }
 regenerate_csrf();
 
 if (getenv('APP_ENV') === 'demo') {
     http_response_code(403);
-    header('Location: /ujikom1/admin/pengaturan.php?error=Pengaturan dinonaktifkan pada mode demo.');
+    header('Location: ' . base_url('admin/pengaturan.php?error=Pengaturan dinonaktifkan pada mode demo.'));
     exit;
 }
 
@@ -82,9 +82,9 @@ foreach ($settings as $key => $value) {
 if ($updated_count > 0) {
     $item_text = $updated_count === 1 ? $updated_labels[0] : implode(', ', $updated_labels);
     $msg = "Berhasil memperbarui: " . $item_text;
-    header("Location: /ujikom1/admin/pengaturan.php?pesan=" . urlencode($msg));
+    header("Location: " . base_url("admin/pengaturan.php?pesan=" . urlencode($msg)));
 } else {
-    header("Location: /ujikom1/admin/pengaturan.php?error=Tidak ada perubahan yang dilakukan.");
+    header("Location: " . base_url("admin/pengaturan.php?error=Tidak ada perubahan yang dilakukan."));
 }
 exit;
 ?>

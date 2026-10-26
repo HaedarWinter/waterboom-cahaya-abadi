@@ -4,13 +4,15 @@
  * Hanya bisa diakses oleh admin yang sudah login
  */
 require_once '../app/init.php';
-enforce_active_session($koneksi);
+global $koneksi;
+require_once __DIR__ . '/../resources/views/components/pagination.php';
+enforce_active_session();
 
 // Pastikan hanya Super Admin yang bisa mengelola ini
 if (!has_canonical_permission('user.manage') || !has_canonical_permission('role.manage')) {
-    header("Location: /ujikom1/admin/?error=Akses ditolak! Halaman ini hanya untuk Super Admin.");
-    exit;
-}
+     header("Location: " . base_url('admin/?error=Akses ditolak! Halaman ini hanya untuk Super Admin.'));
+     exit;
+ }
 $is_super = true;
 
 // Search
@@ -259,7 +261,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
         <div class="header-title">
             <h1 class="page-heading">Kelola Admin</h1>
-            <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / Kelola Admin</span>
+            <span class="breadcrumb"><a href="<?= base_url('admin/') ?>">Dashboard</a> / Kelola Admin</span>
         </div>
         <a href="logout.php?token=<?= e(csrf_token()) ?>" class="header-logout swal-logout">
             <i data-lucide="log-out"></i>
@@ -411,22 +413,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 </table>
             </div>
 
-            <?php if ($total_pages > 1): ?>
-            <div class="pagination">
-                <span class="pagination-info">
-                    <?= $offset + 1 ?>–<?= min($offset + $per_page, $total) ?> dari <?= $total ?> data
-                </span>
-                <div class="pagination-btns">
-                    <a href="<?= $page > 1 ? '?page='.($page-1).($search ? '&q='.urlencode($search) : '') : '#' ?>" 
-                       class="page-btn <?= $page <= 1 ? 'disabled' : '' ?>"
-                       <?= $page <= 1 ? 'onclick="return false;"' : '' ?>>&larr; Sebelumnya</a>
-                    <span class="page-current"><?= $page ?> / <?= $total_pages ?></span>
-                    <a href="<?= $page < $total_pages ? '?page='.($page+1).($search ? '&q='.urlencode($search) : '') : '#' ?>" 
-                       class="page-btn <?= $page >= $total_pages ? 'disabled' : '' ?>"
-                       <?= $page >= $total_pages ? 'onclick="return false;"' : '' ?>>Berikutnya &rarr;</a>
-                </div>
-            </div>
-            <?php endif; ?>
+            <?= render_pagination($page, $total_pages, ['q' => $search ?: null]) ?>
         </div>
 
     </div>

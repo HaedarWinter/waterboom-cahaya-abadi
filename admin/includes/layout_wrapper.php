@@ -11,8 +11,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= isset($page_title) ? $page_title . " — " : "" ?>Cahaya Abadi Admin</title>
     
-    <base href="/ujikom1/">
-    
     <!-- Global CSS -->
     <link rel="stylesheet" href="<?= e(asset_url('assets/dist/css/app.min.css')) ?>">
     <link rel="stylesheet" href="<?= e(asset_url('assets/css/admin_style.css')) ?>">

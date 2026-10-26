@@ -8,7 +8,7 @@ session_start();
 // gerbang keamanan nih, cek kalo belum login tendang lagi ke halaman awal
 // biar orang iseng gabisa asal hapus data lewat url
 if (!isset($_SESSION['login'])) {
-    header("Location: /ujikom1/login.php");
+    header("Location: " . base_url("login.php"));
     exit;
 }
 
@@ -19,19 +19,19 @@ check_session_timeout();
 // ─── HANYA POST (anti link hapus cepak nempel di email/aman CSRF) ───
 // GET tidak boleh mengubah data — patokan standar untuk aksi destruktif.
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: /ujikom1/admin/?error=Metode tidak diizinkan.");
+    header("Location: " . base_url("admin/?error=Metode tidak diizinkan."));
     exit;
 }
 
 // ─── PROTEKSI PERMISSION ───
 if (!has_canonical_permission('guestbook.moderate')) {
-    header("Location: /ujikom1/admin/?error=Anda tidak memiliki izin untuk menghapus data pengunjung.");
+    header("Location: " . base_url("admin/?error=Anda tidak memiliki izin untuk menghapus data pengunjung."));
     exit;
 }
 
 // ─── PROTEKSI CSRF (token satu kali pakai, diset saat render form) ───
 if (!validate_csrf($_POST['csrf_token'] ?? '')) {
-    header("Location: /ujikom1/admin/?error=Token keamanan tidak valid. Silakan coba lagi.");
+    header("Location: " . base_url("admin/?error=Token keamanan tidak valid. Silakan coba lagi."));
     exit;
 }
 
@@ -40,7 +40,7 @@ if (!validate_csrf($_POST['csrf_token'] ?? '')) {
 $id = (int)($_POST['id'] ?? 0);
 
 if ($id <= 0) {
-    header("Location: /ujikom1/admin/?error=ID tidak valid.");
+    header("Location: " . base_url("admin/?error=ID tidak valid."));
     exit;
 }
 
@@ -52,11 +52,11 @@ $hapus = $stmt->execute(); // eksekusi deh
 // ngecek jalannya sukses apa enggak
 if ($hapus) {
     // balik ke dashboard admin bawa pesan keberhasilan → trigger SweetAlert success
-    header("Location: /ujikom1/admin/?pesan=Data berhasil dihapus!");
+    header("Location: " . base_url("admin/?pesan=Data berhasil dihapus!"));
 } else {
     // balik ke dashboard admin bawa pesan gagal → trigger SweetAlert error
     // pake ?error= bukan ?pesan= biar SweetAlert-nya beda (merah, bukan hijau)
-    header("Location: /ujikom1/admin/?error=Gagal menghapus data. Coba lagi.");
+    header("Location: " . base_url("admin/?error=Gagal menghapus data. Coba lagi."));
 }
 exit; // udahan bro
 ?>

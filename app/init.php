@@ -53,7 +53,9 @@ require_once __DIR__ . '/../config/settings_helper.php';
 // Inisialisasi Database Global
 use App\Core\Database;
 $db = Database::getInstance();
-$koneksi = $db->getConnection(); // Tetap sedia untuk kompatibilitas kode lama
+$koneksi = $db->getConnection();
+/** @var \mysqli|bool $koneksi */
+global $koneksi;
 
 /**
  * Global Helper: e()

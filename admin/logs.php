@@ -5,12 +5,14 @@
  * Hanya Super Admin yang bisa mengakses halaman ini
  */
 require_once '../app/init.php';
-enforce_active_session($koneksi);
+global $koneksi;
+require_once __DIR__ . '/../resources/views/components/pagination.php';
+enforce_active_session();
 
 if (!has_canonical_permission('activity.view')) {
-    header("Location: /ujikom1/admin/?error=Halaman Log Aktivitas hanya dapat diakses oleh Super Admin.");
-    exit;
-}
+     header("Location: " . base_url('admin/?error=Halaman Log Aktivitas hanya dapat diakses oleh Super Admin.'));
+     exit;
+ }
 
 // ─── FILTER & PENCARIAN ───
 $search = $_GET['q'] ?? '';
@@ -84,7 +86,7 @@ function get_action_badge($action) {
         <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
         <div class="header-title">
             <h1 class="page-heading">Log Aktivitas Sistem</h1>
-            <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / Audit Logs</span>
+            <span class="breadcrumb"><a href="<?= base_url('admin/') ?>">Dashboard</a> / Audit Logs</span>
         </div>
         <a href="logout.php?token=<?= e(csrf_token()) ?>" class="header-logout swal-logout"><i data-lucide="log-out"></i><span>Keluar</span></a>
     </header>
@@ -152,22 +154,7 @@ function get_action_badge($action) {
                 </table>
             </div>
 
-            <?php if ($total_pages > 1): ?>
-            <div class="pagination">
-                <span class="pagination-info">
-                    <?= $offset + 1 ?>–<?= min($offset + $per_page, $total) ?> dari <?= $total ?> data
-                </span>
-                <div class="pagination-btns">
-                    <a href="<?= $page > 1 ? '?page='.($page-1).'&q='.urlencode($search) : '#' ?>" 
-                       class="page-btn <?= $page <= 1 ? 'disabled' : '' ?>"
-                       <?= $page <= 1 ? 'onclick="return false;"' : '' ?>>&larr; Sblmny</a>
-                    <span class="page-current"><?= $page ?> / <?= $total_pages ?></span>
-                    <a href="<?= $page < $total_pages ? '?page='.($page+1).'&q='.urlencode($search) : '#' ?>" 
-                       class="page-btn <?= $page >= $total_pages ? 'disabled' : '' ?>"
-                       <?= $page >= $total_pages ? 'onclick="return false;"' : '' ?>>Brktny &rarr;</a>
-                </div>
-            </div>
-            <?php endif; ?>
+            <?= render_pagination($page, $total_pages, ['q' => $search ?: null]) ?>
         </div>
 
     </div>

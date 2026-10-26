@@ -52,7 +52,7 @@ class ExpenseController {
         }
 
         if (!$this->schemaReady()) {
-            header('Location: /ujikom1/admin/expenses.php');
+            header('Location: ' . base_url('admin/expenses.php'));
             return;
         }
 
@@ -82,7 +82,7 @@ class ExpenseController {
         ]);
 
         $_SESSION['flash'] = 'Pengeluaran dibuat sebagai draft.';
-        header("Location: /ujikom1/admin/expenses.php?view=show&id=$id");
+        header("Location: " . base_url("admin/expenses.php?view=show&id=$id"));
     }
 
     public function show(): void {
@@ -92,7 +92,7 @@ class ExpenseController {
         }
 
         if (!$this->schemaReady()) {
-            header('Location: /ujikom1/admin/expenses.php');
+            header('Location: ' . base_url('admin/expenses.php'));
             return;
         }
 
@@ -115,7 +115,7 @@ class ExpenseController {
         }
 
         if (!$this->schemaReady()) {
-            header('Location: /ujikom1/admin/expenses.php');
+            header('Location: ' . base_url('admin/expenses.php'));
             return;
         }
 
@@ -127,7 +127,7 @@ class ExpenseController {
             $_SESSION['error'] = $e->getMessage();
         }
 
-        header("Location: /ujikom1/admin/expenses.php?view=show&id=$id");
+        header("Location: " . base_url("admin/expenses.php?view=show&id=$id"));
     }
 
     public function void(): void {
@@ -137,7 +137,7 @@ class ExpenseController {
         }
 
         if (!$this->schemaReady()) {
-            header('Location: /ujikom1/admin/expenses.php');
+            header('Location: ' . base_url('admin/expenses.php'));
             return;
         }
 
@@ -150,7 +150,7 @@ class ExpenseController {
             $_SESSION['error'] = $e->getMessage();
         }
 
-        header("Location: /ujikom1/admin/expenses.php?view=show&id=$id");
+        header("Location: " . base_url("admin/expenses.php?view=show&id=$id"));
     }
 
     private function schemaReady(): bool {

@@ -3,13 +3,15 @@
  * Halaman Admin: Kelola Review & Rating
  */
 require_once '../app/init.php';
-enforce_active_session($koneksi);
+global $koneksi;
+require_once __DIR__ . '/../resources/views/components/pagination.php';
+enforce_active_session();
 check_session_timeout();
 
 if (!has_canonical_permission('review.moderate')) {
-    header("Location: /ujikom1/admin/?error=Akses ditolak! Anda tidak memiliki izin untuk mengelola Review.");
-    exit;
-}
+     header("Location: " . base_url('admin/?error=Akses ditolak! Anda tidak memiliki izin untuk mengelola Review.'));
+     exit;
+ }
 
 // Filter
 $filter_status = $_GET['status'] ?? '';
@@ -74,7 +76,7 @@ $avg_rating     = $koneksi->query("SELECT ROUND(AVG(rating), 1) as avg FROM revi
         <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
         <div class="header-title">
             <h1 class="page-heading">Kelola Review</h1>
-            <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / Review</span>
+            <span class="breadcrumb"><a href="<?= base_url('admin/') ?>">Dashboard</a> / Review</span>
         </div>
         <a href="logout.php?token=<?= e(csrf_token()) ?>" class="header-logout swal-logout"><i data-lucide="log-out"></i><span>Keluar</span></a>
     </header>
@@ -193,26 +195,7 @@ $avg_rating     = $koneksi->query("SELECT ROUND(AVG(rating), 1) as avg FROM revi
                 </table>
             </div>
 
-            <?php if ($total_pages > 1): ?>
-            <div class="pagination">
-                <span class="pagination-info">
-                    <?= $offset + 1 ?>–<?= min($offset + $per_page, $total) ?> dari <?= $total ?> data
-                </span>
-                <div class="pagination-btns">
-                    <a href="<?= $page > 1 ? '?page=' . ($page - 1) . '&status=' . $filter_status . '&q=' . urlencode($search) : '#' ?>" 
-                       class="page-btn <?= $page <= 1 ? 'disabled' : '' ?>"
-                       <?= $page <= 1 ? 'onclick="return false;"' : '' ?>>
-                        &larr; Sebelumnya
-                    </a>
-                    <span class="page-current"><?= $page ?> / <?= $total_pages ?></span>
-                    <a href="<?= $page < $total_pages ? '?page=' . ($page + 1) . '&status=' . $filter_status . '&q=' . urlencode($search) : '#' ?>" 
-                       class="page-btn <?= $page >= $total_pages ? 'disabled' : '' ?>"
-                       <?= $page >= $total_pages ? 'onclick="return false;"' : '' ?>>
-                        Berikutnya &rarr;
-                    </a>
-                </div>
-            </div>
-            <?php endif; ?>
+            <?= render_pagination($page, $total_pages, ['status' => $filter_status ?: null, 'q' => $search ?: null]) ?>
         </div>
 
     </div>

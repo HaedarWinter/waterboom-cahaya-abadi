@@ -1,12 +1,13 @@
 require_once '../app/init.php';
+global $koneksi;
 check_session_timeout();
-enforce_active_session($koneksi);
+enforce_active_session();
 
 // ─── PROTEKSI PERMISSION ───
 if (!has_canonical_permission('guestbook.moderate')) {
-    header("Location: /ujikom1/admin/?error=Anda tidak memiliki izin untuk mengedit data pengunjung.");
-    exit;
-}
+     header("Location: " . base_url('admin/?error=Anda tidak memiliki izin untuk mengedit data pengunjung.'));
+     exit;
+ }
 
 // tangkep data param 'id' dari url, kalo gaada diset aja 0
 $id     = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -18,10 +19,10 @@ $stmt_get->execute();
 $data   = $stmt_get->get_result()->fetch_assoc();
 
 // validasi kalo id admin ngasal ngetik di url dan emg gda datanya
-if (!$data) {
-    header("Location: /ujikom1/admin/?pesan=Data tidak ditemukan.");
-    exit;
-}
+ if (!$data) {
+     header("Location: " . base_url('admin/?pesan=Data tidak ditemukan.'));
+     exit;
+ }
 
 //  PROSES KETIKA TOMBOL SIMPAN DITEKAN 
 // karena kita pakai satu file ini buat nampilin DAN jg nyimpen data,
@@ -71,14 +72,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ok = $stmt_update->execute();
 
     // cek berhasil di tiban / udpate ga
-    if ($ok) {
-        // berhasil? cus balik bawa bingkisan sukses
-        header("Location: /ujikom1/admin/?pesan=Data berhasil diperbarui!");
-    } else {
-        // gagal? reload halaman ini kasi peringatan
-        header("Location: edit.php?id=$id&error=Gagal memperbarui data.");
-    }
-    exit;
+     if ($ok) {
+         // berhasil? cus balik bawa bingkisan sukses
+         header("Location: " . base_url('admin/?pesan=Data berhasil diperbarui!'));
+     } else {
+         // gagal? reload halaman ini kasi peringatan
+         header("Location: edit.php?id=$id&error=Gagal memperbarui data.");
+     }
+     exit;
 }
 ?>
 <!DOCTYPE html>
@@ -105,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
         <div class="header-title">
             <h1 class="page-heading">Edit Data</h1>
-            <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / Edit Pengunjung</span>
+            <span class="breadcrumb"><a href="<?= base_url('admin/') ?>">Dashboard</a> / Edit Pengunjung</span>
         </div>
         <!-- tombol keluar header -->
         <a href="logout.php?token=<?= e(csrf_token()) ?>" class="header-logout swal-logout">
@@ -167,10 +168,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <i data-lucide="save"></i>
                         <span>Simpan Perubahan</span>
                     </button>
-                    <a href="/ujikom1/admin/" class="btn btn-secondary">
-                        <i data-lucide="x-circle"></i>
-                        <span>Batal</span>
-                    </a>
+                    <a href="<?= base_url('admin/') ?>" class="btn btn-secondary">
+                         <i data-lucide="x-circle"></i>
+                         <span>Batal</span>
+                     </a>
                 </div>
             </form>
         </div>

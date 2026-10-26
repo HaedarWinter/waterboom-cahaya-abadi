@@ -34,7 +34,7 @@ if (str_starts_with($currentPath, 'admin/')) {
             header('Content-Type: application/json');
             echo json_encode(['error' => 'Akses ditolak: izin tidak cukup.']);
         } else {
-            header('Location: /ujikom1/admin/?error=Akses ditolak: izin tidak cukup.');
+            header('Location: ' . base_url('admin/?error=Akses ditolak: izin tidak cukup.'));
         }
         exit;
     }

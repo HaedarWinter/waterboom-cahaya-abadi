@@ -7,20 +7,20 @@ require '../../config/koneksi.php';
 require '../../config/security.php';
 
 if (!isset($_SESSION['login'])) {
-    header("Location: /ujikom1/login.php");
+    header("Location: " . base_url("login.php"));
     exit;
 }
 check_session_timeout();
 
 if (!has_canonical_permission('content.faq.manage')) {
-    header("Location: /ujikom1/admin/?error=Akses ditolak!");
+    header("Location: " . base_url("admin/?error=Akses ditolak!"));
     exit;
 }
 
 $action = $_POST['action'] ?? '';
 
 if (!validate_csrf($_POST['csrf_token'] ?? '')) {
-    header("Location: /ujikom1/admin/faq.php?error=Token tidak valid.");
+    header("Location: " . base_url("admin/faq.php?error=Token tidak valid."));
     exit;
 }
 regenerate_csrf();
@@ -32,7 +32,7 @@ if ($action === 'simpan') {
     $urutan     = (int)($_POST['urutan'] ?? 0);
 
     if (empty($pertanyaan) || empty($jawaban)) {
-        header("Location: /ujikom1/admin/faq.php?error=Pertanyaan dan jawaban wajib diisi!");
+        header("Location: " . base_url("admin/faq.php?error=Pertanyaan dan jawaban wajib diisi!"));
         exit;
     }
 
@@ -40,9 +40,9 @@ if ($action === 'simpan') {
     $stmt->bind_param("ssi", $pertanyaan, $jawaban, $urutan);
 
     if ($stmt->execute()) {
-        header("Location: /ujikom1/admin/faq.php?pesan=FAQ berhasil ditambahkan!");
+        header("Location: " . base_url("admin/faq.php?pesan=FAQ berhasil ditambahkan!"));
     } else {
-        header("Location: /ujikom1/admin/faq.php?error=Gagal menyimpan FAQ.");
+        header("Location: " . base_url("admin/faq.php?error=Gagal menyimpan FAQ."));
     }
     exit;
 }
@@ -55,7 +55,7 @@ if ($action === 'update') {
     $urutan     = (int)($_POST['urutan'] ?? 0);
 
     if (empty($pertanyaan) || empty($jawaban)) {
-        header("Location: /ujikom1/admin/faq.php?error=Pertanyaan dan jawaban wajib diisi!");
+        header("Location: " . base_url("admin/faq.php?error=Pertanyaan dan jawaban wajib diisi!"));
         exit;
     }
 
@@ -63,9 +63,9 @@ if ($action === 'update') {
     $stmt->bind_param("ssii", $pertanyaan, $jawaban, $urutan, $id);
 
     if ($stmt->execute()) {
-        header("Location: /ujikom1/admin/faq.php?pesan=FAQ berhasil diperbarui!");
+        header("Location: " . base_url("admin/faq.php?pesan=FAQ berhasil diperbarui!"));
     } else {
-        header("Location: /ujikom1/admin/faq.php?error=Gagal memperbarui FAQ.");
+        header("Location: " . base_url("admin/faq.php?error=Gagal memperbarui FAQ."));
     }
     exit;
 }
@@ -76,9 +76,9 @@ if ($action === 'toggle_aktif') {
     $stmt = \App\Core\Database::getInstance()->getConnection()->prepare("UPDATE faq SET aktif = IF(aktif='Ya','Tidak','Ya') WHERE id = ?");
     $stmt->bind_param("i", $id);
     if ($stmt->execute()) {
-        header("Location: /ujikom1/admin/faq.php?pesan=Status FAQ berhasil diubah!");
+        header("Location: " . base_url("admin/faq.php?pesan=Status FAQ berhasil diubah!"));
     } else {
-        header("Location: /ujikom1/admin/faq.php?error=Gagal mengubah status.");
+        header("Location: " . base_url("admin/faq.php?error=Gagal mengubah status."));
     }
     exit;
 }
@@ -89,13 +89,13 @@ if ($action === 'hapus') {
     $stmt = \App\Core\Database::getInstance()->getConnection()->prepare("DELETE FROM faq WHERE id = ?");
     $stmt->bind_param("i", $id);
     if ($stmt->execute()) {
-        header("Location: /ujikom1/admin/faq.php?pesan=FAQ berhasil dihapus!");
+        header("Location: " . base_url("admin/faq.php?pesan=FAQ berhasil dihapus!"));
     } else {
-        header("Location: /ujikom1/admin/faq.php?error=Gagal menghapus FAQ.");
+        header("Location: " . base_url("admin/faq.php?error=Gagal menghapus FAQ."));
     }
     exit;
 }
 
-header("Location: /ujikom1/admin/faq.php");
+header("Location: " . base_url("admin/faq.php"));
 exit;
 ?>

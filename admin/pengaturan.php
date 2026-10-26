@@ -4,13 +4,14 @@
  * Hanya Super Admin yang bisa mengakses
  */
 require_once '../app/init.php';
-enforce_active_session($koneksi);
+global $koneksi;
+enforce_active_session();
 
 // Cek hak akses: settings.manage
 if (!has_canonical_permission('settings.manage')) {
-    header("Location: /ujikom1/admin/?error=Akses ditolak! Anda tidak memiliki izin untuk mengubah pengaturan.");
-    exit;
-}
+     header("Location: " . base_url('admin/?error=Akses ditolak! Anda tidak memiliki izin untuk mengubah pengaturan.'));
+     exit;
+ }
 
 // Ambil semua settings, kelompokkan per kategori
 $result = $koneksi->query("SELECT * FROM settings ORDER BY kategori, setting_key");
@@ -50,7 +51,7 @@ $kategori_labels = [
         <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
         <div class="header-title">
             <h1 class="page-heading">Pengaturan Website</h1>
-            <span class="breadcrumb"><a href="/ujikom1/admin/">Dashboard</a> / Pengaturan</span>
+            <span class="breadcrumb"><a href="<?= base_url('admin/') ?>">Dashboard</a> / Pengaturan</span>
         </div>
         <a href="logout.php?token=<?= e(csrf_token()) ?>" class="header-logout swal-logout">
             <i data-lucide="log-out"></i>
@@ -107,9 +108,9 @@ $kategori_labels = [
             <?php endforeach; ?>
 
             <div style="display:flex; gap:.75rem; justify-content:flex-end; padding-top:.5rem;">
-                <a href="/ujikom1/admin/" class="btn btn-secondary">
-                    <i data-lucide="x-circle"></i> Batal
-                </a>
+                 <a href="<?= base_url('admin/') ?>" class="btn btn-secondary">
+                     <i data-lucide="x-circle"></i> Batal
+                 </a>
                 <button type="submit" class="btn">
                     <i data-lucide="save"></i> Simpan Pengaturan
                 </button>

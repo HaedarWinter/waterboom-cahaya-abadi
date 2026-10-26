@@ -29,7 +29,7 @@ if (!check_honeypot('website_url')) {
 
 // ─── RATE LIMITING ───
 if (!check_rate_limit('guestbook')) {
-    header("Location: /ujikom1/?error=Terlalu banyak pengiriman. Silakan tunggu beberapa menit sebelum mencoba lagi.");
+    header("Location: " . base_url('?error=Terlalu banyak pengiriman. Silakan tunggu beberapa menit sebelum mencoba lagi.'));
     exit;
 }
 
@@ -43,7 +43,7 @@ $tanggal = $_POST['tanggal'];
 if (empty($nama) || empty($no_hp) || empty($email) || empty($tanggal)) {
     $_SESSION['form_data'] = $_POST; // simpan inputan user ke memori biar ga capek ngetik ulang
     // kalo ada yg bolong, kita lempar balik ke halaman form terus kasih tau errornya
-    header("Location: /ujikom1/?error=Semua data harus diisi!");
+    header("Location: " . base_url('?error=Semua data harus diisi!'));
     exit;
 }
 
@@ -53,7 +53,7 @@ if (empty($nama) || empty($no_hp) || empty($email) || empty($tanggal)) {
 $email_pattern = '/^[a-zA-Z0-9][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/';
 if ($email !== '-' && !preg_match($email_pattern, $email)) {
     $_SESSION['form_data'] = $_POST;
-    header("Location: /ujikom1/?error=Format email tidak valid (Harus dimulai dengan huruf/angka atau gunakan '-')!");
+    header("Location: " . base_url('?error=Format email tidak valid (Harus dimulai dengan huruf/angka atau gunakan \'-\')!'));
     exit;
 }
 
@@ -61,7 +61,7 @@ if ($email !== '-' && !preg_match($email_pattern, $email)) {
 // kita pastikan nomor HP yang diinput ga kependekan (minimal 10 angka)
 if (strlen($no_hp) < 10) {
     $_SESSION['form_data'] = $_POST; // simpan ke memori
-    header("Location: /ujikom1/?error=Nomor HP minimal harus 10 digit!");
+    header("Location: " . base_url('?error=Nomor HP minimal harus 10 digit!'));
     exit; // stop eksekusi, usir balik ke form
 }
 
@@ -78,7 +78,7 @@ $tgl_sekarang = time();
 if ($tgl_input < $tgl_sekarang) {
     $_SESSION['form_data'] = $_POST; // simpan memori
     // usir balik ke form dengan pesan error yang jelas
-    header("Location: /ujikom1/?error=Waktu reservasi tidak boleh di masa lalu!");
+    header("Location: " . base_url('?error=Waktu reservasi tidak boleh di masa lalu!'));
     exit; // wajib exit biar kode bawahnya ga ikut jalan
 }
 
@@ -91,11 +91,11 @@ $simpan = $stmt->execute();
 if ($simpan) {
     unset($_SESSION['form_data']); // hapus memori form karena udah berhasil
     // kalo beres, balik ke index terus kasih tau pengunjung kalo datanya udah mendarat
-    header("Location: /ujikom1/?pesan=Data berhasil disimpan! Terima kasih sudah mengisi buku tamu.");
+    header("Location: " . base_url('?pesan=Data berhasil disimpan! Terima kasih sudah mengisi buku tamu.'));
 } else {
     $_SESSION['form_data'] = $_POST; // simpan memori jaga-jaga kalau db nya tewas
     // kalo ada trouble di db
-    header("Location: /ujikom1/?error=Gagal menyimpan data, coba lagi.");
+    header("Location: " . base_url('?error=Gagal menyimpan data, coba lagi.'));
 }
 
 // stop kodenya sampe sini aja, wajib dikasi exit setiap abis mainin header location

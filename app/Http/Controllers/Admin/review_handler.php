@@ -9,23 +9,23 @@ $action = $_POST['action'] ?? '';
 // ── SIMPAN REVIEW BARU (dari halaman publik) ──
 if ($action === 'simpan') {
     if (getenv('APP_ENV') === 'demo') {
-        header('Location: /ujikom1/?demo=read-only#testimoni');
+        header('Location: ' . base_url('?demo=read-only#testimoni'));
         exit;
     }
 
 if (!validate_csrf($_POST['csrf_token'] ?? '')) {
-        header("Location: /ujikom1/index.php?error_review=Token keamanan tidak valid.#testimoni");
+        header("Location: " . base_url("index.php?error_review=Token keamanan tidak valid.#testimoni"));
         exit;
     }
     regenerate_csrf();
 
     if (!check_honeypot('website_url')) {
-        header("Location: /ujikom1/index.php?pesan_review=Terima kasih atas ulasan Anda!#testimoni");
+        header("Location: " . base_url("index.php?pesan_review=Terima kasih atas ulasan Anda!#testimoni"));
         exit;
     }
 
     if (!check_rate_limit('review')) {
-        header("Location: /ujikom1/index.php?error_review=Terlalu banyak pengiriman. Silakan tunggu beberapa menit.#testimoni");
+        header("Location: " . base_url("index.php?error_review=Terlalu banyak pengiriman. Silakan tunggu beberapa menit.#testimoni"));
         exit;
     }
 
@@ -34,12 +34,12 @@ if (!validate_csrf($_POST['csrf_token'] ?? '')) {
     $ulasan = trim($_POST['ulasan'] ?? '');
 
     if (empty($nama)) {
-        header("Location: /ujikom1/index.php?error_review=Nama wajib diisi!#testimoni");
+        header("Location: " . base_url("index.php?error_review=Nama wajib diisi!#testimoni"));
         exit;
     }
 
     if (empty($ulasan)) {
-        header("Location: /ujikom1/index.php?error_review=Ulasan wajib diisi!#testimoni");
+        header("Location: " . base_url("index.php?error_review=Ulasan wajib diisi!#testimoni"));
         exit;
     }
 
@@ -47,26 +47,26 @@ if (!validate_csrf($_POST['csrf_token'] ?? '')) {
     $stmt->bind_param("sis", $nama, $rating, $ulasan);
 
     if ($stmt->execute()) {
-        header("Location: /ujikom1/index.php?pesan_review=Terima kasih! Ulasan Anda akan ditampilkan setelah disetujui admin.#testimoni");
+        header("Location: " . base_url("index.php?pesan_review=Terima kasih! Ulasan Anda akan ditampilkan setelah disetujui admin.#testimoni"));
     } else {
-        header("Location: /ujikom1/index.php?error_review=Gagal mengirim ulasan. Coba lagi.#testimoni");
+        header("Location: " . base_url("index.php?error_review=Gagal mengirim ulasan. Coba lagi.#testimoni"));
     }
     exit;
 }
 
 // ── ADMIN ACTIONS ──
 if (!isset($_SESSION['login'])) {
-    header("Location: /ujikom1/login.php");
+    header("Location: " . base_url("login.php"));
     exit;
 }
 check_session_timeout();
 if (!has_canonical_permission('review.moderate')) {
-    header("Location: /ujikom1/admin/?error=Akses ditolak.");
+    header("Location: " . base_url("admin/?error=Akses ditolak."));
     exit;
 }
 
 if (!validate_csrf($_POST['csrf_token'] ?? '')) {
-    header("Location: /ujikom1/admin/reviews.php?error=Token tidak valid.");
+    header("Location: " . base_url("admin/reviews.php?error=Token tidak valid."));
     exit;
 }
 regenerate_csrf();
@@ -77,9 +77,9 @@ if ($action === 'approve') {
     $stmt = \App\Core\Database::getInstance()->getConnection()->prepare("UPDATE reviews SET status = 'Approved' WHERE id = ?");
     $stmt->bind_param("i", $id);
     if ($stmt->execute()) {
-        header("Location: /ujikom1/admin/reviews.php?pesan=Review berhasil disetujui!");
+        header("Location: " . base_url("admin/reviews.php?pesan=Review berhasil disetujui!"));
     } else {
-        header("Location: /ujikom1/admin/reviews.php?error=Gagal menyetujui review.");
+        header("Location: " . base_url("admin/reviews.php?error=Gagal menyetujui review."));
     }
     exit;
 }
@@ -90,9 +90,9 @@ if ($action === 'tolak') {
     $stmt = \App\Core\Database::getInstance()->getConnection()->prepare("UPDATE reviews SET status = 'Ditolak' WHERE id = ?");
     $stmt->bind_param("i", $id);
     if ($stmt->execute()) {
-        header("Location: /ujikom1/admin/reviews.php?pesan=Review ditolak.");
+        header("Location: " . base_url("admin/reviews.php?pesan=Review ditolak."));
     } else {
-        header("Location: /ujikom1/admin/reviews.php?error=Gagal menolak review.");
+        header("Location: " . base_url("admin/reviews.php?error=Gagal menolak review."));
     }
     exit;
 }
@@ -103,13 +103,13 @@ if ($action === 'hapus') {
     $stmt = \App\Core\Database::getInstance()->getConnection()->prepare("DELETE FROM reviews WHERE id = ?");
     $stmt->bind_param("i", $id);
     if ($stmt->execute()) {
-        header("Location: /ujikom1/admin/reviews.php?pesan=Review berhasil dihapus!");
+        header("Location: " . base_url("admin/reviews.php?pesan=Review berhasil dihapus!"));
     } else {
-        header("Location: /ujikom1/admin/reviews.php?error=Gagal menghapus review.");
+        header("Location: " . base_url("admin/reviews.php?error=Gagal menghapus review."));
     }
     exit;
 }
 
-header("Location: /ujikom1/");
+header("Location: " . base_url(""));
 exit;
 ?>

@@ -9,13 +9,13 @@ require '../../config/security.php';
 use App\Models\Audit;
 
 if (!isset($_SESSION['login'])) {
-    header("Location: /ujikom1/login.php");
+    header("Location: " . base_url("login.php"));
     exit;
 }
 check_session_timeout();
 
 if (!has_canonical_permission('content.news.manage')) {
-    header("Location: /ujikom1/admin/?error=Akses ditolak!");
+    header("Location: " . base_url("admin/?error=Akses ditolak!"));
     exit;
 }
 
@@ -23,7 +23,7 @@ $action = $_POST['action'] ?? '';
 $upload_dir = dirname(__DIR__, 4) . '/public/assets/berita/';
 
 if (!validate_csrf($_POST['csrf_token'] ?? '')) {
-    header("Location: /ujikom1/admin/berita.php?error=Token tidak valid.");
+    header("Location: " . base_url("admin/berita.php?error=Token tidak valid."));
     exit;
 }
 regenerate_csrf();
@@ -34,7 +34,7 @@ if ($action === 'simpan') {
     $isi   = trim($_POST['isi'] ?? '');
 
     if (empty($judul) || empty($isi)) {
-        header("Location: /ujikom1/admin/berita.php?error=Judul dan isi berita wajib diisi!");
+        header("Location: " . base_url("admin/berita.php?error=Judul dan isi berita wajib diisi!"));
         exit;
     }
 
@@ -46,22 +46,22 @@ if ($action === 'simpan') {
         finfo_close($finfo);
 
         if (!in_array($mime, $allowed)) {
-            header("Location: /ujikom1/admin/berita.php?error=Format gambar harus JPG, PNG, atau WebP!");
+            header("Location: " . base_url("admin/berita.php?error=Format gambar harus JPG, PNG, atau WebP!"));
             exit;
         }
         if ($_FILES['gambar']['size'] > 3 * 1024 * 1024) {
-            header("Location: /ujikom1/admin/berita.php?error=Ukuran gambar maksimal 3MB!");
+            header("Location: " . base_url("admin/berita.php?error=Ukuran gambar maksimal 3MB!"));
             exit;
         }
 
         $ext = pathinfo($_FILES['gambar']['name'], PATHINFO_EXTENSION);
         $gambar_name = 'berita_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
         if (!is_dir($upload_dir) && !mkdir($upload_dir, 0755, true) && !is_dir($upload_dir)) {
-            header("Location: /ujikom1/admin/berita.php?error=Gagal menyiapkan folder gambar.");
+            header("Location: " . base_url("admin/berita.php?error=Gagal menyiapkan folder gambar."));
             exit;
         }
         if (!move_uploaded_file($_FILES['gambar']['tmp_name'], $upload_dir . $gambar_name)) {
-            header("Location: /ujikom1/admin/berita.php?error=Gagal menyimpan gambar.");
+            header("Location: " . base_url("admin/berita.php?error=Gagal menyimpan gambar."));
             exit;
         }
     }
@@ -72,9 +72,9 @@ if ($action === 'simpan') {
     if ($stmt->execute()) {
         $new_id = \App\Core\Database::getInstance()->getConnection()->insert_id;
         Audit::log('ADD', 'berita', $new_id, "Menambahkan berita baru: $judul");
-        header("Location: /ujikom1/admin/berita.php?pesan=Berita berhasil ditambahkan!");
+        header("Location: " . base_url("admin/berita.php?pesan=Berita berhasil ditambahkan!"));
     } else {
-        header("Location: /ujikom1/admin/berita.php?error=Gagal menyimpan berita.");
+        header("Location: " . base_url("admin/berita.php?error=Gagal menyimpan berita."));
     }
     exit;
 }
@@ -86,7 +86,7 @@ if ($action === 'update') {
     $isi   = trim($_POST['isi'] ?? '');
 
     if (empty($judul) || empty($isi)) {
-        header("Location: /ujikom1/admin/berita.php?error=Judul dan isi berita wajib diisi!");
+        header("Location: " . base_url("admin/berita.php?error=Judul dan isi berita wajib diisi!"));
         exit;
     }
 
@@ -98,11 +98,11 @@ if ($action === 'update') {
         finfo_close($finfo);
 
         if (!in_array($mime, $allowed)) {
-            header("Location: /ujikom1/admin/berita.php?error=Format gambar harus JPG, PNG, atau WebP!");
+            header("Location: " . base_url("admin/berita.php?error=Format gambar harus JPG, PNG, atau WebP!"));
             exit;
         }
         if ($_FILES['gambar']['size'] > 3 * 1024 * 1024) {
-            header("Location: /ujikom1/admin/berita.php?error=Ukuran gambar maksimal 3MB!");
+            header("Location: " . base_url("admin/berita.php?error=Ukuran gambar maksimal 3MB!"));
             exit;
         }
 
@@ -115,11 +115,11 @@ if ($action === 'update') {
         $ext = pathinfo($_FILES['gambar']['name'], PATHINFO_EXTENSION);
         $gambar_name = 'berita_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
         if (!is_dir($upload_dir) && !mkdir($upload_dir, 0755, true) && !is_dir($upload_dir)) {
-            header("Location: /ujikom1/admin/berita.php?error=Gagal menyiapkan folder gambar.");
+            header("Location: " . base_url("admin/berita.php?error=Gagal menyiapkan folder gambar."));
             exit;
         }
         if (!move_uploaded_file($_FILES['gambar']['tmp_name'], $upload_dir . $gambar_name)) {
-            header("Location: /ujikom1/admin/berita.php?error=Gagal menyimpan gambar.");
+            header("Location: " . base_url("admin/berita.php?error=Gagal menyimpan gambar."));
             exit;
         }
 
@@ -132,9 +132,9 @@ if ($action === 'update') {
 
     if ($stmt->execute()) {
         Audit::log('EDIT', 'berita', $id, "Memperbarui berita: $judul");
-        header("Location: /ujikom1/admin/berita.php?pesan=Berita berhasil diperbarui!");
+        header("Location: " . base_url("admin/berita.php?pesan=Berita berhasil diperbarui!"));
     } else {
-        header("Location: /ujikom1/admin/berita.php?error=Gagal memperbarui berita.");
+        header("Location: " . base_url("admin/berita.php?error=Gagal memperbarui berita."));
     }
     exit;
 }
@@ -146,9 +146,9 @@ if ($action === 'toggle_aktif') {
     $stmt->bind_param("i", $id);
     if ($stmt->execute()) {
         Audit::log('TOGGLE', 'berita', $id, "Mengubah status aktif berita.");
-        header("Location: /ujikom1/admin/berita.php?pesan=Status berita berhasil diubah!");
+        header("Location: " . base_url("admin/berita.php?pesan=Status berita berhasil diubah!"));
     } else {
-        header("Location: /ujikom1/admin/berita.php?error=Gagal mengubah status.");
+        header("Location: " . base_url("admin/berita.php?error=Gagal mengubah status."));
     }
     exit;
 }
@@ -166,13 +166,13 @@ if ($action === 'hapus') {
     $stmt->bind_param("i", $id);
     if ($stmt->execute()) {
         Audit::log('DELETE', 'berita', $id, "Menghapus berita permanen.");
-        header("Location: /ujikom1/admin/berita.php?pesan=Berita berhasil dihapus!");
+        header("Location: " . base_url("admin/berita.php?pesan=Berita berhasil dihapus!"));
     } else {
-        header("Location: /ujikom1/admin/berita.php?error=Gagal menghapus berita.");
+        header("Location: " . base_url("admin/berita.php?error=Gagal menghapus berita."));
     }
     exit;
 }
 
-header("Location: /ujikom1/admin/berita.php");
+header("Location: " . base_url("admin/berita.php"));
 exit;
 ?>

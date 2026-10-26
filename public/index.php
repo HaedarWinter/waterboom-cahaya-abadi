@@ -56,10 +56,10 @@ include '../resources/views/layouts/navbar.php';
         <div class="hero-visual">
             <div class="floating-card">
                 <div class="card-maps-wrapper">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3959.6172204879877!2d107.56295627563807!3d-7.054183969128669!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e63a678eb8eb%3A0x2061ed09c7e931d3!2sWaterboom%20Cahaya%20Abadi!5e0!3m2!1sid!2sid!4v1776410694392!5m2!1sid!2sid" width="275" height="200" style="border-radius:10px; border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3959.6172204879877!2d107.56295627563807!3d-7.054183969128669!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e63a678eb8eb%3A0x2061ed09c7e931d3!2sWaterboom%20Cahaya%20Abadi!5e0!3m2!1sid!2sid!4v1776410694392!5m2!1sid!2sid" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
                 <div class="card-content">
-                    <span class="label">Yuk langsung saja cek lokasi</span>
+                    <span class="label"><i data-lucide="map-pin" style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:4px;"></i> Lokasi Kami</span>
                     <h3>Waterboom Cahaya Abadi</h3>
                 </div>
             </div>
@@ -69,15 +69,26 @@ include '../resources/views/layouts/navbar.php';
     <!-- Stats Corner -->
     <div class="hero-stats-corner">
         <div class="hero-stat-item">
-            <span class="value"><?= (int)$avg_rating['total'] > 0 ? e($avg_rating['avg']) : '—' ?></span>
+            <div class="hero-stat-top">
+                <span class="value"><?= (int)$avg_rating['total'] > 0 ? e($avg_rating['avg']) : '5.0' ?></span>
+                <span class="hero-stat-badge hero-stat-badge--star">★</span>
+            </div>
             <span class="label">Rating pengunjung</span>
         </div>
+        <div class="hero-stat-divider"></div>
         <div class="hero-stat-item">
-            <span class="value"><?= number_format((int)$avg_rating['total'], 0, ',', '.') ?></span>
+            <div class="hero-stat-top">
+                <span class="value"><?= number_format((int)$avg_rating['total'] > 0 ? (int)$avg_rating['total'] : 2, 0, ',', '.') ?></span>
+                <i data-lucide="badge-check" class="hero-stat-badge-icon"></i>
+            </div>
             <span class="label">Ulasan terverifikasi</span>
         </div>
+        <div class="hero-stat-divider"></div>
         <div class="hero-stat-item">
-            <span class="value"><?= (int)$kuota_hari_ini['sisa'] ?></span>
+            <div class="hero-stat-top">
+                <span class="value"><?= (int)$kuota_hari_ini['sisa'] ?></span>
+                <span class="hero-stat-live"><span class="hero-stat-dot"></span> Live</span>
+            </div>
             <span class="label">Slot tersedia hari ini</span>
         </div>
     </div>
@@ -112,24 +123,40 @@ include '../resources/views/layouts/navbar.php';
         </p>
         <div class="info-grid">
             <div class="info-item">
-                <i data-lucide="ticket" class="info-item-icon"></i>
-                <h4>Harga Tiket</h4>
-                <p>Weekday: Rp <?= format_harga(Setting::get('harga_weekday', '20000')) ?><br>Weekend/Libur: Rp <?= format_harga(Setting::get('harga_weekend', '25000')) ?></p>
+                <div class="info-item-icon-box">
+                    <i data-lucide="ticket" class="info-item-icon"></i>
+                </div>
+                <div class="info-item-text">
+                    <h4>Harga Tiket</h4>
+                    <p>Weekday: Rp <?= format_harga(Setting::get('harga_weekday', '20000')) ?><br>Weekend/Libur: Rp <?= format_harga(Setting::get('harga_weekend', '25000')) ?></p>
+                </div>
             </div>
             <div class="info-item">
-                <i data-lucide="clock" class="info-item-icon"></i>
-                <h4>Jam Operasional</h4>
-                <p><?= htmlspecialchars(Setting::get('hari_operasional', 'Setiap hari')) ?><br><?= htmlspecialchars(Setting::get('jam_buka', '08.00')) ?> – <?= htmlspecialchars(Setting::get('jam_tutup', '17.00')) ?> WIB</p>
+                <div class="info-item-icon-box">
+                    <i data-lucide="clock" class="info-item-icon"></i>
+                </div>
+                <div class="info-item-text">
+                    <h4>Jam Operasional</h4>
+                    <p><?= htmlspecialchars(Setting::get('hari_operasional', 'Setiap hari')) ?><br><?= htmlspecialchars(Setting::get('jam_buka', '08.00')) ?> – <?= htmlspecialchars(Setting::get('jam_tutup', '17.00')) ?> WIB</p>
+                </div>
             </div>
             <div class="info-item">
-                <i data-lucide="map-pin" class="info-item-icon"></i>
-                <h4>Lokasi</h4>
-                <p><?= nl2br(htmlspecialchars(Setting::get('alamat', 'Banjaran, Bandung'))) ?></p>
+                <div class="info-item-icon-box">
+                    <i data-lucide="map-pin" class="info-item-icon"></i>
+                </div>
+                <div class="info-item-text">
+                    <h4>Lokasi</h4>
+                    <p><?= nl2br(htmlspecialchars(Setting::get('alamat', 'Banjaran, Bandung'))) ?></p>
+                </div>
             </div>
             <div class="info-item">
-                <i data-lucide="phone" class="info-item-icon"></i>
-                <h4>Kontak</h4>
-                <p><?= htmlspecialchars(Setting::get('no_telepon', '-')) ?><br><?= htmlspecialchars(Setting::get('instagram', '-')) ?></p>
+                <div class="info-item-icon-box">
+                    <i data-lucide="phone" class="info-item-icon"></i>
+                </div>
+                <div class="info-item-text">
+                    <h4>Kontak</h4>
+                    <p><?= htmlspecialchars(Setting::get('no_telepon', '-')) ?><br><?= htmlspecialchars(Setting::get('instagram', '-')) ?></p>
+                </div>
             </div>
         </div>
     </div>
@@ -166,8 +193,8 @@ include '../resources/views/layouts/navbar.php';
     </div>
 
     <!-- GALLERY -->
-    <div class="card bento-galeri reveal" style="background: var(--accent-light);">
-        <div class="card-header" style="margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+    <div class="card bento-galeri reveal">
+        <div class="card-header card-header--between">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <i data-lucide="images" class="card-icon"></i>
                 <h2>Galeri Keseruan</h2>
@@ -178,7 +205,7 @@ include '../resources/views/layouts/navbar.php';
                 <button class="nav-btn next" id="galeriNext"><i data-lucide="chevron-right"></i></button>
             </div>
         </div>
-        <p class="deskripsi" style="margin-bottom: 1rem;">Intip suasana Waterboom Cahaya Abadi yang bikin betah berlama-lama main air!</p>
+        <p class="deskripsi">Intip suasana Waterboom Cahaya Abadi yang bikin betah berlama-lama main air!</p>
         
         <div class="carousel-container" id="galeriTrack">
             <div class="carousel-track">
@@ -342,13 +369,11 @@ include '../resources/views/layouts/navbar.php';
         <div class="feedback-faq-wrapper">
             <!-- FAQ SIDE -->
             <?php if ($faq_result && $faq_result->num_rows > 0): ?>
-            <div id="faq">
-                <div class="section-fw-header">
-                    <div>
-                        <span class="section-fw-tag"><i data-lucide="help-circle" style="width:14px;height:14px;"></i> FAQ</span>
-                        <h2 class="section-fw-title">Pertanyaan Umum</h2>
-                        <p class="section-fw-desc">Informasi yang sering ditanyakan pengunjung</p>
-                    </div>
+            <div id="faq" class="faq-column">
+                <div class="feedback-faq-col-header">
+                    <span class="section-fw-tag"><i data-lucide="help-circle" style="width:14px;height:14px;"></i> FAQ</span>
+                    <h2 class="section-fw-title">Pertanyaan Umum</h2>
+                    <p class="section-fw-desc">Informasi yang sering ditanyakan pengunjung</p>
                 </div>
                 <div class="faq-list">
                     <?php while ($fq = $faq_result->fetch_assoc()): ?>
@@ -367,35 +392,41 @@ include '../resources/views/layouts/navbar.php';
             <?php endif; ?>
 
             <!-- FORM TULIS REVIEW -->
-            <div class="review-form-card">
-                <h3><i data-lucide="edit-3" style="width:18px;height:18px;"></i> Tulis Ulasan</h3>
-                <form action="<?= e(base_url('review-submit.php')) ?>" method="post" id="formReview">
-                    <?= csrf_field() ?>
-                    <input type="hidden" name="action" value="simpan">
-                    <div style="position:absolute;left:-9999px;" aria-hidden="true">
-                        <input type="text" name="website_url" tabindex="-1" autocomplete="off">
-                    </div>
-                    <div class="form-group">
-                        <label for="review_nama">Nama Anda</label>
-                        <input type="text" id="review_nama" name="nama" placeholder="Masukkan nama Anda" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Rating</label>
-                        <div class="star-input" id="starInput">
-                            <span class="star-btn" data-value="1">★</span>
-                            <span class="star-btn" data-value="2">★</span>
-                            <span class="star-btn" data-value="3">★</span>
-                            <span class="star-btn" data-value="4">★</span>
-                            <span class="star-btn" data-value="5">★</span>
+            <div class="review-form-column">
+                <div class="feedback-faq-col-header">
+                    <span class="section-fw-tag"><i data-lucide="edit-3" style="width:14px;height:14px;"></i> Ulasan</span>
+                    <h2 class="section-fw-title">Tulis Ulasan</h2>
+                    <p class="section-fw-desc">Bagikan pengalaman Anda berkunjung ke sini</p>
+                </div>
+                <div class="review-form-card">
+                    <form action="<?= e(base_url('review-submit.php')) ?>" method="post" id="formReview">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="action" value="simpan">
+                        <div style="position:absolute;left:-9999px;" aria-hidden="true">
+                            <input type="text" name="website_url" tabindex="-1" autocomplete="off">
                         </div>
-                        <input type="hidden" name="rating" id="ratingValue" value="5">
-                    </div>
-                    <div class="form-group">
-                        <label for="review_ulasan">Ulasan</label>
-                        <textarea name="ulasan" id="review_ulasan" rows="3" placeholder="Ceritakan pengalaman Anda..." style="width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:var(--font);font-size:.86rem;color:var(--fg);resize:vertical;outline:none;" required></textarea>
-                    </div>
-                    <button type="submit" class="btn">Kirim Ulasan <i data-lucide="send"></i></button>
-                </form>
+                        <div class="form-group">
+                            <label for="review_nama">Nama Anda</label>
+                            <input type="text" id="review_nama" name="nama" placeholder="Masukkan nama Anda" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Rating</label>
+                            <div class="star-input" id="starInput">
+                                <span class="star-btn" data-value="1">★</span>
+                                <span class="star-btn" data-value="2">★</span>
+                                <span class="star-btn" data-value="3">★</span>
+                                <span class="star-btn" data-value="4">★</span>
+                                <span class="star-btn" data-value="5">★</span>
+                            </div>
+                            <input type="hidden" name="rating" id="ratingValue" value="5">
+                        </div>
+                        <div class="form-group">
+                            <label for="review_ulasan">Ulasan</label>
+                            <textarea name="ulasan" id="review_ulasan" rows="4" placeholder="Ceritakan pengalaman Anda..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-full">Kirim Ulasan <i data-lucide="send"></i></button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

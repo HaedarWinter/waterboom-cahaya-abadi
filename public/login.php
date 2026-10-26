@@ -3,7 +3,7 @@ require_once __DIR__ . '/../app/init.php';
 // kalo misal ternyata dia udah login sblumnya (session loginnya = true)
 // yaudah langsung diculik bawa aja ke halaman admin.php gausah suruh login lagi cape
 if (isset($_SESSION['login'])) {
-    header("Location: /ujikom1/admin/");
+    header("Location: " . base_url("admin/"));
     exit;
 }
 
