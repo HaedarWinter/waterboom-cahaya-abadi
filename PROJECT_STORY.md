@@ -25,7 +25,7 @@ highlight_metric:
   label_id: "temuan keamanan Critical/High terbuka setelah audit & hardening"
   label_en: "open Critical/High security findings after audit & hardening"
 links:
-  live: ""
+  live: "https://waterboom.great-site.net/"
   repo: "https://github.com/HaedarWinter/waterboom-cahaya-abadi"
   demo_video: ""
   case_study: ""
@@ -36,6 +36,8 @@ cover_image: "/images/projects/waterboom-cahaya-abadi-cover.png"
 
 > **ID:** Sistem reservasi tiket & buku tamu digital untuk Waterboom Cahaya Abadi (Kiangroke, Banjaran, Bandung) — dari form online sampai QR check-in di gerbang.
 > **EN:** Online ticketing & guest book for Waterboom Cahaya Abadi (Kiangroke, Banjaran, Indonesia) — from online form to QR gate check-in.
+>
+> **Demo read-only:** https://waterboom.great-site.net/login.php · `demo_admin` / `demo123` · role `demo_viewer` (hanya izin lihat).
 
 ---
 
@@ -187,20 +189,27 @@ Admin  (dashboard, CRUD, scanner)  ─────┼─→ handlers (POST + CSR
 
 ```bash
 # 1. Clone
-git clone https://github.com/HaedarWinter/waterboom-cahaya-abadi.git ujikom
-cd ujikom
+git clone https://github.com/HaedarWinter/waterboom-cahaya-abadi.git ujikom1
+cd ujikom1
 
 # 2. Jalankan XAMPP: Apache + MySQL
 
-# 3. Import database (phpMyAdmin → Import, atau:)
-mysql -u root < sql/db.sql
-# + migrasi keamanan bila tabel belum ada:
-# mysql -u root < sql/migration_v2.sql
+# 3. Copy .env.example -> .env, set APP_ENV=local dan koneksi MySQL XAMPP.
+#    Buat database db_ujikom, lalu import:
+#      database/schema/demo.sql
+#    Jalankan seeder:
+#      database/seeders/roles_permissions_seeder.sql
+#      database/seeders/demo_accounts_seeder.sql
+#      database/seeders/demo_cash_account_seeder.sql
+#      database/seeders/demo_viewer_account_seeder.sql
 
-# 4. Akses
-#   Public: http://localhost/ujikom/
-#   Admin:  http://localhost/ujikom/login.php
-# Akun seed: lihat sql/db.sql — segera ganti password default.
+# 4. Build CSS bundle
+php scripts/build_assets.php --minify
+
+# 5. Akses
+#   Public: http://localhost/ujikom1/
+#   Admin:  http://localhost/ujikom1/login.php
+#   Demo read-only: demo_admin / demo123
 ```
 
 **Prasyarat / Requirements:** PHP ≥ 8, MySQL/MariaDB, XAMPP (atau LAMP); ekstensi `fileinfo` dan `curl` aktif; koneksi internet untuk QR API & WhatsApp.
@@ -231,8 +240,9 @@ Waterboom Cahaya Abadi's visitors used to arrive without knowing whether slots r
 
 ## 11. 🔗 Tautan & Kredit / Links & Credits
 
-- 🌐 Live: TODO (belum di-hosting)
+- 🌐 Live demo: https://waterboom.great-site.net/
+- 🔐 Login demo: https://waterboom.great-site.net/login.php · `demo_admin` / `demo123` (read-only)
 - 💻 Repo: https://github.com/HaedarWinter/waterboom-cahaya-abadi
-- 🎥 Demo: TODO
+- 🎥 Demo video: TODO
 - 🙏 Kredit / Credits: Waterboom Cahaya Abadi (venue klien) · FPDF · SweetAlert2 · html5-qrcode · Fonnte
 - 📄 Lisensi / License: All rights reserved

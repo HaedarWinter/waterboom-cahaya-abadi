@@ -19,6 +19,7 @@ unset($_SESSION['login_data']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Admin - Waterboom Cahaya Abadi</title>
+    <link rel="icon" href="<?= e(base_url('favicon.ico')) ?>" type="image/x-icon">
     <script>
         (function() {
             try {
@@ -45,6 +46,11 @@ unset($_SESSION['login_data']);
         <p style="font-size:.8rem; color:var(--accent); font-weight:600; letter-spacing:.5px; text-transform:uppercase; margin-bottom:6px;">Cahaya Abadi</p>
         <h2>Login Administrator</h2>
         <p class="sub">Masukkan akun Anda untuk mengakses panel admin</p>
+
+        <div class="login-demo-hint" role="note">
+            <strong>Akun Demo</strong>
+            <span>Username: <code>demo_admin</code> &middot; Password: <code>demo123</code></span>
+        </div>
 
         <form action="<?= e(base_url('login-submit.php')) ?>" method="post">
             <?= csrf_field() ?>

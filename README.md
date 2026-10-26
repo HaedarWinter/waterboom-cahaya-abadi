@@ -4,6 +4,8 @@
 > **EN:** Online ticketing & guest book for Waterboom Cahaya Abadi (Banjaran, Indonesia) — from online form to QR gate check-in.
 >
 > Status: `prototype` · Repo: https://github.com/HaedarWinter/waterboom-cahaya-abadi · Cerita lengkap: [`PROJECT_STORY.md`](PROJECT_STORY.md) · Laporan audit: [`docs/audit/`](docs/audit/)
+>
+> **Demo:** https://waterboom.great-site.net/login.php · Username `demo_admin` · Password `demo123` · Role read-only (`demo_viewer`).
 
 ---
 
@@ -140,7 +142,8 @@ cd ujikom1
 
 # 3. Copy .env.example menjadi .env, lalu atur APP_ENV=local dan koneksi MySQL XAMPP.
 #    Buat database db_ujikom, lalu import database/schema/demo.sql.
-#    Jalankan seeder: roles_permissions, demo_accounts, demo_cash_account.
+#    Jalankan seeder: roles_permissions, demo_accounts, demo_cash_account,
+#    demo_viewer_account.
 
 # 4. Build CSS bundle
 php scripts/build_assets.php --minify
@@ -152,6 +155,18 @@ php scripts/build_assets.php --minify
 
 **Prasyarat / Requirements:** PHP ≥ 8, MySQL/MariaDB, XAMPP (atau LAMP); ekstensi `fileinfo` + `curl`; internet untuk QR API & WhatsApp.
 Seed menyediakan akun demo berpassword `demo123`; gunakan hanya pada database lokal/demo. `.env` lokal tidak boleh masuk Git. Langkah deploy ada di [docs/Deploy.md](docs/Deploy.md).
+
+**Akun demo read-only / Read-only demo account:**
+
+| Field | Nilai |
+|---|---|
+| URL | https://waterboom.great-site.net/login.php |
+| Username | `demo_admin` |
+| Password | `demo123` |
+| Role | `demo_viewer` |
+| Izin | `dashboard.view`, `reservation.view`, `payment.view`, `quota.view`, `ledger.view`, `report.finance.view`, `activity.view` |
+
+Akun ini tidak punya izin tulis. Untuk memasang di database baru, jalankan `database/seeders/demo_viewer_account_seeder.sql` setelah schema. Seeder bersifat idempoten dan ikut membuat permission yang belum ada.
 
 **Struktur / Structure:**
 
@@ -194,8 +209,9 @@ Waterboom Cahaya Abadi's visitors used to arrive without knowing whether slots r
 
 ## 🙏 11. Tautan & Kredit / Links & Credits
 
-- 🌐 Live: TODO (belum di-hosting)
+- 🌐 Live demo: https://waterboom.great-site.net/
+- 🔐 Login demo: https://waterboom.great-site.net/login.php · `demo_admin` / `demo123`
 - 💻 Repo: https://github.com/HaedarWinter/waterboom-cahaya-abadi
-- 🎥 Demo: TODO
+- 🎥 Demo video: TODO
 - 🙏 Kredit / Credits: Waterboom Cahaya Abadi (venue klien) · FPDF · SweetAlert2 · html5-qrcode · Fonnte
 - 📄 Lisensi / License: All rights reserved

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= isset($page_title) ? $page_title . " - " : "" ?>Waterboom Cahaya Abadi</title>
+    <link rel="icon" href="<?= e(base_url('favicon.ico')) ?>" type="image/x-icon">
     <script>
         (function() {
             try {

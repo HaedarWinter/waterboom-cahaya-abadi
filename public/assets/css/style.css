@@ -1423,6 +1423,31 @@ tbody tr:hover td {
     margin-bottom: 1.5rem;
 }
 
+.login-demo-hint {
+    background: var(--subtle);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    padding: .75rem .9rem;
+    margin-bottom: 1.25rem;
+    text-align: center;
+    font-size: .8rem;
+    color: var(--muted);
+}
+
+.login-demo-hint strong {
+    display: block;
+    color: var(--accent);
+    font-size: .72rem;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.login-demo-hint code {
+    color: var(--fg);
+    font-weight: 700;
+}
+
 /* ── Footer ── */
 footer {
     background: #111;
